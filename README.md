@@ -41,6 +41,7 @@ docker compose up --build
 | API health through nginx | http://localhost:8080/api/health |
 | API directly | http://localhost:5080/health |
 | OpenAPI document (Development) | http://localhost:5080/openapi/v1.json |
+| Account endpoints | `/api/auth/...`, see [docs/accounts-api.md](docs/accounts-api.md) |
 | PostgreSQL | localhost:5432 |
 
 Ports come from `.env`. `docker compose up` waits for PostgreSQL to be healthy before starting the API, and for the API before starting the web app.
@@ -58,6 +59,20 @@ npm --prefix src/web start                    # http://localhost:4200, forwards 
 ```
 
 If the connection string is missing, the API stops at startup with a message naming the setting.
+
+## Database migrations
+
+The schema is managed by EF Core migrations in `src/LogAnalyzer.Infrastructure/Persistence/Migrations`. The API applies pending migrations when it starts. If PostgreSQL is not reachable yet, the API still starts, retries every 5 seconds, and `/health` reports `Unhealthy` until the schema is current.
+
+```bash
+dotnet tool restore                          # once: installs the pinned dotnet-ef
+
+# Add a migration after changing the model
+dotnet ef migrations add <Name> --project src/LogAnalyzer.Infrastructure --startup-project src/LogAnalyzer.Infrastructure
+
+# Roll the local database back to empty (or: docker compose down --volumes)
+dotnet ef database update 0 --project src/LogAnalyzer.Infrastructure --startup-project src/LogAnalyzer.Infrastructure --connection "Host=localhost;Port=5432;Database=loganalyzer;Username=loganalyzer;Password=change-me-local-only"
+```
 
 ## Test
 
@@ -92,12 +107,13 @@ Planned changes, in the order they are archived:
 
 1. `setup-repo-and-ci`: this repository, the local stack and CI (no behavior specs)
 2. `add-analysis-contract`: the output contract and the validation layer
-3. `add-api-skeleton`: ingestion, runs and attempts, against a stand-in model
-4. `add-web-shell`: submit, follow a run, see findings next to the cited lines
-5. `add-claude-integration`: the real model, prompt versions, usage, evals
-6. `add-large-log-support`: collapsing, chunking and merging
-7. `add-input-safety`: redaction, prompt injection and rate limits
-8. `add-attempt-timeline-and-insights`: the validation layer made visible
+3. `add-user-accounts`: registration, sign-in and sessions; every endpoint requires sign-in by default
+4. `add-api-skeleton`: ingestion, runs and attempts, against a stand-in model
+5. `add-web-shell`: submit, follow a run, see findings next to the cited lines
+6. `add-claude-integration`: the real model, prompt versions, usage, evals
+7. `add-large-log-support`: collapsing, chunking and merging
+8. `add-input-safety`: redaction, prompt injection and rate limits
+9. `add-attempt-timeline-and-insights`: the validation layer made visible
 
 Typical loop for one change, in your AI assistant:
 

@@ -5,6 +5,7 @@ namespace LogAnalyzer.IntegrationTests.Health;
 public sealed class HealthEndpointTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
 {
     [Fact]
+    [Trait("Scenario", "user-accounts/health-check-answers-without-a-session")]
     public async Task Health_ReturnsHealthy_WhenDatabaseAnswers()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
