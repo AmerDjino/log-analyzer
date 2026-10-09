@@ -28,7 +28,7 @@ Two existing tests constrain the approach:
 `AddIdentityCore<AppUser>()` with the EF Core stores on an `IdentityUserContext<AppUser, Guid>` (user tables only, no role tables). Passwords are checked with `SignInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true)`, which also counts failures and applies the lock.
 
 Options:
-- `Password.RequiredLength = 12`, every composition rule (digit, upper, lower, non-alphanumeric, unique characters) off.
+- No Identity password validator. The registration endpoint checks the only password rule, its length. Identity's default validator would also refuse a password made only of white space, which that rule allows.
 - `Lockout.MaxFailedAccessAttempts = 5`, `Lockout.DefaultLockoutTimeSpan = 15 minutes`, `Lockout.AllowedForNewUsers = true`.
 - `User.RequireUniqueEmail = true`. The user name is the email address, and `User.AllowedUserNameCharacters` is empty, so every valid address is accepted.
 
@@ -49,20 +49,26 @@ Passwords are stored by Identity's default hasher: PBKDF2 with HMAC-SHA512, a ra
 
 Through nginx these are `/api/auth/...`.
 
-- Registration checks the email address (format, at most 254 characters) and the password length itself before calling `UserManager.CreateAsync`, so each request gets exactly one code, the email address first. A duplicate is recognized from Identity's `DuplicateUserName` and `DuplicateEmail` errors, and from a unique-index violation when two registrations race.
-- Sign-in looks the account up by email address. When there is none, it still verifies the password against a fixed dummy hash, so the response time does not reveal whether the account exists.
+- Registration checks the email address (format, at most 254 characters, no control characters) and the password length itself before calling `UserManager.CreateAsync`, so each request gets exactly one code, the email address first. The address parser accepts a control character escaped in a quoted local part, but SMTP allows none, and PostgreSQL cannot store a NUL. A duplicate is recognized from Identity's `DuplicateUserName` and `DuplicateEmail` errors, and from a unique-index violation when two registrations race.
+- A password's length is counted in Unicode code points, as NIST SP 800-63B asks, so an emoji such as U+1F600 is one character. `string.Length` would count it twice, because a .NET string stores it as two UTF-16 units.
+- Sign-in looks the account up by email address, but only when registration would accept the address. No other address can have an account, and the rule keeps a NUL, which PostgreSQL cannot compare, out of the query. When there is no account, it still verifies the password against a fixed dummy hash, so both answers pay for the slow hash. The two are not equally fast (see Risks).
+- Each route declares its answers with `Produces` and `ProducesProblem`. The handlers return `IResult`, which declares nothing, so without them the OpenAPI document would show a bare 200 for every route.
 
 ### Errors are problem details with a `code`
 
-Every error response is RFC 9457 problem details with a `code` extension member (`EMAIL_TAKEN`, `INVALID_CREDENTIALS`, ...). One table maps each code to its status, title and detail. The planned specs already say "responds 400 with code X"; this change is the first to implement that convention. A wrong password and an unknown email address use the same table entry, which is what makes their answers identical.
+Every error the API reports itself is RFC 9457 problem details with a `code` extension member (`EMAIL_TAKEN`, `INVALID_CREDENTIALS`, ...). One table maps each code to its status, title and detail. The planned specs already say "responds 400 with code X"; this change is the first to implement that convention. A wrong password and an unknown email address use the same table entry, which is what makes their answers identical. Answers the framework produces are problem details without a `code`: 400 for an unreadable body, 404 for an unknown path (with a session; without one, the default rule answers 401 first), 405, 415 and unhandled 500s. So is the 403 the cookie scheme answers when a policy refuses a signed-in user, which no endpoint can trigger yet.
 
 - Alternative: return Identity's error list. Rejected: it exposes framework error names and differs from the planned API's codes.
+
+An unreadable request body (empty or malformed JSON) answers 400: `RouteHandlerOptions.ThrowOnBadRequest` is off. Its Development default throws instead, and the exception handler would turn that into a 500.
+
+- Alternative: map the thrown exception to its status in the exception handler. Rejected: every bad request would still be logged as an unhandled error.
 
 ### A server-side session behind a cookie
 
 A cookie authentication scheme whose `SessionStore` is a ticket store backed by a `user_sessions` table. The cookie carries only the protected session key; the authentication ticket lives in the table. Sign-out deletes the row, so a copied cookie stops working.
 
-Cookie: name `la_session`, `HttpOnly`, always `Secure`, `SameSite=Strict`, path `/`, and no `Expires`, so the browser drops it when it closes. The cookie events answer 401 and 403 with problem details instead of redirecting to a login page.
+Cookie: name `la_session`, `HttpOnly`, always `Secure`, `SameSite=Strict`, path `/`, and no `Expires`, so it is a session cookie that browsers normally drop when they close. Session restore can keep it, so the 8-hour idle limit below still applies. The cookie events answer 401 and 403 with problem details instead of redirecting to a login page.
 
 - Alternative: the default self-contained cookie. Rejected: sign-out cannot invalidate a copied cookie before it expires.
 - Alternative: JWT bearer tokens. Rejected when the change was scoped: page scripts would have to hold the token, and refresh and revocation need their own design. The browser is the only client.
@@ -91,7 +97,7 @@ Routing answers a request that matches a path but not its HTTP method or content
 
 ### Cross-site request protection: SameSite=Strict and JSON-only bodies
 
-Browsers do not send a `SameSite=Strict` cookie on cross-site requests. The account endpoints accept only `application/json`, so a cross-site HTML form gets 415. The API sends no CORS headers, so other origins cannot make a credentialed JSON request.
+Browsers do not send a `SameSite=Strict` cookie on cross-site requests. Registration and sign-in accept only JSON bodies (`application/json` or a `+json` type), so a cross-site HTML form that posts credentials gets 415. Sign-out and `/auth/me` take no body, so for them SameSite=Strict is the only protection. The API sends no CORS headers, so other origins cannot make a credentialed JSON request.
 
 - Alternative: antiforgery tokens. Rejected: an extra round trip and client code for protection that SameSite already provides in every current browser.
 
@@ -106,6 +112,8 @@ Migrations live in `src/LogAnalyzer.Infrastructure/Persistence/Migrations`. `dot
 ### Migrations run at startup without blocking it
 
 A hosted service applies pending migrations when the API starts. Its first attempt runs during startup, so with a reachable database the schema is current before the first request. If that attempt fails, it retries every 5 seconds in the background. `/health` reports `Healthy` only when PostgreSQL answers and migrations are applied. Docker Compose and CI therefore still wait for a usable API, and the API still starts and reports `Unhealthy` when the database is unreachable.
+
+The service derives from `BackgroundService`, which can be stopped twice and after it was disposed. Test hosts do both when they shut down: `WebApplicationFactory` stops the host while the API's own `app.Run()` stops and disposes it on another thread. It is registered before data protection, because hosted services start in registration order and data protection loads its keys at startup from a table the first migration creates.
 
 - Alternative: migrate synchronously before `app.Run()`. Rejected: the API would crash instead of reporting `Unhealthy`, which breaks `HealthEndpointWithoutDatabaseTests`.
 - Alternative: a separate migration container in Docker Compose. Rejected for now: one more service and image for a local stack. Revisit together with deployment.
@@ -126,18 +134,21 @@ The keys that protect the session cookie are stored in PostgreSQL with `PersistK
 
 ### Test setup
 
-Integration tests use the existing `PostgresApiFactory` (one PostgreSQL container per test class) with `https://localhost` as the client base address, so `Secure` cookies are sent back. Each test uses its own email addresses, and tests that depend on time use a `FakeTimeProvider`. Every test carries `[Trait("Scenario", "user-accounts/<scenario-id>")]`.
+Integration tests use the existing `PostgresApiFactory` (one PostgreSQL container per test class) with `https://localhost` as the client base address, so `Secure` cookies are sent back. Each test uses its own email addresses, and tests that depend on time use a `FakeTimeProvider`. Every test that proves a scenario carries `[Trait("Scenario", "user-accounts/<scenario-id>")]`. Tests that pin limits no scenario names carry none; test-plan.md lists them.
 
 ## Risks / Trade-offs
 
 - [Lockout reveals that an account exists: only real accounts answer ACCOUNT_LOCKED] → Accepted. Faking lockout state for unknown addresses costs more than it protects, and registration's EMAIL_TAKEN reveals the same by design.
+- [A wrong password for an existing account answers a few milliseconds later than an unknown email address, because only the first records the failure in the database] → Accepted for the same reason. Measuring it takes many samples, and the fifth failure locks the account.
 - [Anyone who knows an email address can lock that account for 15 minutes] → Accepted for now. Per-client rate limiting in `add-input-safety` reduces it.
 - [No absolute session lifetime: a session used at least every 8 hours never ends] → Revisit in a later change if needed. Sign-out still ends it at any time.
 - [Expired session rows accumulate] → A row is deleted when its expired session is presented. A scheduled cleanup can come later; the table stays small on a local stack.
+- [Routing's 405 and 415 answers run before authorization, so anonymous callers can tell which paths exist: `GET /api/auth/sign-out` answers 405, not 401] → Accepted. Paths are not secrets, and every endpoint still refuses an anonymous request made with its own method and content type.
+- [A JSON body whose `Content-Type` names a charset .NET does not know, such as `charset=bogus`, answers 500: reading it throws an exception that minimal APIs do not turn into 400] → Browsers and the generated client always send UTF-8. Answer 415 in `add-api-skeleton`, which adds more JSON endpoints.
+- [The OpenAPI document describes errors as plain problem details, without the `code` member] → Describe `code` before `add-web-shell` generates the Angular client from the document.
 - [Some browsers, notably Safari, reject `Secure` cookies on `http://localhost`] → Use Chrome, Edge or Firefox for the local stack, or serve it over HTTPS in a later change.
-- [EFCore.NamingConventions may not have a release for EF Core 10] → Map table and column names explicitly in the model configuration instead.
 - [Data-protection keys are stored unencrypted] → Acceptable for the local stack. Encrypting them is production hardening, a non-goal.
 
 ## Migration Plan
 
-The first migration creates the account, session and data-protection key tables in the existing `loganalyzer` database. The API applies it on its next start; nothing else changes in Docker Compose or CI. To roll back on a development machine, run `dotnet ef database update 0` or `docker compose down --volumes`.
+The first migration creates the account, session and data-protection key tables in the existing `loganalyzer` database. The API applies it on its next start; nothing else changes in Docker Compose or CI. To roll back on a development machine, run `docker compose down --volumes`, or the `dotnet ef database update 0` command in the README's "Database migrations" section, which needs its `--project`, `--startup-project` and `--connection` options.

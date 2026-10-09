@@ -106,8 +106,8 @@ The `spec-tdd` workflow is OpenSpec's default `spec-driven` workflow plus a `tes
 Planned changes, in the order they are archived:
 
 1. `setup-repo-and-ci`: this repository, the local stack and CI (no behavior specs)
-2. `add-analysis-contract`: the output contract and the validation layer
-3. `add-user-accounts`: registration, sign-in and sessions; every endpoint requires sign-in by default
+2. `add-user-accounts`: registration, sign-in and sessions; every endpoint requires sign-in by default
+3. `add-analysis-contract`: the output contract and the validation layer
 4. `add-api-skeleton`: ingestion, runs and attempts, against a stand-in model
 5. `add-web-shell`: submit, follow a run, see findings next to the cited lines
 6. `add-claude-integration`: the real model, prompt versions, usage, evals

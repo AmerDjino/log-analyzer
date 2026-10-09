@@ -10,52 +10,39 @@ namespace LogAnalyzer.Infrastructure.Persistence;
 /// database the schema is current before the first request. If it fails, the API still starts (and /health
 /// reports Unhealthy) while further attempts run in the background until one succeeds.
 /// </summary>
+/// <remarks>
+/// Built on <see cref="BackgroundService"/>, which can be stopped twice and after it was disposed. Test hosts do both:
+/// WebApplicationFactory stops the host while the API's own <c>app.Run()</c> stops and disposes it on another thread.
+/// </remarks>
 internal sealed partial class DatabaseMigrator(
     IServiceScopeFactory scopeFactory,
     DatabaseMigrationState state,
-    ILogger<DatabaseMigrator> logger) : IHostedService, IDisposable
+    ILogger<DatabaseMigrator> logger) : BackgroundService
 {
     private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(5);
 
-    private readonly CancellationTokenSource _stopping = new();
-    private Task? _retries;
-
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public override async Task StartAsync(CancellationToken cancellationToken)
     {
         if (!await TryMigrateAsync(cancellationToken))
         {
-            _retries = RetryUntilAppliedAsync(_stopping.Token);
+            // Starts ExecuteAsync, which retries in the background.
+            await base.StartAsync(cancellationToken);
         }
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _stopping.CancelAsync();
-        if (_retries is not null)
+        try
         {
-            await _retries.WaitAsync(cancellationToken);
-        }
-    }
-
-    public void Dispose() => _stopping.Dispose();
-
-    private async Task RetryUntilAppliedAsync(CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            try
+            do
             {
                 await Task.Delay(RetryInterval, stoppingToken);
             }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-
-            if (await TryMigrateAsync(stoppingToken))
-            {
-                return;
-            }
+            while (!await TryMigrateAsync(stoppingToken));
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // The host is stopping.
         }
     }
 
@@ -70,7 +57,8 @@ internal sealed partial class DatabaseMigrator(
             LogApplied(logger);
             return true;
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception)
+            when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             LogFailed(logger, exception, RetryInterval);
             return false;

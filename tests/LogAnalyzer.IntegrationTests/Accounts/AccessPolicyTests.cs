@@ -8,13 +8,14 @@ namespace LogAnalyzer.IntegrationTests.Accounts;
 
 public sealed partial class AccessPolicyTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
 {
-    // The only endpoints the user-accounts spec allows without a session.
-    private static readonly HashSet<string> PublicRoutes =
+    // The only endpoints the user-accounts spec allows without a session, by HTTP method and route pattern,
+    // so a new method on a public path is still checked.
+    private static readonly HashSet<(string Method, string Route)> PublicEndpoints =
     [
-        "/health",
-        "/auth/register",
-        "/auth/sign-in",
-        "/openapi/{documentName}.json",
+        ("GET", "/health"),
+        ("POST", "/auth/register"),
+        ("POST", "/auth/sign-in"),
+        ("GET", "/openapi/{documentName}.json"),
     ];
 
     [Fact]
@@ -26,31 +27,29 @@ public sealed partial class AccessPolicyTests(PostgresApiFactory factory) : ICla
 
         var endpoints = factory.Services.GetRequiredService<EndpointDataSource>().Endpoints
             .OfType<RouteEndpoint>()
-            .Where(endpoint => !PublicRoutes.Contains(Normalize(endpoint.RoutePattern.RawText)))
+            .SelectMany(endpoint => (endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"])
+                .Select(method => (Method: method, Route: Normalize(endpoint.RoutePattern.RawText))))
+            .Where(endpoint => !PublicEndpoints.Contains(endpoint))
             .ToList();
 
-        // Guards against a vacuous pass: /auth/me at least must be checked.
-        Assert.Contains(endpoints, endpoint => Normalize(endpoint.RoutePattern.RawText) == "/auth/me");
+        // Guards against a vacuous pass. Sign-out has no check of its own, so only the default rule can refuse it.
+        Assert.Contains(("POST", "/auth/sign-out"), endpoints);
 
-        foreach (var endpoint in endpoints)
+        foreach (var (method, route) in endpoints)
         {
-            var path = RouteParameter().Replace(Normalize(endpoint.RoutePattern.RawText), Guid.Empty.ToString());
-            var methods = endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"];
-            foreach (var method in methods)
+            var path = RouteParameter().Replace(route, Guid.Empty.ToString());
+            using var request = new HttpRequestMessage(new HttpMethod(method), path);
+            if (method is "POST" or "PUT" or "PATCH")
             {
-                using var request = new HttpRequestMessage(new HttpMethod(method), path);
-                if (method is "POST" or "PUT" or "PATCH")
-                {
-                    request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
-                }
-
-                using var response = await client.SendAsync(request, cancellationToken);
-
-                Assert.True(
-                    response.StatusCode == HttpStatusCode.Unauthorized,
-                    $"{method} {path} answered {(int)response.StatusCode} without a session.");
-                await ProblemAssert.HasCodeAsync(response, HttpStatusCode.Unauthorized, "SIGN_IN_REQUIRED", cancellationToken);
+                request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
             }
+
+            using var response = await client.SendAsync(request, cancellationToken);
+
+            Assert.True(
+                response.StatusCode == HttpStatusCode.Unauthorized,
+                $"{method} {path} answered {(int)response.StatusCode} without a session.");
+            await ProblemAssert.HasCodeAsync(response, HttpStatusCode.Unauthorized, "SIGN_IN_REQUIRED", cancellationToken);
         }
     }
 

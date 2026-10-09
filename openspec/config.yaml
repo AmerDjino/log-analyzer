@@ -18,7 +18,8 @@ context: |
   Tests: xUnit, Testcontainers, WireMock.Net; golden-set evals for behavior that
   depends on model judgment.
   Capabilities: log-ingestion, log-analysis, response-validation, model-gateway,
-  analysis-history, analysis-ui. Reuse these names; do not invent near-duplicates.
+  analysis-history, analysis-ui, user-accounts. Reuse these names; do not invent
+  near-duplicates.
   Non-negotiables: the Claude API key never leaves the backend; no model output
   is stored or shown before it passes validation; counts, time ranges and other
   statistics are computed by code, never by the model.

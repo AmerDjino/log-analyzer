@@ -11,7 +11,9 @@ namespace LogAnalyzer.Api.Accounts;
 /// <summary>The account endpoints under /auth (behind nginx: /api/auth). See docs/accounts-api.md.</summary>
 internal static class AccountEndpoints
 {
-    // Verified when an email address has no account, so the response time does not reveal whether it exists.
+    // Verified when an email address has no account, so that answer also pays for a slow hash. A wrong password for an
+    // existing account still answers a few milliseconds later, because it also records the failure. That is an accepted
+    // risk; see Risks in openspec/changes/archive/2026-10-10-add-user-accounts/design.md.
     private static readonly string DummyPasswordHash =
         new PasswordHasher<AppUser>().HashPassword(new AppUser(), Guid.NewGuid().ToString());
 
@@ -19,11 +21,28 @@ internal static class AccountEndpoints
     {
         var accounts = app.MapGroup("/auth").WithTags("Accounts");
 
-        accounts.MapPost("/register", RegisterAsync).AllowAnonymous();
-        accounts.MapPost("/sign-in", SignInAsync).AllowAnonymous();
+        // Each route declares its answers for the OpenAPI document that the Angular client is generated from.
+        // Handlers that return IResult declare nothing themselves, so the document would show a bare 200.
+        accounts.MapPost("/register", RegisterAsync)
+            .AllowAnonymous()
+            .Produces<AccountResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status415UnsupportedMediaType);
+        accounts.MapPost("/sign-in", SignInAsync)
+            .AllowAnonymous()
+            .Produces<AccountResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status415UnsupportedMediaType);
         // Cast to Delegate: as a plain method group it would bind to the RequestDelegate overload, which ignores the returned 204.
-        accounts.MapPost("/sign-out", (Delegate)SignOutAsync);
-        accounts.MapGet("/me", MeAsync);
+        accounts.MapPost("/sign-out", (Delegate)SignOutAsync)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
+        accounts.MapGet("/me", MeAsync)
+            .Produces<AccountResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         return app;
     }
@@ -38,12 +57,14 @@ internal static class AccountEndpoints
             return AccountErrors.InvalidEmail.ToResult();
         }
 
-        if (password.Length < AccountRules.MinPasswordLength)
+        // Counted in Unicode code points, as NIST SP 800-63B asks. string.Length would count an emoji such as U+1F600 twice.
+        var passwordLength = password.EnumerateRunes().Count();
+        if (passwordLength < AccountRules.MinPasswordLength)
         {
             return AccountErrors.PasswordTooShort.ToResult();
         }
 
-        if (password.Length > AccountRules.MaxPasswordLength)
+        if (passwordLength > AccountRules.MaxPasswordLength)
         {
             return AccountErrors.PasswordTooLong.ToResult();
         }
@@ -90,7 +111,9 @@ internal static class AccountEndpoints
     {
         var email = request.Email?.Trim() ?? string.Empty;
         var password = request.Password ?? string.Empty;
-        var user = email.Length == 0 ? null : await users.FindByEmailAsync(email);
+        // An address registration refuses cannot have an account, so it is not looked up. This also keeps characters
+        // PostgreSQL cannot compare, such as NUL, out of the query.
+        var user = IsValidEmail(email) ? await users.FindByEmailAsync(email) : null;
         if (user is null)
         {
             users.PasswordHasher.VerifyHashedPassword(new AppUser(), DummyPasswordHash, password);
@@ -129,8 +152,11 @@ internal static class AccountEndpoints
             : TypedResults.Ok(new AccountResponse(user.Id, user.Email!));
     }
 
+    // Control characters are refused before parsing: SMTP allows none in an address, PostgreSQL cannot store a NUL, and
+    // the parser accepts one escaped in a quoted local part.
     private static bool IsValidEmail(string email) =>
         email.Length is > 0 and <= AccountRules.MaxEmailLength
+        && !email.Any(char.IsControl)
         && MailAddress.TryCreate(email, out var address)
         && string.Equals(address.Address, email, StringComparison.Ordinal);
 

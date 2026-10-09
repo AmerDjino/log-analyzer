@@ -1,6 +1,9 @@
 namespace LogAnalyzer.Infrastructure.Accounts;
 
-/// <summary>The limits from the user-accounts spec, in one place for the store options and the endpoints.</summary>
+/// <summary>
+/// The limits from the user-accounts spec, in one place for the store options and the endpoints.
+/// Password lengths count Unicode code points, so an emoji is one character.
+/// </summary>
 public static class AccountRules
 {
     public const int MinPasswordLength = 12;

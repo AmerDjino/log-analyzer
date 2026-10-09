@@ -1,10 +1,9 @@
-# Spec Delta
+# user-accounts Specification
 
 ## Purpose
-
 Defines how people create an account, sign in and out, how long a session lasts, and which parts of the API need a signed-in user.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Register an account
 The system SHALL create an account from an email address and a password, and respond 201 with the account's id and email address. The email address MUST be a valid address of at most 254 characters, otherwise the API responds 400 with code INVALID_EMAIL. The email address is the account's sign-in name. Registration MUST NOT start a session.
@@ -85,6 +84,19 @@ The system SHALL start a session when the email address, compared without regard
 - **THEN** the API responds 415
 - **AND** sets no session cookie
 
+### Requirement: Reject unreadable request bodies
+Registration and sign-in SHALL answer a request whose JSON body is empty or malformed with status 400, without creating an account or starting a session.
+
+#### Scenario: Malformed registration body is rejected
+- **WHEN** someone registers with a JSON body that ends before its closing brace
+- **THEN** the API responds 400
+- **AND** no account is created
+
+#### Scenario: Empty sign-in body is rejected
+- **WHEN** someone signs in with an empty JSON body
+- **THEN** the API responds 400
+- **AND** sets no session cookie
+
 ### Requirement: Lock an account after repeated failed sign-ins
 The fifth failed sign-in in a row for one account, and every sign-in to that account in the 15 minutes after it, SHALL be refused with status 403 and code ACCOUNT_LOCKED, even when the password is correct. A successful sign-in MUST reset the count of failed attempts.
 
@@ -136,7 +148,7 @@ Signing out SHALL end the session on the server and expire the session cookie, r
 - **THEN** the API responds 401 with code SIGN_IN_REQUIRED
 
 ### Requirement: End idle sessions
-A session SHALL end once 8 hours pass without a request that uses it, and each request that uses it MUST restart that 8-hour period. A request with an ended session MUST be refused with status 401 and code SIGN_IN_REQUIRED.
+A session SHALL end once 8 hours pass without a request that renews it. A request that uses the session MUST renew it whenever at least a minute has passed since its last renewal, so a session ends at most a minute before 8 hours without use. A request with an ended session MUST be refused with status 401 and code SIGN_IN_REQUIRED.
 
 #### Scenario: Idle session ends after 8 hours
 - **GIVEN** a session last used 8 hours and 1 minute ago
@@ -146,6 +158,11 @@ A session SHALL end once 8 hours pass without a request that uses it, and each r
 #### Scenario: Using a session keeps it alive
 - **GIVEN** a session started at 09:00 and used at 12:00
 - **WHEN** the current user is requested with it at 19:30 the same day
+- **THEN** the API responds 200
+
+#### Scenario: A minute of use renews the session
+- **GIVEN** a session started at 09:00 and used at 09:01
+- **WHEN** the current user is requested with it at 17:00:30 the same day
 - **THEN** the API responds 200
 
 ### Requirement: Require a signed-in user by default

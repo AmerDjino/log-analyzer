@@ -9,10 +9,31 @@ public sealed class AccountsDatabase(string connectionString) : IAsyncDisposable
 
     public ValueTask DisposeAsync() => _dataSource.DisposeAsync();
 
+    public async Task<long> CountAllAccountsAsync(CancellationToken cancellationToken)
+    {
+        await using var command = _dataSource.CreateCommand("SELECT count(*) FROM users");
+        return (long)(await command.ExecuteScalarAsync(cancellationToken))!;
+    }
+
     public async Task<long> CountAccountsAsync(string email, CancellationToken cancellationToken)
     {
         await using var command = Command(
             "SELECT count(*) FROM users WHERE normalized_email = upper(@email)", email);
+        return (long)(await command.ExecuteScalarAsync(cancellationToken))!;
+    }
+
+    public async Task<Guid> ReadIdAsync(string email, CancellationToken cancellationToken)
+    {
+        await using var command = Command(
+            "SELECT id FROM users WHERE normalized_email = upper(@email)", email);
+        return (Guid)(await command.ExecuteScalarAsync(cancellationToken))!;
+    }
+
+    public async Task<long> CountSessionsAsync(string email, CancellationToken cancellationToken)
+    {
+        await using var command = Command(
+            "SELECT count(*) FROM user_sessions s JOIN users u ON u.id = s.user_id WHERE u.normalized_email = upper(@email)",
+            email);
         return (long)(await command.ExecuteScalarAsync(cancellationToken))!;
     }
 

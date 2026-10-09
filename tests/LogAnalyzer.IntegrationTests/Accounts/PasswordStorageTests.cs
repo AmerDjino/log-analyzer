@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+
 namespace LogAnalyzer.IntegrationTests.Accounts;
 
 public sealed class PasswordStorageTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
@@ -34,5 +37,23 @@ public sealed class PasswordStorageTests(PostgresApiFactory factory) : IClassFix
 
         Assert.False(string.IsNullOrEmpty(firstHash));
         Assert.NotEqual(firstHash, secondHash);
+    }
+
+    // "Deliberately slow" has no scenario of its own; this pins the hash that the add-user-accounts design names.
+    [Fact]
+    public async Task StoredHash_UsesPbkdf2WithHmacSha512AndAtLeast100000Iterations()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var accounts = new AccountsClient(factory.CreateClient());
+        await using var database = new AccountsDatabase(factory.ConnectionString);
+        var email = AccountsClient.NewEmail();
+        await accounts.RegisterExistingAsync(email, cancellationToken);
+
+        var hash = Convert.FromBase64String(await database.ReadPasswordHashAsync(email, cancellationToken));
+
+        // Identity's version 3 format: a 0x01 marker, then the PRF, the iteration count and the salt length as big-endian integers.
+        Assert.Equal((byte)0x01, hash[0]);
+        Assert.Equal((uint)KeyDerivationPrf.HMACSHA512, BinaryPrimitives.ReadUInt32BigEndian(hash.AsSpan(1)));
+        Assert.InRange(BinaryPrimitives.ReadUInt32BigEndian(hash.AsSpan(5)), 100_000u, uint.MaxValue);
     }
 }

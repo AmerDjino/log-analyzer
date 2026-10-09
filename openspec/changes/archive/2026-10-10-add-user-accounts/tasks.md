@@ -15,6 +15,7 @@
 - [x] 2.2 Register Identity core with the EF Core stores and the options from design.md (12-character minimum, no composition rules, unique email, any user-name characters); verify the solution builds and the health tests still pass
 - [x] 2.3 Add the error-code table with problem-details responses that carry a `code` member, and `POST /auth/register` with the email format and 254-character check, the 12 to 128 character password check, and EMAIL_TAKEN for duplicates, including a unique-index violation from concurrent registrations; verify all `RegistrationTests` and `PasswordStorageTests` pass
 - [x] 2.4 Create `docs/accounts-api.md` with the registration request, response and error codes, and link it from the README; verify every code used in `RegistrationTests` appears in it
+- [x] 2.5 Add a boundary test for the 254-character email limit (no scenario of its own; it covers the limit in "Register an account"); verify a 254-character address is accepted and a 255-character one answers INVALID_EMAIL
 
 ## 3. Sign-in, the current user and the default access rule
 
@@ -23,6 +24,9 @@
 - [x] 3.3 Add the authorization fallback policy that requires a signed-in user, with `AllowAnonymous()` on the health check, registration and the Development OpenAPI document; verify `HealthEndpointTests` and `RegistrationTests` still pass
 - [x] 3.4 Add `POST /auth/sign-in` (JSON body only, lookup by email address, a dummy-hash check for unknown addresses, a password check that counts failures, INVALID_CREDENTIALS, and `AllowAnonymous()`) and `GET /auth/me`; verify all `SignInTests`, `CurrentUserTests` and `AccessPolicyTests` pass
 - [x] 3.5 Document sign-in, the session cookie, `GET /auth/me` and SIGN_IN_REQUIRED in `docs/accounts-api.md`; verify every code used in this group's tests appears in it
+- [x] 3.6 Write the failing `RegistrationTests.Register_RejectsMalformedBody` and `SignInTests.SignIn_RejectsEmptyBody` for the two unreadable-body scenarios in test-plan.md; verify both fail because the API answers 500
+- [x] 3.7 Answer unreadable request bodies with 400 instead of throwing to the exception handler (`RouteHandlerOptions.ThrowOnBadRequest = false`); verify both tests pass
+- [x] 3.8 Document the 400 for unreadable bodies in `docs/accounts-api.md`, and state in it and in design.md that only errors the API reports itself carry a `code`; verify every status the account tests assert appears in the document
 
 ## 4. Lockout
 
@@ -40,10 +44,25 @@
 ## 6. Integration checks
 
 - [x] 6.1 Start the stack on a fresh database (`docker compose down --volumes`, then `docker compose up --build --wait`) and, in Chrome, Edge or Firefox at http://localhost:8080, register, sign in, read `/api/auth/me` and sign out through nginx; verify each call answers as specified and `/api/health` stays Healthy
-- [x] 6.2 Run the full test suite, `node scripts/check-scenario-coverage.mjs` and `openspec validate add-user-accounts --strict`; verify all pass and the coverage report shows the 24 scenarios of this change as already having tests
+- [x] 6.2 Run the full test suite, `node scripts/check-scenario-coverage.mjs` and `openspec validate add-user-accounts --strict`; verify all pass and the coverage report shows the 27 scenarios of this change as already having tests
+
+## 7. Review fixes
+
+- [x] 7.1 Write the failing `RegistrationTests` for passwords of twelve spaces, 11 emoji and 128 emoji, plus a 128-character boundary test; verify twelve spaces answer 500, 11 emoji answer 201 and 128 emoji answer PASSWORD_TOO_LONG
+- [x] 7.2 Count password length in Unicode code points, and remove Identity's default password validator so the endpoint's length rule is the only password rule; verify all `RegistrationTests` pass
+- [x] 7.3 Write the failing `OpenApiDocumentTests` (the document answers without a session, and lists every answer of each account endpoint); verify the document lists only 200 for each endpoint
+- [x] 7.4 Declare each account endpoint's answers with `Produces` and `ProducesProblem`; verify `OpenApiDocumentTests` pass
+- [x] 7.5 Write the failing `DatabaseMigratorTests.Stop_AfterDispose_DoesNotThrow`; verify it fails with an `ObjectDisposedException` and the same class-cleanup failure CI showed once
+- [x] 7.6 Rebuild the migration service on `BackgroundService`, register it before data protection, and remove a test's PostgreSQL container even when stopping the API fails; verify `DatabaseMigratorTests` passes and a start on a fresh database no longer logs a failed read of `data_protection_keys`
+- [x] 7.7 Add the scenario "A minute of use renews the session" with `IdleSessionTests.Session_RenewsWhenUsedAfterOneMinute`, and tighten the tests: compare the registered id with the stored one, pin the hash format and work factor, check that an ended session's row is deleted, and list public endpoints by method as well as path; verify all pass, and that renewing every 2 minutes or removing the default sign-in rule makes them fail
+- [x] 7.8 Correct design.md and docs/accounts-api.md where the review found them wrong or stale: sign-in timing, framework answers without a `code`, JSON-only bodies, session restore, the renewal wording, how password length is counted, the test-trait rule, a resolved risk and the rollback command; verify each statement against the code or a test
+
+- [x] 7.9 Write the failing `RegistrationTests.Register_RejectsEmailWithControlCharacter` (a NUL escaped in a quoted local part) and `SignInTests.SignIn_AnswersEmailWithControlCharacterLikeUnknownEmail`; verify both answer 500, because PostgreSQL cannot store or compare a NUL
+- [x] 7.10 Refuse email addresses with control characters at registration, and at sign-in look up only addresses registration would accept; verify both tests pass
+- [x] 7.11 Limit the unreadable-body requirement to registration and sign-in, correct the 400 and 415 wording in docs/accounts-api.md and the public-endpoint note in test-plan.md, and record the unknown-charset 500 and the OpenAPI error schema's missing `code` in design.md Risks and the proposal's follow-ups; verify the wording against the live stack
 
 ## Workflow follow-up
 
-- Open a pull request and merge it once all four CI jobs pass.
-- Run `/opsx:verify add-user-accounts`, then `/opsx:archive add-user-accounts`.
-- Revise the plans listed under follow-ups in proposal.md with `/opsx:update`: runs per user in `add-api-skeleton`, sign-in screens in `add-web-shell`, and the per-user limit in `add-input-safety`.
+- Run `/opsx:verify add-user-accounts`, fix what it finds, and run `/opsx:archive add-user-accounts` in the same pull request.
+- Merge the pull request once all four CI jobs pass.
+- Revise the plans listed under follow-ups in proposal.md with `/opsx:update`: runs per user and 415 for an unknown charset in `add-api-skeleton`, sign-in screens and the `code` member in the OpenAPI error schema in `add-web-shell`, and the per-user limit in `add-input-safety`.

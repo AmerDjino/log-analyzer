@@ -32,8 +32,15 @@ public class PostgresApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-        await _postgres.DisposeAsync();
+        try
+        {
+            await base.DisposeAsync();
+        }
+        finally
+        {
+            // Removed even when stopping the API fails, so a failed teardown leaves no container running.
+            await _postgres.DisposeAsync();
+        }
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>

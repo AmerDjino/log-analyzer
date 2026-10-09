@@ -5,6 +5,9 @@ using LogAnalyzer.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
+// An unreadable request body (empty or malformed JSON) answers 400. Left at its Development default, minimal APIs
+// throw instead, and the exception handler turns that into a 500.
+builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = false);
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure();
 builder.Services.AddAccountSessions();

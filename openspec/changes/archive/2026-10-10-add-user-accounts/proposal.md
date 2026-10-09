@@ -43,8 +43,8 @@ Every analysis will hold a submitted log, which can contain internal details, an
 - **API:** new account endpoints. Every endpoint now requires a session unless it is marked public. `/health` stays public, so the Docker Compose and CI health checks are unchanged.
 - **Dependencies:** EF Core, already named in the project context, and the ASP.NET Core account packages enter `LogAnalyzer.Infrastructure`. `LogAnalyzer.Core` stays free of them.
 - **Follow-ups in other active changes** (not edited by this change):
-  - `add-api-skeleton`: runs belong to the signed-in user and the run list shows only theirs. Its non-goal "authentication (`add-input-safety`)" is out of date.
-  - `add-web-shell`: its non-goal "Sign-in and per-user history" conflicts with this change. The UI needs sign-in and registration screens, there or in a separate change.
+  - `add-api-skeleton`: runs belong to the signed-in user and the run list shows only theirs. Its non-goal "authentication (`add-input-safety`)" is out of date. Its JSON endpoints should answer 415 for a body whose charset .NET does not know; today the account endpoints answer 500 (see design.md, Risks).
+  - `add-web-shell`: its non-goal "Sign-in and per-user history" conflicts with this change. The UI needs sign-in and registration screens, there or in a separate change. The generated client needs the `code` member of error answers, which the OpenAPI document does not describe yet.
   - `add-input-safety`: the submission limit "per client" can become per user, and its non-goal "Sign-in and per-user quotas" needs revisiting.
   - README: add this change to the planned list.
 - **Cost:** no model calls, so no token cost.

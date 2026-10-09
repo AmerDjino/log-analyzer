@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace LogAnalyzer.IntegrationTests.Accounts;
 
@@ -63,6 +64,20 @@ public sealed class SignInTests(PostgresApiFactory factory) : IClassFixture<Post
         Assert.Equal(expected.GetProperty("detail").GetString(), actual.GetProperty("detail").GetString());
     }
 
+    // No account can have such an address, and PostgreSQL cannot compare a NUL, so it must get the unknown-address answer.
+    [Fact]
+    public async Task SignIn_AnswersEmailWithControlCharacterLikeUnknownEmail()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var accounts = new AccountsClient(factory.CreateClient());
+
+        using var response = await accounts.SignInAsync(
+            $"user-{Guid.NewGuid():N}\u0000x@example.com", AccountsClient.Password, cancellationToken);
+
+        await ProblemAssert.HasCodeAsync(response, HttpStatusCode.Unauthorized, "INVALID_CREDENTIALS", cancellationToken);
+        ProblemAssert.SetsNoCookie(response);
+    }
+
     [Fact]
     [Trait("Scenario", "user-accounts/form-encoded-sign-in-is-rejected")]
     public async Task SignIn_RejectsFormEncodedBody()
@@ -80,6 +95,20 @@ public sealed class SignInTests(PostgresApiFactory factory) : IClassFixture<Post
         using var response = await accounts.Http.PostAsync("/auth/sign-in", form, cancellationToken);
 
         Assert.Equal(HttpStatusCode.UnsupportedMediaType, response.StatusCode);
+        ProblemAssert.SetsNoCookie(response);
+    }
+
+    [Fact]
+    [Trait("Scenario", "user-accounts/empty-sign-in-body-is-rejected")]
+    public async Task SignIn_RejectsEmptyBody()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var accounts = new AccountsClient(factory.CreateClient());
+        using var body = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+
+        using var response = await accounts.Http.PostAsync("/auth/sign-in", body, cancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         ProblemAssert.SetsNoCookie(response);
     }
 }
