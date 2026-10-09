@@ -1,0 +1,4 @@
+{
+  "input": "hello",
+  "expectation": "The reply reads as friendly."
+}

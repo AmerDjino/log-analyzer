@@ -1,0 +1,18 @@
+# Normalize line endings in the repository; check out with the platform default.
+* text=auto
+
+# Files read inside Linux containers or by shell tools keep LF on every platform.
+*.sh text eol=lf
+*.conf text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Diff drivers
+*.cs text diff=csharp
+*.md text diff=markdown
+
+# Binary files
+*.ico binary
+*.png binary
+*.jpg binary

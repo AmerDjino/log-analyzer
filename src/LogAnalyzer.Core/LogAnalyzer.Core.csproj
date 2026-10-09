@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Domain types, validation and orchestration.
+    This project must not reference any other project or any infrastructure package
+    (database, HTTP, model SDK), so its logic stays testable without a network or database.
+    LogAnalyzer.UnitTests guards this rule.
+  -->
+
+</Project>

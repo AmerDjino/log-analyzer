@@ -1,0 +1,24 @@
+# web
+
+The Angular 22 interface for the log analyzer: standalone components, signals, zoneless change detection, Vitest for unit tests.
+
+## Commands
+
+Run these in `src/web`.
+
+| Command | What it does |
+|---|---|
+| `npm install` | Installs dependencies. The first run creates `package-lock.json`; commit it, because CI and the Docker build use `npm ci`. |
+| `npm start` | Serves the app at http://localhost:4200 and forwards `/api` to the API at http://localhost:5080 (see `proxy.conf.json`). |
+| `npm test` | Runs the Vitest unit tests (watch mode locally; add `-- --watch=false` for a single run). |
+| `npm run build` | Builds for production into `dist/web/browser`. |
+
+## Tests and scenario ids
+
+When a test proves a spec scenario, put the scenario id in brackets in the test name, so the coverage check in `scripts/check-scenario-coverage.mjs` can find it:
+
+```ts
+it('[analysis-ui/submit-is-disabled-for-empty-input] disables submit while the input is empty', () => {
+  // ...
+});
+```

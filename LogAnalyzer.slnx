@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".env.example" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/LogAnalyzer.Api/LogAnalyzer.Api.csproj" />
+    <Project Path="src/LogAnalyzer.Core/LogAnalyzer.Core.csproj" />
+    <Project Path="src/LogAnalyzer.Infrastructure/LogAnalyzer.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LogAnalyzer.Evals/LogAnalyzer.Evals.csproj" />
+    <Project Path="tests/LogAnalyzer.IntegrationTests/LogAnalyzer.IntegrationTests.csproj" />
+    <Project Path="tests/LogAnalyzer.UnitTests/LogAnalyzer.UnitTests.csproj" />
+  </Folder>
+</Solution>

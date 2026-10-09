@@ -1,0 +1,52 @@
+# OpenSpec project configuration for the log analyzer.
+# `context` is injected into every artifact OpenSpec generates;
+# each `rules` entry only into the artifact with that id.
+schema: spec-tdd
+
+context: |
+  Product: an AI log analyzer. A person submits an application log and gets back
+  a short incident report: a summary plus findings, each citing the exact log
+  lines that support it. Every model response passes a validation layer before
+  any part of it is stored or shown.
+  Backend: .NET 10, ASP.NET Core minimal APIs, EF Core with Npgsql, PostgreSQL.
+  Frontend: Angular 22 (standalone components, signals, zoneless), Vitest unit
+  tests, Playwright end-to-end tests.
+  AI: Claude through the official Anthropic C# SDK. Prompt templates are
+  versioned files under prompts/. The model's output contract is
+  schemas/analysis-result.schema.json.
+  Runtime: Docker Compose with api, web (nginx) and postgres services.
+  Tests: xUnit, Testcontainers, WireMock.Net; golden-set evals for behavior that
+  depends on model judgment.
+  Capabilities: log-ingestion, log-analysis, response-validation, model-gateway,
+  analysis-history, analysis-ui. Reuse these names; do not invent near-duplicates.
+  Non-negotiables: the Claude API key never leaves the backend; no model output
+  is stored or shown before it passes validation; counts, time ranges and other
+  statistics are computed by code, never by the model.
+
+rules:
+  proposal:
+    - Name the affected capabilities and list explicit non-goals
+    - For changes that touch prompts or model calls, state the expected token and cost impact
+  specs:
+    - Describe observable behavior only; no class names, libraries or frameworks
+    - Every requirement that handles user input or calls the model has at least one failure scenario
+    - Write scenarios as GIVEN/WHEN/THEN bullets that a test or an eval can check
+    - Prefix scenarios that depend on model judgment with [eval]
+    - Keep scenario names unique within a capability, because they become test ids
+  design:
+    - Record each decision with the alternatives considered and why they lost
+  test-plan:
+    - Map every scenario to exactly one test or eval case
+    - Use the scenario id <capability>/<scenario-name-in-kebab-case>, without the [eval] prefix
+  tasks:
+    - Start each task group with a task that writes the failing tests for that group's scenarios from test-plan.md
+    - Later tasks in the group make those tests pass; never collect tests into a final group
+
+operations:
+  apply:
+    guidance:
+      - Do not start an implementation task until its tests exist and fail for the expected reason
+      - Run the affected test project before the full suite
+  archive:
+    guidance:
+      - Confirm /opsx:verify reported no critical issues before archiving

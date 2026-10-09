@@ -1,0 +1,72 @@
+{
+  "type": "object",
+  "description": "What the model returns for one analysis request. Uses only JSON Schema features that Claude structured outputs accept; limits it cannot express are enforced by the validation layer (see the response-validation capability).",
+  "additionalProperties": false,
+  "required": ["summary", "findings"],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "One to three sentences on what the log shows. Say plainly when no problems were found. At most 1,000 characters."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Distinct problems the log shows. Empty when there are none.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "severity",
+          "category",
+          "line_refs",
+          "evidence",
+          "explanation",
+          "suggested_action"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Short headline for the problem, at most 120 characters."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "error", "warning", "info"],
+            "description": "critical: an outage, crash or data loss. error: failed operations without a full outage. warning: degradation or a risk of failure. info: noteworthy but harmless."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "exception",
+              "timeout",
+              "dependency",
+              "resource",
+              "security",
+              "performance",
+              "configuration",
+              "other"
+            ],
+            "description": "exception: unhandled or logged exceptions. timeout: operations exceeding a time limit. dependency: failing calls to databases, HTTP services or queues. resource: exhausted memory, connections, threads or disk. security: authentication, authorization or suspicious access. performance: slow operations that still succeed. configuration: missing or invalid settings. other: anything else."
+          },
+          "line_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "integer" },
+            "description": "1-based line numbers of the submitted log that support this finding."
+          },
+          "evidence": {
+            "type": "string",
+            "description": "An excerpt copied character for character from one of the cited lines."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Why this matters and the most likely cause, based only on what the log shows."
+          },
+          "suggested_action": {
+            "type": "string",
+            "description": "The next thing an engineer should check or do."
+          }
+        }
+      }
+    }
+  }
+}
