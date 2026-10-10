@@ -2,27 +2,27 @@
 
 ## 1. Ingestion and statistics rules in Core
 
-- [ ] 1.1 On a branch from a main that includes `add-analysis-contract` (PR #4), write the failing unit tests below; verify `ResponseValidator` builds and each new test fails because the Core types do not exist
+- [x] 1.1 On a branch from a main that includes `add-analysis-contract` (PR #4), write the failing unit tests below; verify `ResponseValidator` builds and each new test fails because the Core types do not exist
   - Decoding and splitting: CRLF, CR, LF, a final line break, BOM, NUL, invalid UTF-8, encoded surrogates and white space only.
   - File-name cleaning.
   - The level-format and timestamp-format tables, and the time-range rules from design.md.
-- [ ] 1.2 Implement `LogText` (the byte checks in design.md's order, and line splitting) and file-name cleaning in `LogAnalyzer.Core/Ingestion`; verify their unit tests pass
-- [ ] 1.3 Implement `LogStatistics` with the level and timestamp detectors and the time-range rules; verify the format tables and time-range tests pass and `CoreDependencyTests` still passes
+- [x] 1.2 Implement `LogText` (the byte checks in design.md's order, and line splitting) and file-name cleaning in `LogAnalyzer.Core/Ingestion`; verify their unit tests pass
+- [x] 1.3 Implement `LogStatistics` with the level and timestamp detectors and the time-range rules; verify the format tables and time-range tests pass and `CoreDependencyTests` still passes
 
 ## 2. Submission and storage
 
-- [ ] 2.1 Write the failing tests below, with `RunsApiFactory` (FakeTimeProvider, a 1 MiB limit, the worker removed), `RunsClient` and `RunsDatabase`; verify each fails because `POST /runs` and the charset check do not exist
+- [x] 2.1 Write the failing tests below, with `RunsApiFactory` (FakeTimeProvider, a 1 MiB limit, the worker removed), `RunsClient` and `RunsDatabase`; verify each fails because `POST /runs` and the charset check do not exist
   - The nine submission scenarios in `SubmissionTests`, and `SignInTests.SignIn_RejectsUnsupportedCharset`, from test-plan.md.
   - The registration 415 test, and the oversized-body test without Content-Length.
-- [ ] 2.2 Add the `Run`, `RunLog`, `RunFinding` and `RunAttempt` entities, with the CHECK constraints and indexes from design.md, and generate the `AddRuns` migration; verify `DatabaseMigrationTests` finds the four new tables
-- [ ] 2.3 Add `POST /runs` as listed below; verify the submission tests pass
+- [x] 2.2 Add the `Run`, `RunLog`, `RunFinding` and `RunAttempt` entities, with the CHECK constraints and indexes from design.md, and generate the `AddRuns` migration; verify `DatabaseMigrationTests` finds the four new tables
+- [x] 2.3 Add `POST /runs` as listed below; verify the submission tests pass
   - The size check, from Content-Length and while reading.
   - The content checks.
   - Statistics computed at submission.
   - The run and its lines stored in one transaction, answering 202 `{ id, status }`.
   - `IngestionOptions` validated at startup.
-- [ ] 2.4 Add the UTF-8 charset middleware after authorization, for every endpoint with `IAcceptsMetadata`, and change `AccessPolicyTests` to send each endpoint its declared content type; verify the charset tests for `POST /runs`, registration and sign-in pass, and `AccessPolicyTests` passes
-- [ ] 2.5 Document and describe the submission endpoint as listed below; verify every code the group's tests assert appears in the docs
+- [x] 2.4 Add the UTF-8 charset middleware after authorization, for every endpoint with `IAcceptsMetadata`, and change `AccessPolicyTests` to send each endpoint its declared content type; verify the charset tests for `POST /runs`, registration and sign-in pass, and `AccessPolicyTests` passes
+- [x] 2.5 Document and describe the submission endpoint as listed below; verify every code the group's tests assert appears in the docs
   - Declare `POST /runs`' answers for OpenAPI, with its `OpenApiDocumentTests` row.
   - Create docs/runs-api.md, covering submission, the size limit, line splitting and the level and timestamp rules.
   - Add UNSUPPORTED_CHARSET to docs/accounts-api.md, and a run-endpoints row to the README.

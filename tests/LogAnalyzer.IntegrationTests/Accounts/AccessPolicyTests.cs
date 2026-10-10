@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,20 +29,24 @@ public sealed partial class AccessPolicyTests(PostgresApiFactory factory) : ICla
         var endpoints = factory.Services.GetRequiredService<EndpointDataSource>().Endpoints
             .OfType<RouteEndpoint>()
             .SelectMany(endpoint => (endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"])
-                .Select(method => (Method: method, Route: Normalize(endpoint.RoutePattern.RawText))))
-            .Where(endpoint => !PublicEndpoints.Contains(endpoint))
+                .Select(method => (
+                    Method: method,
+                    Route: Normalize(endpoint.RoutePattern.RawText),
+                    ContentType: endpoint.Metadata.GetMetadata<IAcceptsMetadata>()?.ContentTypes.FirstOrDefault())))
+            .Where(endpoint => !PublicEndpoints.Contains((endpoint.Method, endpoint.Route)))
             .ToList();
 
         // Guards against a vacuous pass. Sign-out has no check of its own, so only the default rule can refuse it.
-        Assert.Contains(("POST", "/auth/sign-out"), endpoints);
+        Assert.Contains(endpoints, endpoint => endpoint is ("POST", "/auth/sign-out", _));
 
-        foreach (var (method, route) in endpoints)
+        foreach (var (method, route, contentType) in endpoints)
         {
             var path = RouteParameter().Replace(route, Guid.Empty.ToString());
             using var request = new HttpRequestMessage(new HttpMethod(method), path);
-            if (method is "POST" or "PUT" or "PATCH")
+            // A body of the media type the endpoint declares; routing answers any other with 415, before the session check.
+            if (contentType is not null || method is "POST" or "PUT" or "PATCH")
             {
-                request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+                request.Content = new StringContent("{}", Encoding.UTF8, contentType ?? "application/json");
             }
 
             using var response = await client.SendAsync(request, cancellationToken);

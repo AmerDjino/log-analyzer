@@ -1,6 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace LogAnalyzer.IntegrationTests.Accounts;
 
@@ -170,6 +172,26 @@ public sealed class RegistrationTests(PostgresApiFactory factory) : IClassFixtur
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(accountsBefore, await database.CountAllAccountsAsync(cancellationToken));
+    }
+
+    // Bodies must be UTF-8, which RFC 8259 also requires for JSON. Reading a body in an unknown character set used to
+    // throw, and the API answered 500.
+    [Fact]
+    public async Task Register_RejectsUnsupportedCharset()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var accounts = new AccountsClient(factory.CreateClient());
+        await using var database = new AccountsDatabase(factory.ConnectionString);
+        var email = AccountsClient.NewEmail();
+        using var body = new ByteArrayContent(
+            JsonSerializer.SerializeToUtf8Bytes(new { email, password = AccountsClient.Password }));
+        body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json; charset=bogus");
+
+        using var response = await accounts.Http.PostAsync("/auth/register", body, cancellationToken);
+
+        await ProblemAssert.HasCodeAsync(
+            response, HttpStatusCode.UnsupportedMediaType, "UNSUPPORTED_CHARSET", cancellationToken);
+        Assert.Equal(0, await database.CountAccountsAsync(email, cancellationToken));
     }
 
     // SMTP allows no control characters in an address, and PostgreSQL cannot store a NUL. The address parser refuses a bare

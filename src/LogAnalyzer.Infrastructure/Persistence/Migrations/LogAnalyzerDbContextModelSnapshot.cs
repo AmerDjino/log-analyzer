@@ -132,6 +132,240 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                     b.ToTable("user_sessions", (string)null);
                 });
 
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.Run", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("ByteCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("byte_count");
+
+                    b.Property<int>("CriticalCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("critical_count");
+
+                    b.Property<int>("DebugCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("debug_count");
+
+                    b.Property<int>("ErrorCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("error_count");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("text")
+                        .HasColumnName("failure_reason");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
+
+                    b.Property<DateTimeOffset?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at");
+
+                    b.Property<string>("HighestSeverity")
+                        .HasColumnType("text")
+                        .HasColumnName("highest_severity");
+
+                    b.Property<int>("InfoCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("info_count");
+
+                    b.Property<int>("LineCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("line_count");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text")
+                        .HasColumnName("summary");
+
+                    b.Property<DateTime?>("TimeRangeEnd")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("time_range_end");
+
+                    b.Property<DateTime?>("TimeRangeStart")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("time_range_start");
+
+                    b.Property<bool?>("TimeRangeUtc")
+                        .HasColumnType("boolean")
+                        .HasColumnName("time_range_utc");
+
+                    b.Property<int>("TraceCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("trace_count");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("WarningCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("warning_count");
+
+                    b.HasKey("Id")
+                        .HasName("pk_runs");
+
+                    b.HasIndex("SubmittedAt", "Id")
+                        .HasDatabaseName("ix_runs_submitted_at_id")
+                        .HasFilter("status = 'queued'");
+
+                    b.HasIndex("UserId", "SubmittedAt", "Id")
+                        .IsDescending(false, true, true)
+                        .HasDatabaseName("ix_runs_user_id_submitted_at_id");
+
+                    b.ToTable("runs", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_runs_failure_reason", "(status = 'failed') = (failure_reason IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_runs_highest_severity", "highest_severity IN ('critical', 'error', 'warning', 'info')");
+
+                            t.HasCheckConstraint("ck_runs_status", "status IN ('queued', 'running', 'completed', 'failed')");
+
+                            t.HasCheckConstraint("ck_runs_summary", "(status = 'completed') = (summary IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_runs_time_range", "(time_range_start IS NULL AND time_range_end IS NULL AND time_range_utc IS NULL) OR (time_range_start IS NOT NULL AND time_range_end IS NOT NULL AND time_range_utc IS NOT NULL AND time_range_start <= time_range_end)");
+                        });
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.RunAttempt", b =>
+                {
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("run_id");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence");
+
+                    b.Property<DateTimeOffset>("FinishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("model");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("outcome");
+
+                    b.Property<string>("PromptVersion")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("prompt_version");
+
+                    b.Property<string>("RejectionReasons")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("rejection_reasons");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.HasKey("RunId", "Sequence")
+                        .HasName("pk_run_attempts");
+
+                    b.ToTable("run_attempts", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_run_attempts_outcome", "outcome IN ('accepted', 'rejected')");
+
+                            t.HasCheckConstraint("ck_run_attempts_rejection_reasons", "(outcome = 'rejected') = (jsonb_array_length(rejection_reasons) > 0)");
+                        });
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.RunFinding", b =>
+                {
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("run_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("evidence");
+
+                    b.Property<string>("Explanation")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("explanation");
+
+                    b.PrimitiveCollection<int[]>("LineRefs")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("line_refs");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("severity");
+
+                    b.Property<string>("SuggestedAction")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("suggested_action");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.HasKey("RunId", "Position")
+                        .HasName("pk_run_findings");
+
+                    b.ToTable("run_findings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_run_findings_category", "category IN ('exception', 'timeout', 'dependency', 'resource', 'security', 'performance', 'configuration', 'other')");
+
+                            t.HasCheckConstraint("ck_run_findings_severity", "severity IN ('critical', 'error', 'warning', 'info')");
+                        });
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.RunLog", b =>
+                {
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("run_id");
+
+                    b.PrimitiveCollection<string[]>("Lines")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("lines");
+
+                    b.HasKey("RunId")
+                        .HasName("pk_run_logs");
+
+                    b.ToTable("run_logs", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
                     b.Property<int>("Id")
@@ -246,6 +480,46 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_user_sessions_users_user_id");
                 });
 
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.Run", b =>
+                {
+                    b.HasOne("LogAnalyzer.Infrastructure.Accounts.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_runs_users_user_id");
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.RunAttempt", b =>
+                {
+                    b.HasOne("LogAnalyzer.Infrastructure.Runs.Run", null)
+                        .WithMany("Attempts")
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_run_attempts_runs_run_id");
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.RunFinding", b =>
+                {
+                    b.HasOne("LogAnalyzer.Infrastructure.Runs.Run", null)
+                        .WithMany("Findings")
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_run_findings_runs_run_id");
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.RunLog", b =>
+                {
+                    b.HasOne("LogAnalyzer.Infrastructure.Runs.Run", null)
+                        .WithOne()
+                        .HasForeignKey("LogAnalyzer.Infrastructure.Runs.RunLog", "RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_run_logs_runs_run_id");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("LogAnalyzer.Infrastructure.Accounts.AppUser", null)
@@ -274,6 +548,13 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("LogAnalyzer.Infrastructure.Runs.Run", b =>
+                {
+                    b.Navigation("Attempts");
+
+                    b.Navigation("Findings");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 using LogAnalyzer.Infrastructure.Accounts;
 using LogAnalyzer.Infrastructure.Persistence;
+using LogAnalyzer.Infrastructure.Runs;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ public static class InfrastructureServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the PostgreSQL data source, the EF Core context, startup migrations, data-protection key storage,
-    /// the account store and the database health check.
+    /// the account store, the run store and the database health check.
     /// The connection string is read from <c>ConnectionStrings:Postgres</c> and checked when the host starts,
     /// so a missing setting stops the API immediately with a message naming it.
     /// </summary>
@@ -72,6 +73,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<UserSessionRepository>();
+        services.AddScoped<RunStore>();
 
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database");

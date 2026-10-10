@@ -1,6 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace LogAnalyzer.IntegrationTests.Accounts;
 
@@ -110,5 +112,45 @@ public sealed class SignInTests(PostgresApiFactory factory) : IClassFixture<Post
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         ProblemAssert.SetsNoCookie(response);
+    }
+
+    [Fact]
+    [Trait("Scenario", "user-accounts/sign-in-body-in-an-unsupported-character-set-is-rejected")]
+    public async Task SignIn_RejectsUnsupportedCharset()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var accounts = new AccountsClient(factory.CreateClient());
+        var email = AccountsClient.NewEmail();
+        await accounts.RegisterExistingAsync(email, cancellationToken);
+        // The right credentials, so only the declared character set can stop the sign-in.
+        using var body = new ByteArrayContent(
+            JsonSerializer.SerializeToUtf8Bytes(new { email, password = AccountsClient.Password }));
+        body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json; charset=bogus");
+
+        using var response = await accounts.Http.PostAsync("/auth/sign-in", body, cancellationToken);
+
+        await ProblemAssert.HasCodeAsync(
+            response, HttpStatusCode.UnsupportedMediaType, "UNSUPPORTED_CHARSET", cancellationToken);
+        ProblemAssert.SetsNoCookie(response);
+    }
+
+    // Every spelling of UTF-8 that the charset check lets through must also be readable as JSON.
+    [Theory]
+    [InlineData("application/json; charset=UTF-8")]
+    [InlineData("application/json; charset=\"utf-8\"")]
+    [InlineData("application/json; charset=utf8")]
+    public async Task SignIn_AcceptsUtf8InEverySpelling(string contentType)
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var accounts = new AccountsClient(factory.CreateClient());
+        var email = AccountsClient.NewEmail();
+        await accounts.RegisterExistingAsync(email, cancellationToken);
+        using var body = new ByteArrayContent(
+            JsonSerializer.SerializeToUtf8Bytes(new { email, password = AccountsClient.Password }));
+        body.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+
+        using var response = await accounts.Http.PostAsync("/auth/sign-in", body, cancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }
