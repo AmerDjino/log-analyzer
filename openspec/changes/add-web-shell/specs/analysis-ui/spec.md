@@ -2,9 +2,63 @@
 
 ## Purpose
 
-Defines what a person can do in the web interface: submit a log, follow its analysis, read findings next to the log lines they cite, and browse past runs.
+Defines what a person can do in the web interface: create an account and sign in, submit a log, follow its analysis, read findings next to the log lines they cite, and browse their past runs.
 
 ## ADDED Requirements
+
+### Requirement: Create an account
+The interface SHALL let a person create an account with an email address and a password, then sign them in and open the submit page. A rejected email address or password MUST be explained next to the field it concerns, keeping the email address the person entered.
+
+#### Scenario: New account is signed in
+- **GIVEN** a person enters a new email address and a password of at least 12 characters
+- **WHEN** they create the account
+- **THEN** they are signed in and the submit page opens
+
+#### Scenario: Short password is explained at its field
+- **GIVEN** a person enters a new email address and an 11-character password
+- **WHEN** they create the account
+- **THEN** a message at the password field says that a password needs at least 12 characters
+- **AND** the email address is still filled in
+
+#### Scenario: Taken email address is explained at its field
+- **GIVEN** an account exists for "ana@example.com"
+- **WHEN** a person tries to create an account for "ana@example.com"
+- **THEN** a message at the email field says that an account with this email address already exists
+
+### Requirement: Sign in and out
+The interface SHALL let a person sign in with their email address and password, and sign out from any page. Every page except sign-in and account creation SHALL need a session: a person without one who opens such a page is sent to sign-in and, once signed in, to the page they opened.
+
+#### Scenario: Signed-out person is sent to sign-in and back
+- **GIVEN** a person without a session
+- **WHEN** they open the page of one of their runs
+- **THEN** the sign-in page is shown
+- **AND** after they sign in, the run's page opens
+
+#### Scenario: Failed sign-in keeps the email address
+- **GIVEN** a person enters their email address and a wrong password
+- **WHEN** they sign in
+- **THEN** a message says that the email address or password is incorrect
+- **AND** the email address is still filled in
+
+#### Scenario: Locked account is explained
+- **GIVEN** an account that is locked after repeated failed sign-ins
+- **WHEN** a person signs in to it
+- **THEN** a message says that sign-in to this account is blocked for up to 15 minutes after too many failed attempts
+
+#### Scenario: Sign-out returns to sign-in
+- **GIVEN** a signed-in person
+- **WHEN** they sign out
+- **THEN** the sign-in page is shown
+- **AND** opening the run list afterwards shows the sign-in page
+
+### Requirement: Keep input when a session ends
+When the API reports that the person's session has ended, the interface SHALL ask them to sign in again and MUST keep the input they have not sent yet.
+
+#### Scenario: Pasted log survives an ended session
+- **GIVEN** a person has pasted a log and their session has ended
+- **WHEN** they submit it
+- **THEN** they are asked to sign in
+- **AND** after they sign in, the pasted log is still in the paste area
 
 ### Requirement: Submit a log
 The interface SHALL let a person paste a log or choose a file and submit it for analysis. Submitting MUST be disabled while the input is empty, and a file over the size limit MUST be refused before anything is uploaded.
@@ -66,7 +120,7 @@ Selecting a finding SHALL show its cited lines with their line numbers and three
 - **AND** "connection pool exhausted" is highlighted on line 120
 
 ### Requirement: Browse past runs
-The interface SHALL list past runs newest first with their file name, submission time, status and highest severity, and selecting one SHALL open its run page.
+The interface SHALL list the person's own past runs newest first with their file name, submission time, status and highest severity, and selecting one SHALL open its run page.
 
 #### Scenario: Past run opens from the list
 - **GIVEN** a completed run submitted earlier
