@@ -61,12 +61,32 @@ public sealed partial class RunProcessor(
         return true;
     }
 
+    /// <summary>
+    /// Fails every run still running, with INTERRUPTED: the API stopped while it processed them, and nothing resumes
+    /// a run. Called when the worker starts, before it claims anything, so it assumes one API instance per database.
+    /// </summary>
+    public async Task FailInterruptedRunsAsync(CancellationToken cancellationToken)
+    {
+        await using var command = dataSource.CreateCommand(
+            "UPDATE runs SET status = 'failed', failure_reason = @reason, finished_at = @now WHERE status = 'running'");
+        command.Parameters.AddWithValue("reason", FailureReasons.Interrupted);
+        command.Parameters.AddWithValue("now", timeProvider.GetUtcNow());
+        var interrupted = await command.ExecuteNonQueryAsync(cancellationToken);
+        if (interrupted > 0)
+        {
+            LogInterrupted(logger, interrupted);
+        }
+    }
+
     private async Task<Guid?> ClaimNextAsync(CancellationToken cancellationToken)
     {
         await using var command = dataSource.CreateCommand(ClaimSql);
         command.Parameters.AddWithValue("now", timeProvider.GetUtcNow());
         return await command.ExecuteScalarAsync(cancellationToken) as Guid?;
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed {Count} runs left running when the API stopped, with INTERRUPTED.")]
+    private static partial void LogInterrupted(ILogger logger, int count);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Run {RunId} completed.")]
     private static partial void LogCompleted(ILogger logger, Guid runId);

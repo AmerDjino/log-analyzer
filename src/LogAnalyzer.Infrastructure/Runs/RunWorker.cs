@@ -6,9 +6,10 @@ using Microsoft.Extensions.Options;
 namespace LogAnalyzer.Infrastructure.Runs;
 
 /// <summary>
-/// Processes queued runs in the background. Once the migrations are applied, it runs
-/// <see cref="AnalysisOptions.MaxConcurrentRuns"/> loops. Each loop claims and processes runs until none is queued,
-/// then waits for whichever comes first: the signal a submission raises after its commit, or the poll interval.
+/// Processes queued runs in the background. Once the migrations are applied, it fails the runs left running when the API
+/// stopped, with INTERRUPTED, and then runs <see cref="AnalysisOptions.MaxConcurrentRuns"/> loops. Each loop claims and
+/// processes runs until none is queued, then waits for whichever comes first: the signal a submission raises after its
+/// commit, or the poll interval.
 /// </summary>
 /// <remarks>
 /// An exception in a loop is logged, and the loop waits the same way before it tries again: an exception that escaped
@@ -30,6 +31,7 @@ internal sealed partial class RunWorker(
         try
         {
             await migrations.WhenApplied.WaitAsync(stoppingToken);
+            await FailInterruptedRunsAsync(stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
@@ -37,6 +39,25 @@ internal sealed partial class RunWorker(
         }
 
         await Task.WhenAll(Enumerable.Range(0, options.Value.MaxConcurrentRuns).Select(_ => ProcessRunsAsync(stoppingToken)));
+    }
+
+    // Retried until it succeeds, before any run is claimed: a run left running would otherwise never end.
+    private async Task FailInterruptedRunsAsync(CancellationToken stoppingToken)
+    {
+        while (true)
+        {
+            try
+            {
+                await processor.FailInterruptedRunsAsync(stoppingToken);
+                return;
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
+            {
+                LogFailed(logger, exception, PollInterval);
+            }
+
+            await Task.Delay(PollInterval, timeProvider, stoppingToken);
+        }
     }
 
     private async Task ProcessRunsAsync(CancellationToken stoppingToken)

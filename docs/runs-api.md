@@ -249,3 +249,13 @@ A failed run has exactly one failure reason. The set is closed. The validator's 
 | `INTERNAL_ERROR` | An unexpected error. The server log has the details, with the run's id. |
 
 With the stand-in model, a run can fail only with `INTERRUPTED` or `INTERNAL_ERROR`.
+
+## Restarts
+
+Nothing resumes a run that was being processed when the API stopped. Every run is in a defined state after a restart:
+
+- When the API starts, before it processes anything, it fails every run that is still running, with `INTERRUPTED`. Attempts already recorded are kept. Submit the log again to analyze it.
+- Runs that were still queued are processed as usual.
+- At a graceful shutdown, such as `docker compose stop`, the model call in progress is cancelled and its run fails with `INTERRUPTED` at once. After a crash or a kill, the run fails when the API starts again.
+
+This assumes one API instance per database, which is what Docker Compose runs. A second instance would fail the first instance's runs in progress when it starts.

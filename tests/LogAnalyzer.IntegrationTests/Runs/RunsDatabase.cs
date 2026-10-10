@@ -19,15 +19,24 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
     public async Task<StoredRun> ReadRunAsync(Guid runId, CancellationToken cancellationToken)
     {
         await using var command = Command(
-            "SELECT user_id, file_name, status, byte_count, line_count FROM runs WHERE id = @id", runId);
+            "SELECT user_id, file_name, status, failure_reason, byte_count, line_count FROM runs WHERE id = @id", runId);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         Assert.True(await reader.ReadAsync(cancellationToken), $"No stored run {runId}.");
         return new StoredRun(
             reader.GetGuid(0),
             reader.IsDBNull(1) ? null : reader.GetString(1),
             reader.GetString(2),
-            reader.GetInt32(3),
-            reader.GetInt32(4));
+            reader.IsDBNull(3) ? null : reader.GetString(3),
+            reader.GetInt32(4),
+            reader.GetInt32(5));
+    }
+
+    /// <summary>Sets a run to running, as if the API had stopped while it was processing it.</summary>
+    public async Task SetRunningAsync(Guid runId, DateTimeOffset startedAt, CancellationToken cancellationToken)
+    {
+        await using var command = Command("UPDATE runs SET status = 'running', started_at = @startedAt WHERE id = @id", runId);
+        command.Parameters.AddWithValue("startedAt", startedAt);
+        Assert.Equal(1, await command.ExecuteNonQueryAsync(cancellationToken));
     }
 
     /// <summary>The run's stored lines, line N at index N - 1.</summary>
@@ -192,7 +201,8 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
     }
 }
 
-public sealed record StoredRun(Guid UserId, string? FileName, string Status, int ByteCount, int LineCount);
+public sealed record StoredRun(
+    Guid UserId, string? FileName, string Status, string? FailureReason, int ByteCount, int LineCount);
 
 /// <summary>An attempt as stored: its outcome, and each rejection reason's code and path.</summary>
 public sealed record StoredAttempt(

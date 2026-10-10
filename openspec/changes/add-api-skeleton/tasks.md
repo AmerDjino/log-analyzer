@@ -57,9 +57,9 @@
 
 ## 5. Recovery after a restart
 
-- [ ] 5.1 Write the failing `RunRecoveryTests` for their 2 scenarios, starting a second API host with the real worker against the same database; verify the interrupted-run test fails because nothing sweeps runs left running
-- [ ] 5.2 When the worker starts, fail runs left running with INTERRUPTED, and at a graceful shutdown mark the in-flight run INTERRUPTED; verify `RunRecoveryTests` pass
-- [ ] 5.3 Document the restart behavior in docs/runs-api.md; verify it matches the tests
+- [x] 5.1 Write the failing `RunRecoveryTests` for their 2 scenarios, starting a second API host with the real worker against the same database; verify the interrupted-run test fails because nothing sweeps runs left running
+- [x] 5.2 When the worker starts, fail runs left running with INTERRUPTED, and at a graceful shutdown mark the in-flight run INTERRUPTED; verify `RunRecoveryTests` pass
+- [x] 5.3 Document the restart behavior in docs/runs-api.md; verify it matches the tests
 
 ## 6. Integration checks
 
