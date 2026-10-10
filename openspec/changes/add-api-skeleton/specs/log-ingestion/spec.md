@@ -7,7 +7,7 @@ Defines how logs enter the system: which submissions are accepted, how their lin
 ## ADDED Requirements
 
 ### Requirement: Accept text log submissions
-The system SHALL accept a log as pasted text or as an uploaded file containing UTF-8 text, and SHALL number its lines from 1 in the order received. Content that is not valid UTF-8 or contains NUL bytes MUST be rejected with status 400 and code UNSUPPORTED_CONTENT.
+The system SHALL accept a log as pasted text or as an uploaded file containing UTF-8 text, and SHALL number its lines from 1 in the order received. Content that is not valid UTF-8 or contains NUL bytes MUST be rejected with status 400 and code UNSUPPORTED_CONTENT. A request whose body declares a character set the API does not support MUST be rejected with status 415.
 
 #### Scenario: Pasted log is accepted
 - **GIVEN** a client pastes a 3-line log
@@ -25,6 +25,12 @@ The system SHALL accept a log as pasted text or as an uploaded file containing U
 - **GIVEN** a client uploads a file containing NUL bytes
 - **WHEN** the file is submitted
 - **THEN** the API responds 400 with code UNSUPPORTED_CONTENT
+- **AND** no run is created
+
+#### Scenario: Unsupported character set is rejected
+- **GIVEN** a client pastes a log in a request whose body declares the character set "bogus"
+- **WHEN** the log is submitted
+- **THEN** the API responds 415
 - **AND** no run is created
 
 ### Requirement: Reject empty input

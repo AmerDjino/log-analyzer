@@ -23,10 +23,15 @@ Before a log is stored or sent to the model, the system SHALL replace connection
 - **AND** line 40 holds the same message with only the secret replaced
 
 ### Requirement: Limit submission rate
-The system SHALL accept at most the configured number of submissions per client per minute (10 by default) and MUST answer further submissions in that minute with status 429, code RATE_LIMITED and a Retry-After header.
+The system SHALL accept at most the configured number of submissions per signed-in person per minute (10 by default) and MUST answer that person's further submissions in that minute with status 429, code RATE_LIMITED and a Retry-After header.
 
 #### Scenario: Eleventh submission is limited
 - **GIVEN** the limit is 10 submissions per minute
-- **WHEN** a client makes its 11th submission within one minute
+- **WHEN** a person makes their 11th submission within one minute
 - **THEN** the API responds 429 with code RATE_LIMITED and a Retry-After header
 - **AND** no run is created
+
+#### Scenario: Submission limit is counted per person
+- **GIVEN** the limit is 10 submissions per minute and "ana@example.com" has made 10 submissions this minute
+- **WHEN** "bob@example.com" submits a log
+- **THEN** the API responds 202
