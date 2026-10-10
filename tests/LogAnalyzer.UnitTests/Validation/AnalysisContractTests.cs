@@ -78,6 +78,15 @@ public sealed class AnalysisContractTests
     }
 
     [Fact]
+    [Trait("Scenario", "log-analysis/finding-without-cited-lines-is-rejected")]
+    public void Validate_RejectsFindingWithoutCitedLines()
+    {
+        var result = Validate("log-analysis/finding-without-cited-lines-is-rejected.json");
+
+        ValidationAssert.Rejected(result, ("SCHEMA_VIOLATION", "findings[0].line_refs"));
+    }
+
+    [Fact]
     [Trait("Scenario", "log-analysis/each-defined-severity-is-accepted")]
     public void Validate_AcceptsEachDefinedSeverity()
     {

@@ -25,13 +25,14 @@ public sealed class ContractSchemaTests
         Assert.Equal(FieldNames<Finding>(), RequiredNames(FindingSchema));
     }
 
+    // Compared through ToContractValue, the spelling the system stores and returns.
     [Fact]
     public void Schema_AllowsExactlyTheSeverities() =>
-        Assert.Equal(EnumValues<Severity>(), AllowedValues(FindingSchema, "severity"));
+        Assert.Equal(Enum.GetValues<Severity>().Select(severity => severity.ToContractValue()), AllowedValues(FindingSchema, "severity"));
 
     [Fact]
     public void Schema_AllowsExactlyTheCategories() =>
-        Assert.Equal(EnumValues<FindingCategory>(), AllowedValues(FindingSchema, "category"));
+        Assert.Equal(Enum.GetValues<FindingCategory>().Select(category => category.ToContractValue()), AllowedValues(FindingSchema, "category"));
 
     // The contract's field names are the record properties in snake_case, such as line_refs for LineRefs.
     private static string[] FieldNames<T>() =>
@@ -42,10 +43,6 @@ public sealed class ContractSchemaTests
 
     private static string[] RequiredNames(JsonObject schema) =>
         [.. schema["required"]!.AsArray().Select(name => (string)name!).Order(StringComparer.Ordinal)];
-
-    private static string[] EnumValues<T>()
-        where T : struct, Enum =>
-        [.. Enum.GetNames<T>().Select(name => name.ToLowerInvariant())];
 
     private static string[] AllowedValues(JsonObject schema, string property) =>
         [.. schema["properties"]![property]!["enum"]!.AsArray().Select(value => (string)value!)];

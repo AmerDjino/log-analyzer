@@ -3,7 +3,7 @@ namespace LogAnalyzer.Core.Validation;
 /// <summary>Why a response can be rejected. docs/output-contract.md explains each code.</summary>
 public static class ReasonCodes
 {
-    /// <summary>The model stopped at its output limit.</summary>
+    /// <summary>The model reached its output limit or its context window, so the response is cut off.</summary>
     public const string Truncated = "TRUNCATED";
 
     /// <summary>The model declined to answer.</summary>

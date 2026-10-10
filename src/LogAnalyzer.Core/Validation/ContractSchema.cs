@@ -34,16 +34,6 @@ internal sealed class ContractSchema
     public void Check(JsonNode? response, List<Violation> violations) =>
         Check(_schema, response, ResponsePath.Root, violations);
 
-    /// <summary>Whether the value is a whole number, as the schema's "integer" type means it.</summary>
-    public static bool TryGetInteger(JsonNode? value, out decimal number)
-    {
-        number = 0;
-        return value is JsonValue jsonValue
-            && jsonValue.GetValueKind() == JsonValueKind.Number
-            && jsonValue.TryGetValue(out number)
-            && number == decimal.Truncate(number);
-    }
-
     private static void Check(JsonObject schema, JsonNode? value, string path, List<Violation> violations)
     {
         var type = (string)schema["type"]!;
@@ -117,7 +107,7 @@ internal sealed class ContractSchema
         "object" => value is JsonObject,
         "array" => value is JsonArray,
         "string" => value is JsonValue jsonValue && jsonValue.GetValueKind() == JsonValueKind.String,
-        "integer" => TryGetInteger(value, out _),
+        "integer" => JsonNumbers.TryGetWholeNumber(value, out _),
         _ => false,
     };
 
@@ -141,7 +131,7 @@ internal sealed class ContractSchema
         _ => value.GetValueKind() switch
         {
             JsonValueKind.String => "a string",
-            JsonValueKind.Number => TryGetInteger(value, out _) ? "a whole number" : "a number with a fraction",
+            JsonValueKind.Number => JsonNumbers.TryGetWholeNumber(value, out _) ? "a whole number" : "a number with a fraction",
             _ => "true or false",
         },
     };

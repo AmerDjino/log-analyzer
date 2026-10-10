@@ -34,16 +34,22 @@ public static class ResponseValidator
         // An incomplete response is rejected without reading its text.
         switch (input.StopReason)
         {
+            case StopReason.Completed:
+                break;
             case StopReason.OutputLimit:
-                return Reject(ReasonCodes.Truncated, "The model stopped at its output limit, so the response is cut off.");
+                return Reject(
+                    ReasonCodes.Truncated, "The model reached its output limit or its context window, so the response is cut off.");
             case StopReason.Refusal:
                 return Reject(ReasonCodes.Refused, "The model declined to answer.");
+            default:
+                throw new ArgumentOutOfRangeException(nameof(input), input.StopReason, "Unknown stop reason.");
         }
 
-        if (ParseObject(input.ResponseText) is not { } response)
+        if (ParseObject(input.ResponseText, out var problem) is not { } response)
         {
             return Reject(
-                ReasonCodes.NotJson, "The response must be exactly one JSON object, with no code fence or other text around it.");
+                ReasonCodes.NotJson,
+                $"The response must be exactly one JSON object, with no code fence or other text around it. {problem}");
         }
 
         // Every violation is collected, rather than stopping at the first, so one corrective request can name them all.
@@ -105,7 +111,7 @@ public static class ResponseValidator
                 var lineRefsPath = ResponsePath.Field(path, "line_refs");
                 for (var index = 0; index < lineRefs.Count; index++)
                 {
-                    if (!ContractSchema.TryGetInteger(lineRefs[index], out var number))
+                    if (!JsonNumbers.TryGetWholeNumber(lineRefs[index], out var number))
                     {
                         continue;
                     }
@@ -117,7 +123,9 @@ public static class ResponseValidator
                     else
                     {
                         violations.Add(new Violation(
-                            ReasonCodes.LineOutOfRange, ResponsePath.Item(lineRefsPath, index), OutOfRangeMessage(number, logLines.Count)));
+                            ReasonCodes.LineOutOfRange,
+                            ResponsePath.Item(lineRefsPath, index),
+                            OutOfRangeMessage(JsonNumbers.Text(lineRefs[index]), logLines.Count)));
                     }
                 }
             }
@@ -135,9 +143,10 @@ public static class ResponseValidator
         }
     }
 
-    private static string OutOfRangeMessage(decimal line, int lineCount) => lineCount == 0
-        ? string.Create(CultureInfo.InvariantCulture, $"Line {line:0} is not in the log, which is empty.")
-        : string.Create(CultureInfo.InvariantCulture, $"Line {line:0} is not in the log, which has lines 1 to {lineCount}.");
+    // The line as the model wrote it, so 1e30 reads as 1e30 rather than as a rounded or clamped value.
+    private static string OutOfRangeMessage(string line, int lineCount) => lineCount == 0
+        ? $"Line {line} is not in the log, which is empty."
+        : string.Create(CultureInfo.InvariantCulture, $"Line {line} is not in the log, which has lines 1 to {lineCount}.");
 
     private static IEnumerable<(JsonObject Finding, string Path)> Findings(JsonObject response)
     {
@@ -155,18 +164,61 @@ public static class ResponseValidator
         }
     }
 
-    // Null when the text is not exactly one JSON object.
-    private static JsonObject? ParseObject(string text)
+    // Null when the text is not exactly one JSON object; problem then says why.
+    private static JsonObject? ParseObject(string text, out string problem)
     {
         try
         {
-            return JsonNode.Parse(text, documentOptions: StrictJson) as JsonObject;
+            var node = JsonNode.Parse(text, documentOptions: StrictJson);
+            if (node is not JsonObject response)
+            {
+                problem = $"The text is valid JSON, but {Describe(node)}.";
+                return null;
+            }
+
+            // Strings are decoded only when read, so read every one now: an unpaired surrogate such as \uD800 is then
+            // reported here as NOT_JSON instead of escaping from a later check as an exception.
+            DecodeStrings(response);
+            problem = string.Empty;
+            return response;
         }
-        catch (JsonException)
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException or ArgumentException)
         {
+            problem = $"The parser reported: {exception.Message}";
             return null;
         }
     }
+
+    private static void DecodeStrings(JsonNode? node)
+    {
+        switch (node)
+        {
+            case JsonObject jsonObject:
+                foreach (var (_, child) in jsonObject)
+                {
+                    DecodeStrings(child);
+                }
+
+                break;
+            case JsonArray array:
+                foreach (var child in array)
+                {
+                    DecodeStrings(child);
+                }
+
+                break;
+            case JsonValue value when value.GetValueKind() == JsonValueKind.String:
+                _ = value.GetValue<string>();
+                break;
+        }
+    }
+
+    private static string Describe(JsonNode? node) => node switch
+    {
+        null => "null",
+        JsonArray => "an array",
+        _ => node.GetValueKind() == JsonValueKind.String ? "a string" : "a single value",
+    };
 
     private static ValidationResult Reject(string code, string message) =>
         ValidationResult.Reject([new Violation(code, ResponsePath.Root, message)]);
@@ -188,9 +240,10 @@ public static class ResponseValidator
     private static T ClosedSetValue<T>(JsonNode? value)
         where T : struct, Enum => Enum.Parse<T>((string)value!, ignoreCase: true);
 
+    // The citation check accepted only line numbers within the log.
     private static int LineNumber(JsonNode? value)
     {
-        ContractSchema.TryGetInteger(value, out var number);
+        JsonNumbers.TryGetWholeNumber(value, out var number);
         return (int)number;
     }
 }

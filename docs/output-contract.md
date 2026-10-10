@@ -1,6 +1,6 @@
 # Output contract
 
-What the model must return for one log, and how each response is checked before the system uses any part of it. The rules come from the `log-analysis` and `response-validation` specs (`openspec/changes/add-analysis-contract/specs/` until the change is archived, then `openspec/specs/`).
+What the model must return for one log, and how each response is checked before the system uses any part of it. The rules come from the `log-analysis` and `response-validation` specs in `openspec/specs/`. The decisions behind them are in `openspec/changes/archive/2026-10-10-add-analysis-contract/design.md`.
 
 The machine-readable contract is [`schemas/analysis-result.schema.json`](../schemas/analysis-result.schema.json). The validator in `LogAnalyzer.Core` checks every response against it, and from `add-claude-integration` on it is sent to the model as the output format. The schema uses only what Claude's structured outputs accept, so a few limits (non-blank text, title and summary length, line range, evidence on the cited line) are checked by the validator alone.
 
@@ -20,7 +20,7 @@ Each finding has exactly these seven fields:
 | `title` | string | A short headline. Not blank, at most 120 characters. |
 | `severity` | string | One of the [severities](#severities). |
 | `category` | string | One of the [categories](#categories). |
-| `line_refs` | array of whole numbers | The cited lines, at least one. Line numbers start at 1 and count the lines of the log as submitted. |
+| `line_refs` | array of whole numbers | The cited lines, at least one. Line numbers start at 1 and count the lines of the log as submitted. A whole number may be written as 12, 12.0 or 1.2e1. |
 | `evidence` | string | Not blank. An excerpt copied character for character from one of the cited lines; whitespace at its start and end is ignored. |
 | `explanation` | string | Not blank. Why the problem matters and its most likely cause, based only on what the log shows. |
 | `suggested_action` | string | Not blank. The next thing an engineer should check or do. |
@@ -72,17 +72,17 @@ Severities and categories are matched regardless of letter case and kept in lowe
 
 The validator checks every response before the system stores or shows any part of it. A response with even one violation is rejected as a whole.
 
-1. A response that the model service reports as cut off at its output limit, or as a refusal, is rejected with that one reason, without reading its text.
-2. The text must be exactly one JSON object: no markdown code fence, no text before or after it, no comments, no trailing commas and no field named twice. Anything else is rejected with `NOT_JSON` alone.
+1. A response that the model service reports as cut off (at its output limit or its context window), or as a refusal, is rejected with that one reason, without reading its text.
+2. The text must be exactly one JSON object: no markdown code fence, no text before or after it, no comments, no trailing commas, no field named twice and no unpaired surrogate, such as the escape `\uD800`. Anything else is rejected with `NOT_JSON` alone, and its message includes the parser's reason.
 3. Otherwise the validator reports every violation it finds, each with its reason code, the path of the field and a message: contract violations first, then citations, then text limits. A path looks like `findings[0].line_refs[0]`; the reasons in steps 1 and 2 concern the whole response and have an empty path.
 
 | Code | Meaning |
 |---|---|
-| `TRUNCATED` | The model stopped at its output limit, so the response is cut off. |
+| `TRUNCATED` | The model reached its output limit or its context window, so the response is cut off. |
 | `REFUSED` | The model declined to answer. |
 | `NOT_JSON` | The response is not exactly one JSON object. |
 | `SCHEMA_VIOLATION` | A field is missing, unknown or of the wrong type, `line_refs` is empty, or a severity or category is not one of its values. |
-| `LINE_OUT_OF_RANGE` | A cited line number is below 1 or past the last line of the log. |
+| `LINE_OUT_OF_RANGE` | A cited line number is below 1 or past the last line of the log, however large. |
 | `EVIDENCE_NOT_FOUND` | The evidence, without the whitespace at its start and end, does not appear on any of the finding's cited lines. It is only checked when at least one cited line exists. |
 | `BLANK_FIELD` | A text field is empty or contains only whitespace. |
 | `FIELD_TOO_LONG` | The summary is longer than 1,000 characters, or a title longer than 120. |
