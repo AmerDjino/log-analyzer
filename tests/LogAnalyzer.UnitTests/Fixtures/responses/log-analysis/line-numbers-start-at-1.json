@@ -1,0 +1,16 @@
+{
+  "summary": "The database connection pool ran out and orders failed to save; an unhandled exception crashed the process.",
+  "findings": [
+    {
+      "title": "Unhandled NullReferenceException",
+      "severity": "critical",
+      "category": "exception",
+      "line_refs": [
+        1
+      ],
+      "evidence": "System.NullReferenceException",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    }
+  ]
+}

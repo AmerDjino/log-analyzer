@@ -1,0 +1,19 @@
+```json
+{
+  "summary": "The database connection pool ran out and orders failed to save; an unhandled exception crashed the process.",
+  "findings": [
+    {
+      "title": "Database connection pool exhausted",
+      "severity": "critical",
+      "category": "resource",
+      "line_refs": [
+        11,
+        12
+      ],
+      "evidence": "Database connection pool exhausted",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    }
+  ]
+}
+```

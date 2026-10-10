@@ -34,5 +34,12 @@ Every scenario in this change is deterministic. All tests run against canned mod
 
 - `tests/LogAnalyzer.UnitTests/Fixtures/logs/orders-api-40.log`: 40 lines; line 1 reads "Unhandled exception. System.NullReferenceException", line 12 reads "fail: Orders.Api[0] Database connection pool exhausted".
 - `tests/LogAnalyzer.UnitTests/Fixtures/logs/orders-api-120.log`: 120 lines, for the out-of-range citation.
-- `tests/LogAnalyzer.UnitTests/Fixtures/responses/`: one JSON file per scenario, named after the scenario id.
+- `tests/LogAnalyzer.UnitTests/Fixtures/responses/`: one file per scenario, named after the scenario id, such as `log-analysis/complete-finding-is-accepted.json`. Responses that are deliberately not one JSON object (truncated, refused, fenced, prose, malformed) are `.txt` files.
 - A test helper that builds a validation input from response text, stop reason and a fixture log.
+
+## Tests without a scenario
+
+These pin rules that no scenario names, and carry no `Scenario` trait:
+
+- `ContractSchemaTests`: the schema's fields, required fields and closed sets match the C# contract types.
+- `ResponseValidationTests`: a JSON array and a field named twice are `NOT_JSON`; a title of 120 emoji is accepted and one of 121 characters rejected; a summary of 1,001 characters is rejected; whitespace around the evidence is ignored.

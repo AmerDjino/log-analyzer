@@ -1,0 +1,93 @@
+{
+  "summary": "The database connection pool ran out and orders failed to save; an unhandled exception crashed the process.",
+  "findings": [
+    {
+      "title": "Unhandled exception",
+      "severity": "critical",
+      "category": "exception",
+      "line_refs": [
+        1
+      ],
+      "evidence": "System.NullReferenceException",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Inventory request timed out",
+      "severity": "error",
+      "category": "timeout",
+      "line_refs": [
+        15
+      ],
+      "evidence": "Request to inventory-service timed out after 30 s",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Payments API unavailable",
+      "severity": "error",
+      "category": "dependency",
+      "line_refs": [
+        17
+      ],
+      "evidence": "Call to payments-api failed with status 503",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Database connection pool exhausted",
+      "severity": "critical",
+      "category": "resource",
+      "line_refs": [
+        12
+      ],
+      "evidence": "Database connection pool exhausted",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Invalid API key",
+      "severity": "warning",
+      "category": "security",
+      "line_refs": [
+        19
+      ],
+      "evidence": "Rejected request with an invalid API key",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Slow payment gateway",
+      "severity": "warning",
+      "category": "performance",
+      "line_refs": [
+        30
+      ],
+      "evidence": "Payment gateway responded in 8432 ms",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "SMTP host missing",
+      "severity": "warning",
+      "category": "configuration",
+      "line_refs": [
+        5
+      ],
+      "evidence": "Setting 'Smtp:Host' is missing",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Application started",
+      "severity": "info",
+      "category": "other",
+      "line_refs": [
+        3
+      ],
+      "evidence": "Application started",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    }
+  ]
+}
