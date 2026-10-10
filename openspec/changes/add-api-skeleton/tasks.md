@@ -63,10 +63,10 @@
 
 ## 6. Integration checks
 
-- [ ] 6.1 Start the stack on a fresh database, submit `orders-api-40.log` through nginx and read the run until it completes; verify the stand-in's findings cite real lines and `/api/health` stays Healthy
+- [x] 6.1 Start the stack on a fresh database, submit `orders-api-40.log` through nginx and read the run until it completes; verify the stand-in's findings cite real lines and `/api/health` stays Healthy
   - Reset with `docker compose down --volumes`, then `docker compose up --build --wait`.
   - Sign in before submitting.
-- [ ] 6.2 Run the full test suite, `node scripts/check-scenario-coverage.mjs` and `openspec validate add-api-skeleton --strict`; verify all pass and the coverage report shows the 30 scenarios of this change as already having tests
+- [x] 6.2 Run the full test suite, `node scripts/check-scenario-coverage.mjs` and `openspec validate add-api-skeleton --strict`; verify all pass and the coverage report shows the 30 scenarios of this change as already having tests
 
 ## Workflow follow-up
 
