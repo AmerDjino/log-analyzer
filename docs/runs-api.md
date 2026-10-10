@@ -15,8 +15,11 @@ Errors are problem details with a `code` member, as described in [accounts-api.m
 | `INPUT_TOO_LARGE` | 413 | The log is larger than the size limit. |
 | `UNSUPPORTED_CONTENT` | 400 | The log is not valid UTF-8, or contains a NUL byte. |
 | `EMPTY_INPUT` | 400 | The log contains nothing but white space. |
+| `RUN_NOT_FOUND` | 404 | You have no run with this id: it does not exist, the id is malformed, or the run is someone else's. |
+| `INVALID_LIMIT` | 400 | `limit` is not a whole number from 1 to 100. |
+| `INVALID_CURSOR` | 400 | `cursor` is not a cursor the API can read. |
 
-A `Content-Type` other than `text/plain`, or none, gets `415` from the framework, without a `code`.
+On `POST /runs`, a `Content-Type` other than `text/plain`, or none, gets `415` from the framework, without a `code`.
 
 ## Submit a log
 
@@ -125,3 +128,76 @@ The time range runs from the earliest to the latest timestamp, wherever they are
 - If it has none, only timestamps without an offset count. They are compared as written, and the range has no offset (`utc` is false). They are not converted, because the log does not say in which time zone it was written.
 
 The time range is returned to the microsecond. A log in which no line has a timestamp has no time range.
+
+## Read a run
+
+`GET /runs/{id}` (needs a session)
+
+```json
+{
+  "id": "0199d0a5-7c1e-7b3a-9f41-2d6c8e5a1b20",
+  "status": "completed",
+  "fileName": "orders-api.log",
+  "submittedAt": "2026-10-10T09:00:00+00:00",
+  "startedAt": "2026-10-10T09:00:01+00:00",
+  "finishedAt": "2026-10-10T09:00:03+00:00",
+  "failureReason": null,
+  "statistics": {
+    "lineCount": 3,
+    "byteCount": 196,
+    "levels": { "critical": 1, "error": 1, "warning": 0, "info": 1, "debug": 0, "trace": 0 },
+    "timeRange": { "start": "2026-10-10T09:00:01Z", "end": "2026-10-10T09:00:05Z", "utc": true }
+  },
+  "summary": "The payment service ran out of database connections.",
+  "findings": [
+    {
+      "title": "Database connection pool exhausted",
+      "severity": "critical",
+      "category": "resource",
+      "lineRefs": [3],
+      "evidence": "Database connection pool exhausted",
+      "explanation": "Requests wait for a connection until they time out.",
+      "suggestedAction": "Check for connections that are not returned to the pool."
+    }
+  ]
+}
+```
+
+- `200 OK` with the run. Member names are camelCase. Statuses, severities and categories are lowercase, as the output contract ([output-contract.md](output-contract.md)) spells them.
+- `status` is `queued`, then `running`, then `completed` or `failed`. `startedAt` is set when processing starts, and `finishedAt` when the run completes or fails.
+- `statistics` is there whatever the status. `timeRange` is null when no line has a timestamp. Its `start` and `end` end with `Z` when `utc` is true, and have no offset when it is false.
+- `summary` and `findings` are null until the run completes. A completed run without findings has an empty list. Findings come in the model's order. `lineRefs` are line numbers from 1, and `evidence` appears on at least one of the cited lines.
+- `failureReason` is null unless the run failed.
+- An unknown id, a malformed id such as `7f3c`, and another person's run all get `404 RUN_NOT_FOUND` with the same body, so the answer reveals nothing about other people's runs.
+
+## List your runs
+
+`GET /runs?limit=20&cursor=<nextCursor>` (needs a session)
+
+```json
+{
+  "items": [
+    {
+      "id": "0199d0a5-7c1e-7b3a-9f41-2d6c8e5a1b20",
+      "fileName": "orders-api.log",
+      "submittedAt": "2026-10-10T11:00:00+00:00",
+      "status": "completed",
+      "highestSeverity": "critical"
+    },
+    {
+      "id": "0199d06e-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+      "fileName": null,
+      "submittedAt": "2026-10-10T10:00:00+00:00",
+      "status": "queued",
+      "highestSeverity": null
+    }
+  ],
+  "nextCursor": null
+}
+```
+
+- Your own runs only, newest first by submission time, then by id for runs submitted at the same time.
+- `limit` is the page size: 1 to 100, and 20 when it is left out. Any other value, including one that is not a whole number, gets `400 INVALID_LIMIT`.
+- `nextCursor` requests the next page: send it back as `cursor`, unchanged. It is null on the last page. A cursor the API cannot read gets `400 INVALID_CURSOR`.
+- A cursor marks the last run of its page, so runs submitted in the meantime do not shift the pages that follow. It is not a secret: whatever it says, the list holds only your own runs.
+- `highestSeverity` is the most serious severity among the run's findings. It is set when the run completes, and is null before that and for a run without findings.

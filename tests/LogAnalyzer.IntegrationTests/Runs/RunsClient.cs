@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using LogAnalyzer.IntegrationTests.Accounts;
 
 namespace LogAnalyzer.IntegrationTests.Runs;
@@ -46,6 +47,55 @@ public sealed class RunsClient(HttpClient client)
         using var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = body };
         return await client.SendAsync(request, cancellationToken);
     }
+
+    /// <summary>Submits a log that must be accepted, as an upload when it has a file name, and returns the new run's id.</summary>
+    public async Task<Guid> SubmitAcceptedAsync(string log, string? fileName, CancellationToken cancellationToken)
+    {
+        using var response = fileName is null
+            ? await PasteAsync(log, cancellationToken)
+            : await UploadAsync(fileName, Encoding.UTF8.GetBytes(log), cancellationToken);
+        return await AcceptedRunIdAsync(response, cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> ReadAsync(string id, CancellationToken cancellationToken) =>
+        client.GetAsync($"/runs/{Uri.EscapeDataString(id)}", cancellationToken);
+
+    /// <summary>Reads a run that must be found, as the JSON the API returns.</summary>
+    public async Task<JsonElement> ReadRunAsync(Guid id, CancellationToken cancellationToken)
+    {
+        using var response = await ReadAsync(id.ToString(), cancellationToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
+    }
+
+    /// <summary>Lists runs; <paramref name="limit"/> and <paramref name="cursor"/> are sent as given, when not null.</summary>
+    public Task<HttpResponseMessage> ListAsync(CancellationToken cancellationToken, string? limit = null, string? cursor = null)
+    {
+        var query = new List<string>();
+        if (limit is not null)
+        {
+            query.Add($"limit={Uri.EscapeDataString(limit)}");
+        }
+
+        if (cursor is not null)
+        {
+            query.Add($"cursor={Uri.EscapeDataString(cursor)}");
+        }
+
+        return client.GetAsync(query.Count == 0 ? "/runs" : $"/runs?{string.Join('&', query)}", cancellationToken);
+    }
+
+    /// <summary>Lists a page of runs that must be answered, as the JSON the API returns.</summary>
+    public async Task<JsonElement> ListPageAsync(CancellationToken cancellationToken, string? limit = null, string? cursor = null)
+    {
+        using var response = await ListAsync(cancellationToken, limit, cursor);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
+    }
+
+    /// <summary>The ids of a page's runs, in the order listed.</summary>
+    public static List<Guid> IdsOf(JsonElement page) =>
+        page.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("id").GetGuid()).ToList();
 
     /// <summary>
     /// Checks that a submission was accepted: 202 with status queued and no Location header, which would point past nginx.

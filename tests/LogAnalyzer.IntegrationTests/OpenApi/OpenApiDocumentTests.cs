@@ -18,6 +18,8 @@ public sealed class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFix
         { "/auth/sign-out", "post", "204", null, ["401"] },
         { "/auth/me", "get", "200", "AccountResponse", ["401"] },
         { "/runs", "post", "202", "SubmissionResponse", ["400", "401", "413", "415"] },
+        { "/runs", "get", "200", "RunPageResponse", ["400", "401"] },
+        { "/runs/{id}", "get", "200", "RunResponse", ["401", "404"] },
     };
 
     [Fact]

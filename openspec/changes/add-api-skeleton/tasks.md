@@ -29,12 +29,12 @@
 
 ## 3. Reading and listing
 
-- [ ] 3.1 Write the failing tests below, arranging completed runs with findings through `RunsDatabase`; verify each fails because the read routes do not exist
+- [x] 3.1 Write the failing tests below, arranging completed runs with findings through `RunsDatabase`; verify each fails because the read routes do not exist
   - `ReadRunTests`, `ListRunsTests` and `StatisticsTests.Statistics_SpanOutOfOrderTimestamps`, for their 8 scenarios.
   - The malformed-id test and the INVALID_LIMIT test.
-- [ ] 3.2 Add `RunStore`'s owned queries and `GET /runs/{id}`, returning the run resource from design.md and RUN_NOT_FOUND for malformed, unknown and other people's ids; verify `ReadRunTests` and the time-range test pass
-- [ ] 3.3 Add `GET /runs`, with `limit`, the opaque keyset cursor, INVALID_LIMIT and INVALID_CURSOR; verify `ListRunsTests` pass
-- [ ] 3.4 Declare the read routes' answers for OpenAPI, with their `OpenApiDocumentTests` rows, and document reading and listing in docs/runs-api.md; verify every code the group's tests assert appears in it
+- [x] 3.2 Add `RunStore`'s owned queries and `GET /runs/{id}`, returning the run resource from design.md and RUN_NOT_FOUND for malformed, unknown and other people's ids; verify `ReadRunTests` and the time-range test pass
+- [x] 3.3 Add `GET /runs`, with `limit`, the opaque keyset cursor, INVALID_LIMIT and INVALID_CURSOR; verify `ListRunsTests` pass
+- [x] 3.4 Declare the read routes' answers for OpenAPI, with their `OpenApiDocumentTests` rows, and document reading and listing in docs/runs-api.md; verify every code the group's tests assert appears in it
 
 ## 4. Processing and the model seam
 

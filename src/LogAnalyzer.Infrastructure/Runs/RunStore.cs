@@ -1,9 +1,16 @@
 using LogAnalyzer.Core.Ingestion;
 using LogAnalyzer.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace LogAnalyzer.Infrastructure.Runs;
 
-/// <summary>Stores submitted runs, and reads them back for the person who submitted them.</summary>
+/// <summary>A run's place in a list of runs, newest first: its submission time, then its id.</summary>
+public readonly record struct RunPosition(DateTimeOffset SubmittedAt, Guid Id);
+
+/// <summary>
+/// Stores submitted runs, and reads them back for the person who submitted them. Every read goes through
+/// <see cref="Owned"/>, which filters on the person's account id in SQL, so another person's run is never found.
+/// </summary>
 public sealed class RunStore(LogAnalyzerDbContext database, TimeProvider timeProvider)
 {
     /// <summary>
@@ -46,4 +53,37 @@ public sealed class RunStore(LogAnalyzerDbContext database, TimeProvider timePro
         await database.SaveChangesAsync(cancellationToken);
         return run.Id;
     }
+
+    /// <summary>The person's run with its findings in the model's order, or null when they have no run with this id.</summary>
+    public Task<Run?> FindOwnedAsync(Guid userId, Guid runId, CancellationToken cancellationToken) =>
+        Owned(userId)
+            .Where(run => run.Id == runId)
+            .Include(run => run.Findings.OrderBy(finding => finding.Position))
+            .SingleOrDefaultAsync(cancellationToken);
+
+    /// <summary>
+    /// Up to <paramref name="count"/> of the person's runs, newest first by submission time and then id, starting after
+    /// <paramref name="after"/>, or with the newest when it is null. Findings are not loaded.
+    /// </summary>
+    public Task<List<Run>> ListOwnedAsync(Guid userId, RunPosition? after, int count, CancellationToken cancellationToken)
+    {
+        var runs = Owned(userId);
+        if (after is { } position)
+        {
+            // (submitted_at, id) < (@submittedAt, @id): the same order as the listing index.
+            runs = runs.Where(run => EF.Functions.LessThan(
+                ValueTuple.Create(run.SubmittedAt, run.Id),
+                ValueTuple.Create(position.SubmittedAt, position.Id)));
+        }
+
+        return runs
+            .OrderByDescending(run => run.SubmittedAt)
+            .ThenByDescending(run => run.Id)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+    }
+
+    // The ownership filter. Endpoints read runs only through it; the worker uses methods of its own.
+    private IQueryable<Run> Owned(Guid userId) =>
+        database.Runs.AsNoTracking().Where(run => run.UserId == userId);
 }

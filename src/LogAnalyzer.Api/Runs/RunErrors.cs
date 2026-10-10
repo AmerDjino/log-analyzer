@@ -17,6 +17,25 @@ internal static class RunErrors
         "Empty log",
         "The log contains nothing but white space.");
 
+    // One answer for an unknown id, a malformed one and another person's run, so it reveals nothing about other runs.
+    public static readonly ApiError RunNotFound = new(
+        "RUN_NOT_FOUND",
+        StatusCodes.Status404NotFound,
+        "Run not found",
+        "You have no run with this id.");
+
+    public static readonly ApiError InvalidLimit = new(
+        "INVALID_LIMIT",
+        StatusCodes.Status400BadRequest,
+        "Invalid page size",
+        $"Set limit to a whole number from 1 to {RunEndpoints.MaxPageSize}.");
+
+    public static readonly ApiError InvalidCursor = new(
+        "INVALID_CURSOR",
+        StatusCodes.Status400BadRequest,
+        "Invalid page cursor",
+        "Use the nextCursor of a previous page, unchanged.");
+
     // The detail names the configured limit, in MB of 1,048,576 bytes.
     public static ApiError InputTooLarge(int maxSubmissionBytes) => new(
         "INPUT_TOO_LARGE",

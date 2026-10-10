@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Globalization;
 using System.Security.Claims;
 using LogAnalyzer.Core.Ingestion;
 using LogAnalyzer.Infrastructure.Runs;
@@ -10,6 +11,10 @@ namespace LogAnalyzer.Api.Runs;
 /// <summary>The run endpoints under /runs (behind nginx: /api/runs). See docs/runs-api.md.</summary>
 internal static class RunEndpoints
 {
+    public const int DefaultPageSize = 20;
+
+    public const int MaxPageSize = 100;
+
     // The body is read in pieces of this size, so a small paste never allocates the whole limit.
     private const int ReadChunkBytes = 81_920;
 
@@ -26,6 +31,14 @@ internal static class RunEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
             .ProducesProblem(StatusCodes.Status415UnsupportedMediaType);
+        runs.MapGet(string.Empty, ListAsync)
+            .Produces<RunPageResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
+        runs.MapGet("/{id}", ReadAsync)
+            .Produces<RunResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         return app;
     }
@@ -60,6 +73,47 @@ internal static class RunEndpoints
 
         // No Location header: behind nginx, /runs/{id} would point at the web app.
         return TypedResults.Accepted((string?)null, new SubmissionResponse(runId, RunStatus.Queued));
+    }
+
+    // The id is read as text, so a malformed id gets the same answer as an unknown one or another person's run,
+    // rather than routing's 404 without a code.
+    private static async Task<IResult> ReadAsync(string id, ClaimsPrincipal user, RunStore runs, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var runId) || await runs.FindOwnedAsync(UserIdOf(user), runId, cancellationToken) is not { } run)
+        {
+            return RunErrors.RunNotFound.ToResult();
+        }
+
+        return TypedResults.Ok(RunResponse.From(run));
+    }
+
+    // limit and cursor are read as text, so every value the API cannot use gets a coded answer rather than the binder's 400.
+    private static async Task<IResult> ListAsync(
+        string? limit, string? cursor, ClaimsPrincipal user, RunStore runs, CancellationToken cancellationToken)
+    {
+        var pageSize = DefaultPageSize;
+        if (limit is not null
+            && !(int.TryParse(limit, NumberStyles.None, CultureInfo.InvariantCulture, out pageSize) && pageSize is >= 1 and <= MaxPageSize))
+        {
+            return RunErrors.InvalidLimit.ToResult();
+        }
+
+        RunPosition? after = null;
+        if (cursor is not null)
+        {
+            if (!RunCursor.TryDecode(cursor, out var position))
+            {
+                return RunErrors.InvalidCursor.ToResult();
+            }
+
+            after = position;
+        }
+
+        // One run more than the page holds shows whether another page follows.
+        var runsAfter = await runs.ListOwnedAsync(UserIdOf(user), after, pageSize + 1, cancellationToken);
+        var page = runsAfter.Take(pageSize).ToList();
+        var nextCursor = runsAfter.Count > pageSize ? RunCursor.Encode(page[^1]) : null;
+        return TypedResults.Ok(new RunPageResponse(page.Select(RunListItemResponse.From).ToList(), nextCursor));
     }
 
     // Reads at most limit + 1 bytes. A body above the limit is refused by its Content-Length before anything is read,
