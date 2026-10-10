@@ -84,5 +84,5 @@ The validator checks every response before the system stores or shows any part o
 | `SCHEMA_VIOLATION` | A field is missing, unknown or of the wrong type, `line_refs` is empty, or a severity or category is not one of its values. |
 | `LINE_OUT_OF_RANGE` | A cited line number is below 1 or past the last line of the log, however large. |
 | `EVIDENCE_NOT_FOUND` | The evidence, without the whitespace at its start and end, does not appear on any of the finding's cited lines. It is only checked when at least one cited line exists. |
-| `BLANK_FIELD` | A text field is empty or contains only whitespace. |
+| `BLANK_FIELD` | A text field is empty or contains only whitespace. A NUL character (U+0000) counts as whitespace, because stored text cannot hold it. |
 | `FIELD_TOO_LONG` | The summary is longer than 1,000 characters, or a title longer than 120. |

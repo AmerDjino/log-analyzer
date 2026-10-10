@@ -5,7 +5,7 @@ namespace LogAnalyzer.IntegrationTests.Persistence;
 public sealed class DatabaseMigrationTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
 {
     [Fact]
-    public async Task Startup_AppliesInitialMigration()
+    public async Task Startup_AppliesMigrations()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
@@ -23,12 +23,17 @@ public sealed class DatabaseMigrationTests(PostgresApiFactory factory) : IClassF
         Assert.Contains("users", tables);
         Assert.Contains("user_sessions", tables);
         Assert.Contains("data_protection_keys", tables);
+        Assert.Contains("runs", tables);
+        Assert.Contains("run_logs", tables);
+        Assert.Contains("run_findings", tables);
+        Assert.Contains("run_attempts", tables);
 
         var migrations = await ReadStringsAsync(
             connection,
             """SELECT migration_id FROM "__EFMigrationsHistory" """,
             cancellationToken);
         Assert.Contains(migrations, id => id.EndsWith("_InitialAccounts", StringComparison.Ordinal));
+        Assert.Contains(migrations, id => id.EndsWith("_AddRuns", StringComparison.Ordinal));
     }
 
     private static async Task<List<string>> ReadStringsAsync(

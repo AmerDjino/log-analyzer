@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Logs submitted by the run tests. orders-api-40.log is the unit tests' copy, so both test the same lines. -->
+    <None Include="Fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\LogAnalyzer.UnitTests\Fixtures\logs\orders-api-40.log" Link="Fixtures\logs\orders-api-40.log" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

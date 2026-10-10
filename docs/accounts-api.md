@@ -35,6 +35,7 @@ Through nginx, a request body larger than 12 MB gets nginx's own `413` HTML page
 | `INVALID_CREDENTIALS` | 401 | Sign-in failed: the email address has no account, or the password is wrong. Both get the same answer. |
 | `ACCOUNT_LOCKED` | 403 | Too many failed sign-ins in a row. Sign-in to this account is refused for 15 minutes, even with the correct password. |
 | `SIGN_IN_REQUIRED` | 401 | The endpoint needs a session, and the request has none, or its session has ended or was tampered with. |
+| `UNSUPPORTED_CHARSET` | 415 | The body's `Content-Type` names a character set other than UTF-8, such as `application/json; charset=utf-16`. Bodies must be UTF-8, as RFC 8259 requires for JSON; `utf-8` and `utf8` are accepted in any letter case, quoted or not, and no charset means UTF-8. |
 
 ## Sessions
 
@@ -63,7 +64,7 @@ A session ends 8 hours after it was last renewed. A request that uses it renews 
 - The email address is the sign-in name. It is unique regardless of letter case.
 - The password must be 12 to 128 characters. Every Unicode character counts as one, including spaces and emoji such as 😀. Some emoji, such as a thumbs-up with a skin tone, are built from two or more characters. There are no rules about digits, letter case or symbols. The password is stored only as a salted, slow hash.
 - Errors are checked in this order and only the first is reported: `INVALID_EMAIL`, `PASSWORD_TOO_SHORT`, `PASSWORD_TOO_LONG`, `EMAIL_TAKEN`.
-- The body must be JSON. Any other content type gets `415`. An empty or malformed JSON body gets `400` without a `code`. Neither creates an account.
+- The body must be JSON in UTF-8. Any other content type gets `415`, and a body that declares another character set gets `415` with `UNSUPPORTED_CHARSET`. An empty or malformed JSON body gets `400` without a `code`. None of these creates an account.
 
 ## Sign in
 
@@ -75,7 +76,7 @@ A session ends 8 hours after it was last renewed. A request that uses it renews 
 
 - `200 OK` with `{ "id": "<uuid>", "email": "ana@example.com" }` and the session cookie.
 - The email address is matched regardless of letter case.
-- The body must be JSON. Any other content type, such as an HTML form, gets `415` and no session. An empty or malformed JSON body gets `400` and no session.
+- The body must be JSON in UTF-8. Any other content type, such as an HTML form, gets `415` and no session, and so does a body that declares another character set, with `UNSUPPORTED_CHARSET`. An empty or malformed JSON body gets `400` and no session.
 - A wrong password and an unknown email address both get `401` with `INVALID_CREDENTIALS`.
 - The fifth failed sign-in in a row locks the account for 15 minutes. That attempt, and every sign-in to the account until the lock ends, gets `403` with `ACCOUNT_LOCKED`, even with the correct password. A successful sign-in resets the count. Because only real accounts can be locked, `ACCOUNT_LOCKED` reveals that an account exists; this is an accepted trade-off.
 

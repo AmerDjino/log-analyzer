@@ -42,6 +42,7 @@ docker compose up --build
 | API directly | http://localhost:5080/health |
 | OpenAPI document (Development) | http://localhost:5080/openapi/v1.json |
 | Account endpoints | `/api/auth/...`, see [docs/accounts-api.md](docs/accounts-api.md) |
+| Run endpoints | `/api/runs...`, see [docs/runs-api.md](docs/runs-api.md) |
 | PostgreSQL | localhost:5432 |
 
 Ports come from `.env`. `docker compose up` waits for PostgreSQL to be healthy before starting the API, and for the API before starting the web app.
@@ -173,7 +174,7 @@ Evals are not part of this workflow, because they call the real model and cost m
 ## Repository layout
 
 ```
-├─ docs/                             the account API and the model's output contract
+├─ docs/                             the account and run APIs, and the model's output contract
 ├─ openspec/                         specs, changes and the spec-tdd workflow
 ├─ schemas/                          JSON Schema for the model's output contract (docs/output-contract.md)
 ├─ scripts/                          scenario coverage check, its tests and fixtures

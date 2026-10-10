@@ -21,7 +21,7 @@ public static class ReasonCodes
     /// <summary>A finding's evidence does not appear on any of its cited lines.</summary>
     public const string EvidenceNotFound = "EVIDENCE_NOT_FOUND";
 
-    /// <summary>A text field is empty or only whitespace.</summary>
+    /// <summary>A text field is empty or only whitespace, where a NUL character (U+0000) counts as whitespace.</summary>
     public const string BlankField = "BLANK_FIELD";
 
     /// <summary>A title or the summary is longer than its limit.</summary>

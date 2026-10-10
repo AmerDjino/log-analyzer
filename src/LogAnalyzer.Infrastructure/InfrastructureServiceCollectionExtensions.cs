@@ -1,5 +1,7 @@
+using LogAnalyzer.Core.Processing;
 using LogAnalyzer.Infrastructure.Accounts;
 using LogAnalyzer.Infrastructure.Persistence;
+using LogAnalyzer.Infrastructure.Runs;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +18,7 @@ public static class InfrastructureServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the PostgreSQL data source, the EF Core context, startup migrations, data-protection key storage,
-    /// the account store and the database health check.
+    /// the account store, the run store, the background worker that analyzes runs, and the database health check.
     /// The connection string is read from <c>ConnectionStrings:Postgres</c> and checked when the host starts,
     /// so a missing setting stops the API immediately with a message naming it.
     /// </summary>
@@ -72,6 +74,20 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<UserSessionRepository>();
+        services.AddScoped<RunStore>();
+
+        // Runs are analyzed by the stand-in model; add-claude-integration adds Claude and a setting to choose.
+        services.AddSingleton<IAnalysisModel, StandInAnalysisModel>();
+        services.AddScoped<IRunRecorder, RunRecorder>();
+        services.AddScoped<AnalysisPipeline>();
+        services.AddSingleton<RunProcessor>();
+        services.AddSingleton<RunQueueSignal>();
+        services.AddOptions<AnalysisOptions>()
+            .BindConfiguration(AnalysisOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        // Registered after DatabaseMigrator, whose migrations it waits for.
+        services.AddHostedService<RunWorker>();
 
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database");

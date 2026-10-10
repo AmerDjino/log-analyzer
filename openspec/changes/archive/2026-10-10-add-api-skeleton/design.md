@@ -51,7 +51,7 @@ The handler answers 413 INPUT_TOO_LARGE in two ways:
 - When Content-Length is above the limit, before reading anything.
 - Otherwise it reads at most limit + 1 bytes, and answers 413 if the extra byte arrives. This covers chunked bodies.
 
-Before reading, it raises the request's `IHttpMaxRequestBodySizeFeature` to limit + 1, so Kestrel's own limit can never answer first. nginx keeps `client_max_body_size 12m` above the default, and its comment already says to raise both limits together.
+Before reading, it sets Kestrel's own limit for the request (`IHttpMaxRequestBodySizeFeature`) to twice the limit plus 64 KB. Kestrel counts a chunked body's framing toward its limit, so the framing needs room: at limit + 1, Kestrel refused chunked bodies within the limit, and its refusal reached the handler as an exception, answered with 500. Only a body whose framing is out of proportion to its data now reaches Kestrel's limit, and the handler answers that refusal as INPUT_TOO_LARGE. The handler reads at most limit + 1 bytes of data, and its buffer grows with the bytes that arrive, never past the declared length or the limit. nginx keeps `client_max_body_size 12m` above the default, and its comment already says to raise both limits together.
 
 - Alternative: Kestrel's `MaxRequestBodySize` or `RequestSizeLimit`. Rejected: their 413 has no code, and the in-memory test server does not enforce them.
 - Alternative: nginx alone. Rejected: it answers with an HTML page, and direct calls to the API would have no limit.
@@ -60,11 +60,12 @@ Before reading, it raises the request's `IHttpMaxRequestBodySizeFeature` to limi
 ### Content checks run in a fixed order, then lines are split
 
 Each submission gets exactly one answer, checked in this order:
-1. 401 without a session.
-2. 415 for the media type (routing), then for the charset.
-3. 413 INPUT_TOO_LARGE.
-4. 400 UNSUPPORTED_CONTENT, for bytes that fail `Utf8.IsValid` (which also refuses encoded surrogates) or contain 0x00.
-5. One leading UTF-8 BOM is removed, then 400 EMPTY_INPUT if nothing but white space (`char.IsWhiteSpace`) remains.
+1. 415 for the media type (routing answers it before the session check). A request without a Content-Type is read as text/plain.
+2. 401 without a session.
+3. 415 for the charset.
+4. 413 INPUT_TOO_LARGE.
+5. 400 UNSUPPORTED_CONTENT, for bytes that fail `Utf8.IsValid` (which also refuses encoded surrogates) or contain 0x00.
+6. One leading UTF-8 BOM is removed, then 400 EMPTY_INPUT if nothing but white space (`char.IsWhiteSpace`) remains.
 
 No rejected submission creates a run or reaches the model.
 
@@ -95,11 +96,13 @@ Today registration and sign-in answer such a request with 500, because `ReadFrom
 
 **Levels.** A line has at most one level: the leftmost marker that starts within its first 100 characters. The markers are:
 1. A .NET console prefix in lowercase, followed by a colon: `trce:`, `dbug:`, `info:`, `warn:`, `fail:` or `crit:`.
-2. A level name as the last word inside square brackets, in any case: `[ERR]`, `[09:00:01 WRN]`, `[Error]`.
-3. A level name in capitals, as a whole word: `ERROR`, `WARN`, `INFO` (log4j, logback, NLog, Python logging, Spring Boot).
+2. A level name as the last word inside square brackets, in any case: `[ERR]`, `[09:00:01 WRN]`, `[Error]`. Other brackets are no marker, so a marker inside them counts: `[ERROR main]`.
+3. A level name in capitals, as a whole word: `ERROR`, `WARN`, `INFO`, `INF` (log4j, logback, NLog, Python logging, Spring Boot, zerolog). A short name must also stand alone, not touching `-`, `.` or `/`, so it is not part of a host name, path or file name: `INF-WEB01`, `welcome.FTL`.
+
+Colour codes (ANSI escape sequences) are removed before markers are looked for, so coloured console output has levels too.
 4. A key followed by a level name in any case: `level=`, `lvl=` and `severity=`, and the JSON keys `"level"`, `"@l"`, `"LogLevel"` and `"severity"`.
 
-Level names:
+Level names, for the bracket, capitals and key forms:
 
 | Level | Names |
 |---|---|
@@ -147,6 +150,8 @@ One migration, `AddRuns`, creates four tables:
 - **run_logs**: run_id as the primary key, and lines as `text[]`, where line N is `lines[N]`. It has one row per run and is inserted in the submission transaction.
 - **run_findings**: run_id, position (in model order), the seven contract fields in contract spelling, and line_refs as `int[]`. It is written only in the transaction that completes the run.
 - **run_attempts**: run_id and sequence; outcome (accepted or rejected); rejection_reasons as jsonb `[{code, path}]`; model, prompt_version, started_at and finished_at.
+
+PostgreSQL text cannot hold U+0000. Logs that contain it are refused at submission. In a response, the validator counts it as whitespace when it checks for blank text, and the summary and the findings' texts are stored without it, so no accepted run fails on it and no stored text is blank. Evidence never has one, because it appears on a cited line.
 
 Indexes:
 - `(user_id, submitted_at DESC, id DESC)` serves listing.
@@ -205,7 +210,7 @@ Every exception inside a loop is caught and logged, and the loop waits the same 
 
 When the worker starts, before it claims anything, it fails every run that is still running with reason INTERRUPTED, in one UPDATE. Queued runs are processed as usual.
 
-At a graceful shutdown, the stopping token cancels the model call, and the processor marks its run INTERRUPTED, using a short timeout of its own. This is best effort; after a kill, the sweep at the next start does it. Attempts already recorded are kept. All of this assumes one API instance per database, which is what Docker Compose runs.
+At a graceful shutdown, the stopping token cancels the model call, and the processor marks its run INTERRUPTED, using a short timeout of its own. The stopping token does not cancel writes: a response that has already arrived is still recorded, and completes the run if it is accepted, within the same short timeout. No new model call starts. This is best effort; after a kill, the sweep at the next start does it. Attempts already recorded are kept. All of this assumes one API instance per database, which is what Docker Compose runs.
 
 - Alternative: requeue runs the model had not answered. Rejected: it can repeat a model call that was already paid for, needs a claim limit against crash loops, and lets a run move from running back to queued.
 - Alternative: leases with heartbeats. Rejected: only needed for several instances. This is the upgrade path.
@@ -265,7 +270,9 @@ The final attempt is written in the same transaction as the run's outcome:
 Other endings:
 - `ModelCallException` fails the run with its reason, keeping any attempt already recorded.
 - Cancellation at shutdown fails it with INTERRUPTED.
-- Any other exception fails it with INTERNAL_ERROR, logged with the run id.
+- Any other exception fails it with INTERNAL_ERROR, logged with the run id. Model call failures are logged with their exception too.
+
+A claimed run does not stay running while the API runs, unless failing it fails too. When processing fails outside the pipeline, for example while its lines are read, `RunProcessor` fails the run with INTERNAL_ERROR (INTERRUPTED at shutdown). When the pipeline cannot write a run's failure, the reason and its cause come with the error, and `RunProcessor` logs both and writes the failure another way. If that write fails as well, or the claim's result is lost after the claim committed, the next start's sweep fails the run.
 
 The pipeline writes through a port, `IRunRecorder`, which Infrastructure implements, so it is unit-tested without a database.
 
@@ -313,7 +320,7 @@ The run resource is camelCase:
 
 - **Core:**
   - Ingestion: byte checks, splitting, file names, statistics with the level and timestamp rules, and `IngestionOptions`.
-  - Analysis: the model seam, `AnalysisPipeline`, `IRunRecorder`, `FailureReasons` and `StandInAnalysisModel`.
+  - Processing: the model seam, `AnalysisPipeline`, `IRunRecorder`, `FailureReasons`, the stored rejection paths and `StandInAnalysisModel`. (A namespace named Analysis would hide the contract's `Analysis` record.)
 - **Infrastructure:**
   - The run entities and their mapping, and the `AddRuns` migration.
   - `RunStore`, the `IRunRecorder` implementation, `RunProcessor`, `RunWorker` and the queue signal.
@@ -349,7 +356,7 @@ Unit tests cover:
 - [The startup sweep assumes one API instance per database. A second instance would fail the first one's running runs] → Documented; Docker Compose runs one. Leases with heartbeats are the upgrade path.
 - [An API restart during an analysis fails that run with INTERRUPTED, and the person resubmits] → The web shell explains the reason in plain language. With the stand-in, runs finish in milliseconds. Revisit with real model calls.
 - [A range read decompresses the run's whole array of lines] → Fine under 10 MB. Switch to blocks of lines if range reads show up in profiles; the API stays the same.
-- [A 10 MB submission holds the bytes, the decoded text and the lines in memory at once, roughly 50 MB] → Bounded by the size limit. `add-input-safety` adds per-person limits.
+- [A submission is held in memory several times over: the bytes, the decoded text, one string per line, EF Core's change-tracking copy of the lines array and Npgsql's write state for each array element. Measured for a 10 MB log: typical lines, roughly 50 MB in the request and 40 MB per run in the worker; one-character lines, roughly 330 MB and 280 MB; empty lines, the worst case, roughly 420 MB and 320 MB] → Bounded by the size limit. The lines go into one exact-size array, and docs/runs-api.md tells operators the factors. Blocks of lines, the upgrade path above, would cut the request's share. `add-input-safety` adds per-person limits.
 - [Level and timestamp detection are heuristics] → docs/runs-api.md lists the rules as a table, with a unit test per format. An unknown format counts toward no level, and adding one is a Core change with its own test.
 - [JSON bodies in UTF-16 or Latin-1, which registration and sign-in transcode today, get 415] → Browsers and the generated client always send UTF-8. Noted in docs/accounts-api.md.
 - [An anonymous `POST /runs` with the wrong media type gets routing's 415 before the session check, so `AccessPolicyTests`' JSON probe fails] → The test sends each endpoint its declared content type. The accounts design already accepted that 405 and 415 come before 401.

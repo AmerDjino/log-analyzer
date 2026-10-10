@@ -9,13 +9,17 @@ namespace LogAnalyzer.IntegrationTests.OpenApi;
 /// </summary>
 public sealed class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
 {
-    // Every answer of each account endpoint that docs/accounts-api.md lists, the success first.
-    public static TheoryData<string, string, string, string[]> AccountOperations => new()
+    // Every answer of each endpoint that docs/accounts-api.md and docs/runs-api.md list, the success first, with the
+    // schema of the success body (null for none).
+    public static TheoryData<string, string, string, string?, string[]> Operations => new()
     {
-        { "/auth/register", "post", "201", ["400", "409", "415"] },
-        { "/auth/sign-in", "post", "200", ["400", "401", "403", "415"] },
-        { "/auth/sign-out", "post", "204", ["401"] },
-        { "/auth/me", "get", "200", ["401"] },
+        { "/auth/register", "post", "201", "AccountResponse", ["400", "409", "415"] },
+        { "/auth/sign-in", "post", "200", "AccountResponse", ["400", "401", "403", "415"] },
+        { "/auth/sign-out", "post", "204", null, ["401"] },
+        { "/auth/me", "get", "200", "AccountResponse", ["401"] },
+        { "/runs", "post", "202", "SubmissionResponse", ["400", "401", "413", "415"] },
+        { "/runs", "get", "200", "RunPageResponse", ["400", "401"] },
+        { "/runs/{id}", "get", "200", "RunResponse", ["401", "404"] },
     };
 
     [Fact]
@@ -31,22 +35,21 @@ public sealed class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFix
     }
 
     [Theory]
-    [MemberData(nameof(AccountOperations))]
-    public async Task Document_ListsEveryAnswerOfAccountEndpoint(string path, string method, string success, string[] errors)
+    [MemberData(nameof(Operations))]
+    public async Task Document_ListsEveryAnswerOfEndpoint(
+        string path, string method, string success, string? successSchema, string[] errors)
     {
-        var cancellationToken = TestContext.Current.CancellationToken;
-        using var client = factory.CreateClientWithoutCookies();
-        using var document = JsonDocument.Parse(await client.GetStringAsync("/openapi/v1.json", cancellationToken));
+        using var document = await ReadDocumentAsync();
 
         var responses = document.RootElement.GetProperty("paths").GetProperty(path).GetProperty(method).GetProperty("responses");
 
         Assert.Equal(
             errors.Append(success).Order(StringComparer.Ordinal),
             responses.EnumerateObject().Select(response => response.Name).Order(StringComparer.Ordinal));
-        if (success != "204")
+        if (successSchema is not null)
         {
             var schema = responses.GetProperty(success).GetProperty("content").GetProperty("application/json").GetProperty("schema");
-            Assert.EndsWith("/AccountResponse", schema.GetProperty("$ref").GetString(), StringComparison.Ordinal);
+            Assert.EndsWith($"/{successSchema}", schema.GetProperty("$ref").GetString(), StringComparison.Ordinal);
         }
 
         foreach (var error in errors)
@@ -56,4 +59,32 @@ public sealed class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFix
                 $"{method.ToUpperInvariant()} {path} does not describe its {error} answer as problem details.");
         }
     }
+
+    // Described as binary, so a generated client sends a file's bytes unchanged instead of text it decoded first.
+    [Fact]
+    public async Task Document_DescribesSubmittedLogAsBinaryText()
+    {
+        using var document = await ReadDocumentAsync();
+
+        var content = document.RootElement.GetProperty("paths").GetProperty("/runs").GetProperty("post")
+            .GetProperty("requestBody").GetProperty("content");
+
+        Assert.Equal(["text/plain"], content.EnumerateObject().Select(mediaType => mediaType.Name));
+        var schema = Resolve(document, content.GetProperty("text/plain").GetProperty("schema"));
+        Assert.Equal("string", schema.GetProperty("type").GetString());
+        Assert.Equal("binary", schema.GetProperty("format").GetString());
+    }
+
+    private async Task<JsonDocument> ReadDocumentAsync()
+    {
+        using var client = factory.CreateClientWithoutCookies();
+        return JsonDocument.Parse(await client.GetStringAsync("/openapi/v1.json", TestContext.Current.CancellationToken));
+    }
+
+    // Follows a "#/components/schemas/Name" reference, if the schema is one.
+    private static JsonElement Resolve(JsonDocument document, JsonElement schema) =>
+        schema.TryGetProperty("$ref", out var reference)
+            ? document.RootElement.GetProperty("components").GetProperty("schemas")
+                .GetProperty(reference.GetString()!["#/components/schemas/".Length..])
+            : schema;
 }
