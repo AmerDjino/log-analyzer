@@ -1,6 +1,11 @@
+using LogAnalyzer.Infrastructure.Accounts;
 using LogAnalyzer.Infrastructure.Persistence;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -10,7 +15,8 @@ namespace LogAnalyzer.Infrastructure;
 public static class InfrastructureServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the PostgreSQL data source and its health check.
+    /// Registers the PostgreSQL data source, the EF Core context, startup migrations, data-protection key storage,
+    /// the account store and the database health check.
     /// The connection string is read from <c>ConnectionStrings:Postgres</c> and checked when the host starts,
     /// so a missing setting stops the API immediately with a message naming it.
     /// </summary>
@@ -33,6 +39,39 @@ public static class InfrastructureServiceCollectionExtensions
                 .UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>())
                 .Build();
         });
+
+        services.AddDbContext<LogAnalyzerDbContext>((serviceProvider, options) => options
+            .UseNpgsql(serviceProvider.GetRequiredService<NpgsqlDataSource>())
+            .UseSnakeCaseNamingConvention());
+
+        // Registered before data protection: hosted services start in registration order, and data protection
+        // loads its keys at startup from a table that the first migration creates.
+        services.AddSingleton<DatabaseMigrationState>();
+        services.AddHostedService<DatabaseMigrator>();
+
+        // Keys that protect session cookies live in the database, so rebuilding the API container does not sign everyone out.
+        services.AddDataProtection()
+            .SetApplicationName("LogAnalyzer")
+            .PersistKeysToDbContext<LogAnalyzerDbContext>();
+
+        // Accounts: the email address is the user name, and 5 failed sign-ins in a row lock the account for 15 minutes.
+        services.AddIdentityCore<AppUser>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters = string.Empty;
+                options.Lockout.MaxFailedAccessAttempts = AccountRules.MaxFailedSignIns;
+                options.Lockout.DefaultLockoutTimeSpan = AccountRules.LockoutDuration;
+                options.Lockout.AllowedForNewUsers = true;
+            })
+            .AddEntityFrameworkStores<LogAnalyzerDbContext>()
+            .AddSignInManager();
+
+        // The registration endpoint checks the only password rule, its length. Identity's default validator would also
+        // refuse a password made only of white space, which that rule allows.
+        services.RemoveAll<IPasswordValidator<AppUser>>();
+
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<UserSessionRepository>();
 
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database");
