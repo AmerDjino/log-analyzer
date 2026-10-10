@@ -25,7 +25,7 @@ internal sealed class RunRecorder(LogAnalyzerDbContext database, TimeProvider ti
         var run = await database.Runs.SingleAsync(run => run.Id == runId, cancellationToken);
         run.Status = RunStatus.Completed;
         run.FinishedAt = timeProvider.GetUtcNow();
-        run.Summary = analysis.Summary;
+        run.Summary = WithoutNul(analysis.Summary);
         // Severity lists the most serious first.
         run.HighestSeverity = analysis.Findings.Count == 0 ? null : analysis.Findings.Min(finding => finding.Severity);
         database.RunAttempts.Add(ToEntity(runId, acceptedAttempt));
@@ -33,13 +33,13 @@ internal sealed class RunRecorder(LogAnalyzerDbContext database, TimeProvider ti
         {
             RunId = runId,
             Position = position,
-            Title = finding.Title,
+            Title = WithoutNul(finding.Title),
             Severity = finding.Severity,
             Category = finding.Category,
             LineRefs = [.. finding.LineRefs],
             Evidence = finding.Evidence,
-            Explanation = finding.Explanation,
-            SuggestedAction = finding.SuggestedAction,
+            Explanation = WithoutNul(finding.Explanation),
+            SuggestedAction = WithoutNul(finding.SuggestedAction),
         }));
         await database.SaveChangesAsync(cancellationToken);
     }
@@ -60,6 +60,10 @@ internal sealed class RunRecorder(LogAnalyzerDbContext database, TimeProvider ti
 
         await database.SaveChangesAsync(cancellationToken);
     }
+
+    // PostgreSQL text cannot hold U+0000, which the validator does not reject, so it is left out rather than failing a run
+    // whose response was accepted. Evidence never has one: it appears on a cited line, and logs with NUL are refused.
+    private static string WithoutNul(string text) => text.Replace("\0", string.Empty, StringComparison.Ordinal);
 
     private static RunAttempt ToEntity(Guid runId, AttemptRecord attempt) => new()
     {

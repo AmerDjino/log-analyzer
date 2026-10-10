@@ -19,7 +19,7 @@ Errors are problem details with a `code` member, as described in [accounts-api.m
 | `INVALID_LIMIT` | 400 | `limit` is not a whole number from 1 to 100. |
 | `INVALID_CURSOR` | 400 | `cursor` is not a cursor the API can read. |
 
-On `POST /runs`, a `Content-Type` other than `text/plain`, or none, gets `415` from the framework, without a `code`.
+On `POST /runs`, a `Content-Type` other than `text/plain` gets `415` from the framework, without a `code`.
 
 ## Submit a log
 
@@ -33,7 +33,7 @@ Content-Type: text/plain
 2026-10-10 09:00:05.734 +00:00 [ERR] Payment for order 42 failed
 ```
 
-- The body is the log itself: `Content-Type: text/plain`, with no charset or `charset=utf-8`.
+- The body is the log itself: `Content-Type: text/plain`, with no charset or `charset=utf-8`. A body sent without a `Content-Type` is read the same way.
 - `fileName` names an uploaded file. A paste sends none, and its run has no file name.
 - `202 Accepted` with `{ "id": "<uuid>", "status": "queued" }`. There is no `Location` header: behind nginx it would point at the web app. The run is analyzed in the background.
 
@@ -45,8 +45,8 @@ The file name keeps only its last path segment (after the last `/` or `\`), with
 
 A submission gets exactly one answer. The checks run in this order, and only the first failure is reported:
 
-1. `401 SIGN_IN_REQUIRED` without a session.
-2. `415` without a `code` when the `Content-Type` is not `text/plain`.
+1. `415` without a `code` when the `Content-Type` is not `text/plain`. Routing answers this before the session is checked.
+2. `401 SIGN_IN_REQUIRED` without a session.
 3. `415 UNSUPPORTED_CHARSET` when the `Content-Type` names a character set other than UTF-8. `utf-8` and `utf8` are accepted in any letter case, quoted or not. No charset means UTF-8.
 4. `413 INPUT_TOO_LARGE` when the body is larger than the size limit.
 5. `400 UNSUPPORTED_CONTENT` when the bytes are not valid UTF-8, including encoded UTF-16 surrogates, or contain a NUL byte (0x00). Other control characters, such as tabs and ANSI color codes, are kept.
@@ -60,8 +60,9 @@ The limit applies to the bytes as sent. It is set by `Ingestion:MaxSubmissionByt
 
 - The default is 10,485,760 bytes. A MB is 1,048,576 bytes everywhere, so the default is 10 MB.
 - It can be set from 1 to 104,857,600 bytes (100 MB). Any other value stops the API at startup with a message naming the setting.
-- A body whose `Content-Length` is above the limit is refused before any of it is read. A body sent without `Content-Length` is refused as soon as the byte past the limit arrives.
+- A body whose `Content-Length` is above the limit is refused before any of it is read. A body sent without `Content-Length` is refused as soon as the byte past the limit arrives. So is a chunked body whose framing is out of proportion to its data, such as one sent a byte per chunk.
 - nginx accepts bodies up to 12 MB (`client_max_body_size` in `src/web/nginx.conf`) and answers larger ones with its own `413` HTML page. Raise both limits together.
+- The API holds a log in memory several times over while it accepts it: about 5 times its size for lines of a typical length, and up to about 40 times for a log of very short or empty lines, mostly while its lines are written to the database. Analyzing a run needs up to about 30 times. Each submission in progress and each run being analyzed needs its own. Choose the limit with that in mind.
 
 ### Lines
 
@@ -85,8 +86,10 @@ A line has at most one level: that of the leftmost marker starting within its fi
 |---|---|---|
 | A .NET console prefix in lowercase, followed by a colon | `fail: Orders.Api[0] ...` | `Microsoft.Extensions.Logging` console |
 | A level name as the last word inside square brackets, in any case | `[ERR]`, `[09:15:02 WRN]`, `[Error]` | Serilog and others |
-| A level name in capitals, as a whole word | `ERROR`, `WARN`, `INFO`, `FATAL` | log4j, logback, NLog, Python logging, Spring Boot |
+| A level name in capitals, as a whole word | `ERROR`, `WARN`, `INFO`, `FATAL`, `INF`, `ERR` | log4j, logback, NLog, Python logging, Spring Boot, zerolog |
 | A key followed by a level name, in any case | `level=error`, `lvl=WARN`, `severity=critical`, `"@l":"Error"`, `"level":"warn"`, `"LogLevel":"Debug"` | logfmt, JSON logs |
+
+Square brackets whose last word is not a level name, such as `[main]`, are not a marker, so a marker inside them still counts: `[ERROR main]` is an error line. In square brackets, in capitals and after a key, every name in the table below counts, the short ones too. A short name in capitals, such as `INF` or `ERR`, counts only where it stands alone, not touching a letter, a digit, `-`, `.` or `/`: `INF-WEB01` and `welcome.FTL` are not markers. Colour codes (ANSI escape sequences) are ignored when looking for a level, so coloured console output counts too.
 
 The keys, in any letter case, are `level=`, `lvl=` and `severity=`, whose value may be quoted, and the JSON keys `"level"`, `"@l"`, `"LogLevel"` and `"severity"`.
 
@@ -166,7 +169,7 @@ The time range is returned to the microsecond. A log in which no line has a time
 - `200 OK` with the run. Member names are camelCase. Statuses, severities and categories are lowercase, as the output contract ([output-contract.md](output-contract.md)) spells them.
 - `status` is `queued`, then `running`, then `completed` or `failed`. `startedAt` is set when processing starts, and `finishedAt` when the run completes or fails.
 - `statistics` is there whatever the status. `timeRange` is null when no line has a timestamp. Its `start` and `end` end with `Z` when `utc` is true, and have no offset when it is false.
-- `summary` and `findings` are null until the run completes. A completed run without findings has an empty list. Findings come in the model's order. `lineRefs` are line numbers from 1, and `evidence` appears on at least one of the cited lines.
+- `summary` and `findings` are null until the run completes. A completed run without findings has an empty list. Findings come in the model's order. `lineRefs` are line numbers from 1, and `evidence`, without the white space at its start and end, appears on at least one of the cited lines.
 - `failureReason` is null unless the run failed.
 - An unknown id, a malformed id such as `7f3c`, and another person's run all get `404 RUN_NOT_FOUND` with the same body, so the answer reveals nothing about other people's runs.
 
@@ -207,7 +210,7 @@ The time range is returned to the microsecond. A log in which no line has a time
 A background worker in the API analyzes queued runs, oldest first. It processes `Analysis:MaxConcurrentRuns` runs at a time (environment variable `Analysis__MaxConcurrentRuns`): 2 by default, and 1 to 16. Any other value stops the API at startup with a message naming the setting. A submission wakes the worker at once, and the worker also looks for queued runs every 5 seconds.
 
 1. The run's status becomes `running`, and the model gets every line with its number.
-2. The model's response must pass the validator, described in [output-contract.md](output-contract.md), before any part of it is stored or shown. If it passes, the run completes with its summary and findings.
+2. The model's response must pass the validator, described in [output-contract.md](output-contract.md), before any part of it is stored or shown. If it passes, the run completes with its summary and findings. A NUL character (U+0000) in their text is left out, because the database cannot store it.
 3. If the validator rejects the response, for any reason, the model is asked once more, with the same lines, the rejected response and every reason it was rejected. That includes a response cut off at the model's output limit (`TRUNCATED`) and a refusal (`REFUSED`).
 4. If the corrected response passes, the run completes with its findings. If it is rejected too, the run fails with `VALIDATION_FAILED`, and nothing from either response is stored or returned.
 
@@ -243,10 +246,10 @@ A failed run has exactly one failure reason. The set is closed. The validator's 
 | Reason | Meaning |
 |---|---|
 | `VALIDATION_FAILED` | The model's response and its corrected response were both rejected. Nothing from either is stored. |
-| `MODEL_UNAVAILABLE` | The model service failed, or did not answer in time, after retries. Submitting the log again later may work. |
-| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a missing or wrong API key. The API's configuration must be fixed. |
+| `MODEL_UNAVAILABLE` | The model service failed, or did not answer in time, after retries. Submitting the log again later may work. The server log has the cause. |
+| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a missing or wrong API key. The API's configuration must be fixed; the server log has the cause. |
 | `INTERRUPTED` | The API stopped while it was processing the run. Submit the log again. |
-| `INTERNAL_ERROR` | An unexpected error. The server log has the details, with the run's id. |
+| `INTERNAL_ERROR` | An unexpected error, for example while the run's lines were read. The server log has the details, with the run's id. |
 
 With the stand-in model, a run can fail only with `INTERRUPTED` or `INTERNAL_ERROR`.
 
@@ -256,6 +259,6 @@ Nothing resumes a run that was being processed when the API stopped. Every run i
 
 - When the API starts, before it processes anything, it fails every run that is still running, with `INTERRUPTED`. Attempts already recorded are kept. Submit the log again to analyze it.
 - Runs that were still queued are processed as usual.
-- At a graceful shutdown, such as `docker compose stop`, the model call in progress is cancelled and its run fails with `INTERRUPTED` at once. After a crash or a kill, the run fails when the API starts again.
+- At a graceful shutdown, such as `docker compose stop`, the model call in progress is cancelled and its run fails with `INTERRUPTED` at once. A response that arrived before the shutdown is still recorded, and completes the run if it is accepted, but no new model call starts. After a crash or a kill, the run fails when the API starts again.
 
 This assumes one API instance per database, which is what Docker Compose runs. A second instance would fail the first instance's runs in progress when it starts.

@@ -21,7 +21,7 @@ public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queue
         Guid userId,
         string? fileName,
         int byteCount,
-        IReadOnlyList<string> lines,
+        string[] lines,
         LogStatistics statistics,
         CancellationToken cancellationToken)
     {
@@ -49,7 +49,7 @@ public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queue
         };
 
         database.Runs.Add(run);
-        database.RunLogs.Add(new RunLog { RunId = run.Id, Lines = [.. lines] });
+        database.RunLogs.Add(new RunLog { RunId = run.Id, Lines = lines });
         await database.SaveChangesAsync(cancellationToken);
         queueSignal.Notify();
         return run.Id;

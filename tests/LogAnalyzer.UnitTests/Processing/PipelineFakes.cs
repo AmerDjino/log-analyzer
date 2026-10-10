@@ -31,35 +31,43 @@ internal sealed class FakeAnalysisModel(FakeTimeProvider clock) : IAnalysisModel
     }
 }
 
-/// <summary>Records what the pipeline asks to store, in order.</summary>
+/// <summary>Records what the pipeline asks to store, in order, and whether the token it got was already cancelled.</summary>
 internal sealed class FakeRunRecorder : IRunRecorder
 {
     public List<RecordedCall> Calls { get; } = [];
 
+    /// <summary>When set, completing a run waits until its token is cancelled, like a write to a database that hangs.</summary>
+    public bool CompletionHangs { get; set; }
+
+    /// <summary>When set, failing a run throws this, like a write to a database that is down.</summary>
+    public Exception? FailureWriteError { get; set; }
+
     public Task RecordRejectedAttemptAsync(Guid runId, AttemptRecord attempt, CancellationToken cancellationToken)
     {
-        Calls.Add(new RejectedAttemptRecorded(runId, attempt));
+        Calls.Add(new RejectedAttemptRecorded(runId, attempt, cancellationToken.IsCancellationRequested));
         return Task.CompletedTask;
     }
 
     public Task CompleteAsync(Guid runId, AttemptRecord acceptedAttempt, Analysis analysis, CancellationToken cancellationToken)
     {
-        Calls.Add(new RunCompleted(runId, acceptedAttempt, analysis));
-        return Task.CompletedTask;
+        Calls.Add(new RunCompleted(runId, acceptedAttempt, analysis, cancellationToken.IsCancellationRequested));
+        return CompletionHangs ? Task.Delay(Timeout.Infinite, cancellationToken) : Task.CompletedTask;
     }
 
     public Task FailAsync(Guid runId, string failureReason, AttemptRecord? rejectedAttempt, CancellationToken cancellationToken)
     {
         Calls.Add(new RunFailed(runId, failureReason, rejectedAttempt, cancellationToken.IsCancellationRequested));
-        return Task.CompletedTask;
+        return FailureWriteError is { } error ? Task.FromException(error) : Task.CompletedTask;
     }
 }
 
 internal abstract record RecordedCall(Guid RunId);
 
-internal sealed record RejectedAttemptRecorded(Guid RunId, AttemptRecord Attempt) : RecordedCall(RunId);
+internal sealed record RejectedAttemptRecorded(Guid RunId, AttemptRecord Attempt, bool TokenWasCancelled)
+    : RecordedCall(RunId);
 
-internal sealed record RunCompleted(Guid RunId, AttemptRecord Attempt, Analysis Analysis) : RecordedCall(RunId);
+internal sealed record RunCompleted(Guid RunId, AttemptRecord Attempt, Analysis Analysis, bool TokenWasCancelled)
+    : RecordedCall(RunId);
 
 internal sealed record RunFailed(Guid RunId, string FailureReason, AttemptRecord? Attempt, bool TokenWasCancelled)
     : RecordedCall(RunId);

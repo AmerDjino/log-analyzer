@@ -48,10 +48,11 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
 
     /// <summary>
     /// Queues a run for the person directly in the database, as another process would, so no signal wakes the worker.
-    /// Its statistics are left at zero apart from the line count.
+    /// Its statistics are left at zero apart from the line count. Without <paramref name="withLines"/>, its lines are
+    /// missing, so processing cannot read them.
     /// </summary>
     public async Task<Guid> InsertQueuedRunAsync(
-        Guid userId, string[] lines, DateTimeOffset submittedAt, CancellationToken cancellationToken)
+        Guid userId, string[] lines, DateTimeOffset submittedAt, CancellationToken cancellationToken, bool withLines = true)
     {
         var runId = Guid.CreateVersion7(submittedAt);
         await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
@@ -72,9 +73,10 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
             await run.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        await using (var log = new NpgsqlCommand(
-            "INSERT INTO run_logs (run_id, lines) VALUES (@id, @lines)", connection, transaction))
+        if (withLines)
         {
+            await using var log = new NpgsqlCommand(
+                "INSERT INTO run_logs (run_id, lines) VALUES (@id, @lines)", connection, transaction);
             log.Parameters.AddWithValue("id", runId);
             log.Parameters.AddWithValue("lines", lines);
             await log.ExecuteNonQueryAsync(cancellationToken);

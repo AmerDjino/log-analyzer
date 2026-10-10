@@ -27,7 +27,14 @@ public sealed partial class RunProcessor(
         RETURNING id
         """;
 
-    /// <summary>Claims and processes the oldest queued run. False when no run is queued.</summary>
+    // How long failing a run may take when processing it went wrong: the database may be the problem.
+    private static readonly TimeSpan FailWriteTimeout = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    /// Claims and processes the oldest queued run. False when no run is queued. A claimed run always ends: if processing
+    /// fails before the pipeline records an outcome, the run fails here, and if even that fails, the next start's sweep
+    /// fails it.
+    /// </summary>
     /// <param name="stoppingToken">Cancelled at a graceful shutdown; the run being processed then fails with INTERRUPTED.</param>
     public async Task<bool> ProcessNextAsync(CancellationToken stoppingToken)
     {
@@ -36,26 +43,25 @@ public sealed partial class RunProcessor(
             return false;
         }
 
-        await using var scope = scopeFactory.CreateAsyncScope();
-        var lines = await scope.ServiceProvider.GetRequiredService<LogAnalyzerDbContext>().RunLogs
-            .AsNoTracking()
-            .Where(log => log.RunId == runId)
-            .Select(log => log.Lines)
-            .SingleAsync(stoppingToken);
-
-        var outcome = await scope.ServiceProvider.GetRequiredService<AnalysisPipeline>()
-            .ProcessAsync(runId, lines, stoppingToken);
-        if (outcome.Error is { } error)
+        try
         {
-            LogInternalError(logger, error, runId);
+            LogOutcome(runId, await ProcessClaimedAsync(runId, stoppingToken));
         }
-        else if (outcome.FailureReason is { } failureReason)
+        catch (RunOutcomeNotRecordedException exception)
         {
-            LogFailed(logger, runId, failureReason);
+            LogOutcome(runId, exception.Outcome);
+            LogNotRecorded(logger, exception.InnerException!, runId, exception.Outcome.FailureReason!);
+            await TryFailAsync(runId, exception.Outcome.FailureReason!);
         }
-        else
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            LogCompleted(logger, runId);
+            LogFailed(logger, exception: null, runId, FailureReasons.Interrupted);
+            await TryFailAsync(runId, FailureReasons.Interrupted);
+        }
+        catch (Exception exception)
+        {
+            LogUnrecorded(logger, exception, runId);
+            await TryFailAsync(runId, FailureReasons.InternalError);
         }
 
         return true;
@@ -78,6 +84,35 @@ public sealed partial class RunProcessor(
         }
     }
 
+    // The cause of a failure is logged with it: the failure reason alone does not tell what went wrong.
+    private void LogOutcome(Guid runId, RunOutcome outcome)
+    {
+        switch (outcome)
+        {
+            case { IsCompleted: true }:
+                LogCompleted(logger, runId);
+                break;
+            case { FailureReason: FailureReasons.InternalError, Error: { } error }:
+                LogInternalError(logger, error, runId);
+                break;
+            default:
+                LogFailed(logger, outcome.Error, runId, outcome.FailureReason!);
+                break;
+        }
+    }
+
+    private async Task<RunOutcome> ProcessClaimedAsync(Guid runId, CancellationToken stoppingToken)
+    {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var lines = await scope.ServiceProvider.GetRequiredService<LogAnalyzerDbContext>().RunLogs
+            .AsNoTracking()
+            .Where(log => log.RunId == runId)
+            .Select(log => log.Lines)
+            .SingleAsync(stoppingToken);
+
+        return await scope.ServiceProvider.GetRequiredService<AnalysisPipeline>().ProcessAsync(runId, lines, stoppingToken);
+    }
+
     private async Task<Guid?> ClaimNextAsync(CancellationToken cancellationToken)
     {
         await using var command = dataSource.CreateCommand(ClaimSql);
@@ -85,15 +120,52 @@ public sealed partial class RunProcessor(
         return await command.ExecuteScalarAsync(cancellationToken) as Guid?;
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed {Count} runs left running when the API stopped, with INTERRUPTED.")]
-    private static partial void LogInterrupted(ILogger logger, int count);
+    // Best effort, with a deadline of its own. Only a run still running is failed, so an outcome already recorded stays.
+    private async Task TryFailAsync(Guid runId, string failureReason)
+    {
+        try
+        {
+            using var deadline = new CancellationTokenSource(FailWriteTimeout, timeProvider);
+            await using var command = dataSource.CreateCommand(
+                """
+                UPDATE runs SET status = 'failed', failure_reason = @reason, finished_at = @now
+                WHERE id = @id AND status = 'running'
+                """);
+            command.Parameters.AddWithValue("id", runId);
+            command.Parameters.AddWithValue("reason", failureReason);
+            command.Parameters.AddWithValue("now", timeProvider.GetUtcNow());
+            await command.ExecuteNonQueryAsync(deadline.Token);
+        }
+        catch (Exception exception)
+        {
+            LogStillRunning(logger, exception, runId);
+        }
+    }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Run {RunId} completed.")]
     private static partial void LogCompleted(ILogger logger, Guid runId);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Run {RunId} failed with {FailureReason}.")]
-    private static partial void LogFailed(ILogger logger, Guid runId, string failureReason);
+    private static partial void LogFailed(ILogger logger, Exception? exception, Guid runId, string failureReason);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Run {RunId} failed with INTERNAL_ERROR.")]
     private static partial void LogInternalError(ILogger logger, Exception exception, Guid runId);
+
+    [LoggerMessage(
+        Level = LogLevel.Error,
+        Message = "Run {RunId} could not be recorded as failed with {FailureReason}; trying once more.")]
+    private static partial void LogNotRecorded(ILogger logger, Exception exception, Guid runId, string failureReason);
+
+    [LoggerMessage(
+        Level = LogLevel.Error,
+        Message = "Processing run {RunId} failed before an outcome was recorded; failing it with INTERNAL_ERROR.")]
+    private static partial void LogUnrecorded(ILogger logger, Exception exception, Guid runId);
+
+    [LoggerMessage(
+        Level = LogLevel.Error,
+        Message = "Run {RunId} could not be failed and stays running until the API starts again.")]
+    private static partial void LogStillRunning(ILogger logger, Exception exception, Guid runId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed {Count} runs left running when the API stopped, with INTERRUPTED.")]
+    private static partial void LogInterrupted(ILogger logger, int count);
 }

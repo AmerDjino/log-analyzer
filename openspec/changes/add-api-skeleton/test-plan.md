@@ -41,14 +41,17 @@ Every scenario in this change is deterministic, and none depends on model judgme
 - `ScriptedAnalysisModel`, in the test project. Each test gives it a queue of replies (response text and stop reason) or a `ModelCallException`, and it records every `AnalysisRequest` it receives. The corrective-retry tests read the second request's correction from it.
 - `RunsClient`. It submits a log as raw bytes with a chosen Content-Type and optional `fileName`, and reads and lists runs. Two signed-in clients (`AccountsClient.RegisterAndSignInAsync`) cover the ownership scenarios.
 - `RunsDatabase`, which uses plain SQL. It counts runs, reads a run's attempts in order, and sets a run to `running` for the recovery scenarios.
-- Restarts: the recovery tests start a second API host with the real worker against the same PostgreSQL container, after the run rows are in place. They poll `GET /runs/{id}` until the run reaches a final state.
+- Restarts: the recovery tests start a second API host with the real worker against the same PostgreSQL container, after the run rows are in place. They poll `GET /runs/{id}` until the run reaches a final state. `BlockingAnalysisModel`, whose call waits until it is cancelled, lets one of them stop the host during a model call.
+- `WorkerApiFactory`: the real worker and the stand-in, with a clock that only the test moves, so only a submission's signal, or a poll the test lets fire, wakes the worker.
+- `KestrelApiFactory`: the API on a real Kestrel server with the 1 MB limit, for chunked bodies and Kestrel's own body size limit, which the in-memory test server does not have.
+- `FlakyRunRecorder`, which `RunsApiFactory` wraps around the real recorder: for the runs a test names, writing the failure throws, as if the database failed at that moment.
 - Logs:
   - `levels-10.log`: 10 lines, 3 `fail:` lines and 2 `warn:` lines.
   - `no-levels.log`: no level markers and no timestamps.
   - A two-line log stamped 09:00:05Z, then 09:00:01Z.
   - A paste of three CRLF-terminated lines.
   - A small file containing a NUL byte.
-  - Generated bodies of exactly 1,048,576 and 1,572,864 bytes.
+  - Generated bodies of exactly 1,048,576 and 1,572,864 bytes, sent with Content-Length, chunked, or one byte per chunk.
   - `orders-api-40.log` from the contract tests, for findings that cite real lines.
 - Model replies, as contract JSON built per test: a valid analysis with two findings, a reply citing a line past the end (LINE_OUT_OF_RANGE), and a reply whose evidence is not on its cited line (EVIDENCE_NOT_FOUND).
 - Paging: 25 runs submitted while the clock advances one minute per run.
@@ -64,11 +67,18 @@ These pin rules from design.md that no scenario names. They carry no `Scenario` 
   - A malformed id gets the same 404 body as another person's run.
   - The `OpenApiDocumentTests` rows for the run routes.
   - `AccessPolicyTests` sends each endpoint the content type it declares.
-  - `RunWorkerTests` keeps the real worker with the stand-in and polls until a run completes.
+  - `RunWorkerTests` keeps the real worker with the stand-in and polls until a run completes, woken by the submission's signal, and by a poll for a run queued without one.
+  - A body without a Content-Type is read as text/plain.
+  - On real Kestrel: a chunked body over the limit gets 413 INPUT_TOO_LARGE, one at the limit is accepted, and one whose chunk framing is out of proportion gets 413 INPUT_TOO_LARGE.
+  - A claimed run whose lines cannot be read fails with INTERNAL_ERROR rather than staying running.
+  - When the pipeline cannot write a run's failure, the processor writes it with the same reason.
+  - Accepted text is stored without NUL characters.
+  - A graceful shutdown during a model call fails the run with INTERRUPTED at once.
 - Unit (LogAnalyzer.UnitTests, Core only):
   - Decoding and splitting: CRLF, CR, LF, a final line break, BOM, NUL, invalid UTF-8 and encoded surrogates.
   - A table of level formats and of timestamp formats, and the time-range rules (earliest and latest, the offset kind, `utc`).
   - File-name cleaning.
-  - `AnalysisPipeline` with a fake model and recorder: attempt order and times, the correction's content, at most two calls, and the mapping of model exceptions and cancellation.
+  - `AnalysisPipeline` with a fake model and recorder: attempt order and times, the correction's content, at most two calls, and the mapping of model exceptions and cancellation. A response that arrived before a stop is still recorded, no call starts after it, a write that hangs is given up 5 seconds after it, and a failure that cannot be written keeps its reason and cause.
+  - Text made only of NUL and white space is rejected as BLANK_FIELD.
   - The stored rejection paths, with unknown fields masked as `*`.
   - `StandInAnalysisModel`'s replies passing the validator for every fixture log.

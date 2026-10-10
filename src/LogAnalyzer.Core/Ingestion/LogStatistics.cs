@@ -48,6 +48,13 @@ public static partial class LineLevels
     /// <summary>The level of the leftmost marker that starts within the line's first 100 characters, if any.</summary>
     public static LineLevel? Detect(string line)
     {
+        // Colour codes (ANSI SGR sequences, such as ESC[31m) are not text: around a level name they hide its word
+        // boundaries. They are removed before the 100 characters are counted.
+        if (line.Contains('\u001b', StringComparison.Ordinal))
+        {
+            line = ColourCode().Replace(line, string.Empty);
+        }
+
         var window = line.Length <= ScanLength ? line : line[..ScanLength];
         for (var match = Marker().Match(window); match.Success && match.Index < MarkerStartLimit; match = match.NextMatch())
         {
@@ -66,13 +73,19 @@ public static partial class LineLevels
 
     // Four forms, tried left to right along the line:
     // a .NET console prefix in lowercase, followed by a colon ("fail:");
-    // a level name as the last word inside square brackets, in any case ("[ERR]", "[09:00:01 WRN]");
-    // a level name in capitals as a whole word ("ERROR");
+    // a level name as the last word inside square brackets, in any case ("[ERR]", "[09:00:01 WRN]"); brackets whose
+    // last word is not a level name are no marker, so one inside them still counts ("[ERROR main]");
+    // a level name in capitals as a whole word ("ERROR", "INF"); a short name must also not touch - . or /, so it is
+    // not part of a host name, path or file name ("INF-WEB01", "welcome.FTL");
     // a key followed by a level name, in any case ("level=error", "\"@l\":\"Error\"").
+    // The names are those of LevelNames, longest first where one begins another.
     [GeneratedRegex(
-        """(?:^|(?<=\s))(?<prefix>trce|dbug|info|warn|fail|crit):|\[(?:[^\[\]]*\s)?(?<bracketed>[A-Za-z]+)\]|\b(?<capitals>FATAL|CRITICAL|CRIT|ERROR|SEVERE|WARNING|WARN|INFORMATION|INFO|DEBUG|TRACE|VERBOSE)\b|(?:\b(?i:level|lvl|severity)="?|"(?i:level|@l|loglevel|severity)"\s*:\s*")(?<keyed>[A-Za-z]+)""",
+        """(?:^|(?<=\s))(?<prefix>trce|dbug|info|warn|fail|crit):|\[(?:[^\[\]]*\s)?(?<bracketed>(?i:critical|crit|fatal|ftl|fail|error|err|severe|warning|warn|wrn|information|info|inf|dbug|debug|dbg|trce|trace|trc|verbose|vrb))\]|\b(?<capitals>CRITICAL|CRIT|FATAL|ERROR|SEVERE|WARNING|WARN|INFORMATION|INFO|DEBUG|TRACE|VERBOSE)\b|(?<![\w./-])(?<capitals>FTL|FAIL|ERR|WRN|INF|DBUG|DBG|TRCE|TRC|VRB)(?![\w./-])|(?:\b(?i:level|lvl|severity)="?|"(?i:level|@l|loglevel|severity)"\s*:\s*")(?<keyed>[A-Za-z]+)""",
         RegexOptions.CultureInvariant)]
     private static partial Regex Marker();
+
+    [GeneratedRegex(@"\x1B\[[0-9;]*m", RegexOptions.CultureInvariant)]
+    private static partial Regex ColourCode();
 }
 
 /// <summary>Finds a line's timestamp. docs/runs-api.md lists the recognized forms.</summary>

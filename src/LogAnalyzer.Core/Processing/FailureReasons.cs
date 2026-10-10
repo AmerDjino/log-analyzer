@@ -20,7 +20,4 @@ public static class FailureReasons
 
     /// <summary>An unexpected error. The server log has the details, with the run's id.</summary>
     public const string InternalError = "INTERNAL_ERROR";
-
-    public static IReadOnlyList<string> All { get; } =
-        [ValidationFailed, ModelUnavailable, ModelConfigurationError, Interrupted, InternalError];
 }

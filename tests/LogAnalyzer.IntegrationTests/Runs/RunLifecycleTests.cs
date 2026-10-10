@@ -87,6 +87,76 @@ public sealed class RunLifecycleTests(RunsApiFactory factory) : IClassFixture<Ru
         Assert.Equal(FailureReasons.ModelConfigurationError, run.GetProperty("failureReason").GetString());
     }
 
+    // Once claimed, a run must end even when processing fails before the model is asked, or it would stay running.
+    [Fact]
+    public async Task Process_FailsClaimedRunWhoseLinesCannotBeRead()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var (runs, person) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
+        await using var database = new RunsDatabase(factory.ConnectionString);
+        var runId = await database.InsertQueuedRunAsync(
+            person.Id, ["fail: Orders.Api[0] Order 1003 could not be stored"], factory.Clock.GetUtcNow(), cancellationToken,
+            withLines: false);
+
+        await factory.ProcessQueuedRunsAsync(cancellationToken);
+
+        var run = await runs.ReadRunAsync(runId, cancellationToken);
+        Assert.Equal("failed", run.GetProperty("status").GetString());
+        Assert.Equal(FailureReasons.InternalError, run.GetProperty("failureReason").GetString());
+        Assert.Empty(factory.Model.RequestsFor(runId));
+    }
+
+    // When the pipeline cannot write the failure, the processor writes it another way, with the same reason.
+    [Fact]
+    public async Task Process_FailsRunWithItsReasonWhenTheRecorderCannotWriteIt()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var (runs, _) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
+        var runId = await runs.SubmitAcceptedAsync(FixtureLogs.Read(FixtureLogs.OrdersApi40), "orders-api.log", cancellationToken);
+        factory.Model.Fail(runId, FailureReasons.ModelUnavailable);
+        factory.RunsWhoseFailureCannotBeRecorded.TryAdd(runId, true);
+
+        await factory.ProcessQueuedRunsAsync(cancellationToken);
+
+        var run = await runs.ReadRunAsync(runId, cancellationToken);
+        Assert.Equal("failed", run.GetProperty("status").GetString());
+        Assert.Equal(FailureReasons.ModelUnavailable, run.GetProperty("failureReason").GetString());
+    }
+
+    // PostgreSQL text cannot hold U+0000, which the validator does not reject, so it is left out rather than losing the
+    // accepted analysis. Evidence cannot contain one: it must appear on a cited line, and logs with NUL are refused.
+    [Fact]
+    public async Task Process_StoresAcceptedTextWithoutNulCharacters()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var (runs, _) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
+        await using var database = new RunsDatabase(factory.ConnectionString);
+        var runId = await runs.SubmitAcceptedAsync(FixtureLogs.Read(FixtureLogs.OrdersApi40), "orders-api.log", cancellationToken);
+        factory.Model.Reply(
+            runId,
+            ModelReplies.Analysis(
+                "The database ran out\u0000 of connections.",
+                ModelReplies.Finding(
+                    "Pool\u0000 exhausted",
+                    "critical",
+                    "resource",
+                    [12],
+                    "Database connection pool exhausted",
+                    explanation: "Requests\u0000 wait.",
+                    suggestedAction: "Check\u0000 the pool.")));
+
+        await factory.ProcessQueuedRunsAsync(cancellationToken);
+
+        var run = await runs.ReadRunAsync(runId, cancellationToken);
+        Assert.Equal("completed", run.GetProperty("status").GetString());
+        Assert.Equal("The database ran out of connections.", run.GetProperty("summary").GetString());
+        var finding = Assert.Single(run.GetProperty("findings").EnumerateArray());
+        Assert.Equal("Pool exhausted", finding.GetProperty("title").GetString());
+        Assert.Equal("Requests wait.", finding.GetProperty("explanation").GetString());
+        Assert.Equal("Check the pool.", finding.GetProperty("suggestedAction").GetString());
+        Assert.Equal(["accepted"], (await database.ReadAttemptsAsync(runId, cancellationToken)).Select(attempt => attempt.Outcome));
+    }
+
     // The model gets every line with its number, starting at 1.
     [Fact]
     public async Task Process_SendsEveryLineWithItsNumber()

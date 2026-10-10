@@ -284,6 +284,26 @@ public sealed class ResponseValidationTests
         ValidationAssert.Rejected(result, ("BLANK_FIELD", "summary"));
     }
 
+    // Text is stored without U+0000, which PostgreSQL cannot hold, so text made of NUL and white space would be stored blank.
+    [Theory]
+    [InlineData("title", "\u0000")]
+    [InlineData("explanation", "\u0000\u0000")]
+    [InlineData("suggested_action", " \u0000 ")]
+    public void Validate_RejectsTextMadeOfNulCharactersAsBlank(string field, string value)
+    {
+        var result = ResponseValidator.Validate(CompleteFindingWith(field, value));
+
+        ValidationAssert.Rejected(result, ("BLANK_FIELD", $"findings[0].{field}"));
+    }
+
+    [Fact]
+    public void Validate_AcceptsTextWithNulBesideOtherCharacters()
+    {
+        var result = ResponseValidator.Validate(CompleteFindingWith("title", "Pool\u0000 exhausted"));
+
+        ValidationAssert.Accepted(result);
+    }
+
     [Fact]
     public void Validate_RejectsEvidenceInDifferentLetterCase()
     {

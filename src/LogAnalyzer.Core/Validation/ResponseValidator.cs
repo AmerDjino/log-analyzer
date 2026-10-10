@@ -82,9 +82,10 @@ public static class ResponseValidator
         }
 
         var path = ResponsePath.Field(parentPath, field);
-        if (string.IsNullOrWhiteSpace(text))
+        // U+0000 counts as white space: text is stored without it, because PostgreSQL text cannot hold it.
+        if (text is null || text.All(character => char.IsWhiteSpace(character) || character == '\0'))
         {
-            violations.Add(new Violation(ReasonCodes.BlankField, path, "The field is empty or contains only whitespace."));
+            violations.Add(new Violation(ReasonCodes.BlankField, path, "The field is empty or contains only whitespace or NUL characters."));
             return;
         }
 

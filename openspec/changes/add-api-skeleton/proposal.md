@@ -22,7 +22,7 @@ To exercise the whole pipeline before paying for model calls, the system needs a
 
 ### Modified Capabilities
 
-- `response-validation`: adds the corrective retry after a rejected response.
+- `response-validation`: adds the corrective retry after a rejected response, and counts a NUL character as whitespace when it checks for blank text, because stored text cannot hold it.
 - `user-accounts`: registration and sign-in answer 415 for a body in a character set the API does not support.
 
 ## Non-Goals

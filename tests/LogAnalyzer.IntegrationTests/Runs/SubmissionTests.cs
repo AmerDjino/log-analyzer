@@ -115,6 +115,22 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         await RunsClient.AcceptedRunIdAsync(response, cancellationToken);
     }
 
+    // Routing refuses another media type, but a body without a Content-Type is read like text/plain.
+    [Fact]
+    public async Task Submit_ReadsBodyWithoutContentTypeAsText()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var (runs, _) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
+        await using var database = new RunsDatabase(factory.ConnectionString);
+        using var body = new ByteArrayContent("info: started\nfail: stopped\n"u8.ToArray());
+        Assert.Null(body.Headers.ContentType);
+
+        using var response = await runs.SubmitAsync(body, fileName: null, cancellationToken);
+
+        var runId = await RunsClient.AcceptedRunIdAsync(response, cancellationToken);
+        Assert.Equal(2, (await database.ReadRunAsync(runId, cancellationToken)).LineCount);
+    }
+
     [Fact]
     [Trait("Scenario", "log-ingestion/line-breaks-do-not-add-lines")]
     public async Task Submit_CountsCrlfLinesWithoutAddingOne()
@@ -171,7 +187,8 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         await using var database = new RunsDatabase(factory.ConnectionString);
         var modelRequests = await ModelRequestsAfterProcessingAsync(cancellationToken);
 
-        using var response = await runs.UploadAsync("large.log", LogOfSize(OversizedByteCount), cancellationToken);
+        using var response = await runs.UploadAsync(
+            "large.log", GeneratedBodies.LogOfSize(OversizedByteCount), cancellationToken);
 
         await ProblemAssert.HasCodeAsync(response, HttpStatusCode.RequestEntityTooLarge, "INPUT_TOO_LARGE", cancellationToken);
         Assert.Equal(0, await database.CountRunsAsync(person.Id, cancellationToken));
@@ -185,7 +202,7 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         var cancellationToken = TestContext.Current.CancellationToken;
         var (runs, person) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
         await using var database = new RunsDatabase(factory.ConnectionString);
-        using var body = new UnknownLengthContent(LogOfSize(OversizedByteCount));
+        using var body = new UnknownLengthContent(GeneratedBodies.LogOfSize(OversizedByteCount));
         Assert.Null(body.Headers.ContentLength);
 
         using var response = await runs.SubmitAsync(body, "large.log", cancellationToken);
@@ -202,7 +219,8 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         var (runs, _) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
         await using var database = new RunsDatabase(factory.ConnectionString);
 
-        using var response = await runs.UploadAsync("limit.log", LogOfSize(RunsApiFactory.MaxSubmissionBytes), cancellationToken);
+        using var response = await runs.UploadAsync(
+            "limit.log", GeneratedBodies.LogOfSize(RunsApiFactory.MaxSubmissionBytes), cancellationToken);
 
         var runId = await RunsClient.AcceptedRunIdAsync(response, cancellationToken);
         Assert.Equal(RunsApiFactory.MaxSubmissionBytes, (await database.ReadRunAsync(runId, cancellationToken)).ByteCount);
@@ -235,30 +253,5 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
     {
         await factory.ProcessQueuedRunsAsync(cancellationToken);
         return factory.Model.Requests.Count;
-    }
-
-    // A UTF-8 log of exactly the given size: lines of 99 characters and a line break, the last line cut short.
-    private static byte[] LogOfSize(int byteCount) =>
-        Enumerable.Range(0, byteCount).Select(index => index % 100 == 99 ? (byte)'\n' : (byte)'x').ToArray();
-
-    // A body whose length is not known in advance, so the client sends it without Content-Length.
-    private sealed class UnknownLengthContent : HttpContent
-    {
-        private readonly byte[] _content;
-
-        public UnknownLengthContent(byte[] content)
-        {
-            _content = content;
-            Headers.ContentType = new("text/plain");
-        }
-
-        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
-            stream.WriteAsync(_content).AsTask();
-
-        protected override bool TryComputeLength(out long length)
-        {
-            length = 0;
-            return false;
-        }
     }
 }

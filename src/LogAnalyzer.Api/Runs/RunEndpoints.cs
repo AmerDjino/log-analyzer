@@ -18,6 +18,9 @@ internal static class RunEndpoints
     // The body is read in pieces of this size, so a small paste never allocates the whole limit.
     private const int ReadChunkBytes = 81_920;
 
+    // Room for a chunked body's framing in Kestrel's own limit: a few bytes per chunk, little for usual chunk sizes.
+    private const int FramingAllowanceBytes = 65_536;
+
     public static IEndpointRouteBuilder MapRunEndpoints(this IEndpointRouteBuilder app)
     {
         var runs = app.MapGroup("/runs").WithTags("Runs");
@@ -116,8 +119,9 @@ internal static class RunEndpoints
         return TypedResults.Ok(new RunPageResponse(page.Select(RunListItemResponse.From).ToList(), nextCursor));
     }
 
-    // Reads at most limit + 1 bytes. A body above the limit is refused by its Content-Length before anything is read,
-    // or by the extra byte arriving, which also covers a body sent without Content-Length. Null means too large.
+    // Reads at most limit + 1 bytes of the log. A body above the limit is refused by its Content-Length before anything is
+    // read, or by the byte past the limit arriving, which also covers a body sent without Content-Length. Null means too
+    // large.
     private static async Task<ReadOnlyMemory<byte>?> ReadBodyWithinLimitAsync(
         HttpRequest request, int limit, CancellationToken cancellationToken)
     {
@@ -126,17 +130,22 @@ internal static class RunEndpoints
             return null;
         }
 
-        // Raised past this limit, so Kestrel's own (30,000,000 bytes by default, answered without a code) never answers first.
+        // Kestrel counts a chunked body's framing toward its own limit, so the limit gets room for framing: only a body
+        // whose framing is out of proportion reaches it, and that refusal is answered below like any body over the limit.
+        // Kestrel's default, 30,000,000 bytes, would otherwise answer first when the limit is set higher.
         if (request.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>() is { IsReadOnly: false } serverLimit)
         {
-            serverLimit.MaxRequestBodySize = limit + 1L;
+            serverLimit.MaxRequestBodySize = 2L * limit + FramingAllowanceBytes;
         }
 
-        var content = new MemoryStream((int)(request.ContentLength ?? Math.Min(limit + 1L, ReadChunkBytes)));
+        // Grown as bytes arrive, never past the declared length or the limit, so a Content-Length the client may never
+        // send allocates nothing up front.
+        var capacityLimit = (int)(request.ContentLength ?? limit);
+        var content = new MemoryStream(Math.Min(capacityLimit, ReadChunkBytes));
         var chunk = ArrayPool<byte>.Shared.Rent(ReadChunkBytes);
         try
         {
-            while (content.Length <= limit)
+            while (true)
             {
                 var wanted = (int)Math.Min(chunk.Length, limit + 1L - content.Length);
                 var read = await request.Body.ReadAsync(chunk.AsMemory(0, wanted), cancellationToken);
@@ -145,9 +154,21 @@ internal static class RunEndpoints
                     return content.GetBuffer().AsMemory(0, (int)content.Length);
                 }
 
+                if (content.Length + read > limit)
+                {
+                    return null;
+                }
+
+                if (content.Length + read > content.Capacity)
+                {
+                    content.Capacity = (int)Math.Min(Math.Max(content.Length + read, 2L * content.Capacity), capacityLimit);
+                }
+
                 content.Write(chunk, 0, read);
             }
-
+        }
+        catch (BadHttpRequestException exception) when (exception.StatusCode == StatusCodes.Status413PayloadTooLarge)
+        {
             return null;
         }
         finally

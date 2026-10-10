@@ -130,6 +130,8 @@ public sealed class AnalysisPipelineTests
         var outcome = await ProcessAsync();
 
         Assert.Equal(failureReason, outcome.FailureReason);
+        // Passed on so the caller logs the cause, which the failure reason alone does not tell.
+        Assert.IsType<ModelCallException>(outcome.Error);
         var failed = Assert.IsType<RunFailed>(Assert.Single(_recorder.Calls));
         Assert.Equal(failureReason, failed.FailureReason);
         Assert.Null(failed.Attempt);
@@ -171,6 +173,104 @@ public sealed class AnalysisPipelineTests
         Assert.False(failed.TokenWasCancelled);
     }
 
+    // A response that arrived before the shutdown was evaluated, so it is recorded, and an accepted one completes the run.
+    [Fact]
+    public async Task Process_CompletesRunWhenStoppedAfterAnAcceptedResponseArrived()
+    {
+        using var stopping = new CancellationTokenSource();
+        _model.Then(_ => StopThenReply(stopping, Accepted));
+
+        var outcome = await new AnalysisPipeline(_model, _recorder, _clock).ProcessAsync(RunId, Lines, stopping.Token);
+
+        Assert.True(outcome.IsCompleted);
+        var completed = Assert.IsType<RunCompleted>(Assert.Single(_recorder.Calls));
+        Assert.False(completed.TokenWasCancelled);
+    }
+
+    // The rejected response is recorded, but no corrective call starts once the API is stopping.
+    [Fact]
+    public async Task Process_RecordsRejectionThenStopsWhenStoppedAfterItArrived()
+    {
+        using var stopping = new CancellationTokenSource();
+        _model.Then(_ => StopThenReply(stopping, LineOutOfRange));
+        _model.Reply(Accepted);
+
+        var outcome = await new AnalysisPipeline(_model, _recorder, _clock).ProcessAsync(RunId, Lines, stopping.Token);
+
+        Assert.Equal(FailureReasons.Interrupted, outcome.FailureReason);
+        Assert.Single(_model.Requests);
+        Assert.Equal(2, _recorder.Calls.Count);
+        var rejected = Assert.IsType<RejectedAttemptRecorded>(_recorder.Calls[0]);
+        Assert.False(rejected.TokenWasCancelled);
+        var failed = Assert.IsType<RunFailed>(_recorder.Calls[1]);
+        Assert.Equal(FailureReasons.Interrupted, failed.FailureReason);
+        Assert.False(failed.TokenWasCancelled);
+    }
+
+    [Fact]
+    public async Task Process_RecordsSecondRejectionWhenStoppedAfterItArrived()
+    {
+        using var stopping = new CancellationTokenSource();
+        _model.Reply(LineOutOfRange);
+        _model.Then(_ => StopThenReply(stopping, LineOutOfRange));
+
+        var outcome = await new AnalysisPipeline(_model, _recorder, _clock).ProcessAsync(RunId, Lines, stopping.Token);
+
+        Assert.Equal(FailureReasons.ValidationFailed, outcome.FailureReason);
+        var failed = Assert.IsType<RunFailed>(_recorder.Calls[1]);
+        Assert.Equal(FailureReasons.ValidationFailed, failed.FailureReason);
+        Assert.NotNull(failed.Attempt);
+        Assert.False(failed.TokenWasCancelled);
+    }
+
+    // Writes get five seconds after a stop: a write that hangs longer is given up, and the run is failed as interrupted.
+    [Fact]
+    public async Task Process_GivesUpOnAHangingWriteFiveSecondsAfterAStop()
+    {
+        using var stopping = new CancellationTokenSource();
+        _recorder.CompletionHangs = true;
+        _model.Then(_ => StopThenReply(stopping, Accepted));
+
+        var processing = new AnalysisPipeline(_model, _recorder, _clock).ProcessAsync(RunId, Lines, stopping.Token);
+        _clock.Advance(TimeSpan.FromSeconds(4.9));
+        Assert.False(processing.IsCompleted);
+        _clock.Advance(TimeSpan.FromSeconds(0.2));
+        var outcome = await processing.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+
+        Assert.Equal(FailureReasons.Interrupted, outcome.FailureReason);
+        var failed = Assert.IsType<RunFailed>(_recorder.Calls[^1]);
+        Assert.Equal(FailureReasons.Interrupted, failed.FailureReason);
+        Assert.True(failed.TokenWasCancelled);
+    }
+
+    // When even the failure cannot be written, the caller still learns the reason and the cause, to log them and retry.
+    [Fact]
+    public async Task Process_PassesOnReasonAndCauseWhenTheFailureCannotBeRecorded()
+    {
+        var cause = new ModelCallException(FailureReasons.ModelConfigurationError, "The API key was refused.");
+        var writeError = new InvalidOperationException("The database is down.");
+        _model.Throw(cause);
+        _recorder.FailureWriteError = writeError;
+
+        var exception = await Assert.ThrowsAsync<RunOutcomeNotRecordedException>(ProcessAsync);
+
+        Assert.Equal(FailureReasons.ModelConfigurationError, exception.Outcome.FailureReason);
+        Assert.Same(cause, exception.Outcome.Error);
+        Assert.Same(writeError, exception.InnerException);
+    }
+
+    [Fact]
+    public async Task Process_PassesOnValidationFailedWhenItCannotBeRecorded()
+    {
+        _model.Reply(LineOutOfRange);
+        _model.Reply(LineOutOfRange);
+        _recorder.FailureWriteError = new InvalidOperationException("The database is down.");
+
+        var exception = await Assert.ThrowsAsync<RunOutcomeNotRecordedException>(ProcessAsync);
+
+        Assert.Equal(FailureReasons.ValidationFailed, exception.Outcome.FailureReason);
+    }
+
     [Fact]
     public async Task Process_FailsWithInternalErrorOnAnUnexpectedException()
     {
@@ -198,6 +298,13 @@ public sealed class AnalysisPipelineTests
 
     private Task<RunOutcome> ProcessAsync() =>
         new AnalysisPipeline(_model, _recorder, _clock).ProcessAsync(RunId, Lines, CancellationToken.None);
+
+    // The model has answered when the shutdown begins.
+    private static ModelReply StopThenReply(CancellationTokenSource stopping, string text)
+    {
+        stopping.Cancel();
+        return new ModelReply(text, StopReason.Completed, FakeAnalysisModel.Model, FakeAnalysisModel.PromptVersion);
+    }
 
     private static void AssertAttempt(AttemptRecord attempt, int sequence, DateTimeOffset startedAt, DateTimeOffset finishedAt)
     {

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using LogAnalyzer.Core.Processing;
 using LogAnalyzer.Infrastructure.Runs;
@@ -25,6 +26,9 @@ public sealed class RunsApiFactory : PostgresApiFactory
 
     public ScriptedAnalysisModel Model { get; }
 
+    /// <summary>Runs whose failure the recorder cannot write: see <see cref="FlakyRunRecorder"/>.</summary>
+    public ConcurrentDictionary<Guid, bool> RunsWhoseFailureCannotBeRecorded { get; } = new();
+
     /// <summary>Processes queued runs one at a time, oldest first, as the worker does, until none is left.</summary>
     public async Task ProcessQueuedRunsAsync(CancellationToken cancellationToken)
     {
@@ -51,6 +55,12 @@ public sealed class RunsApiFactory : PostgresApiFactory
             {
                 services.Remove(worker);
             }
+
+            var recorder = services.Single(service => service.ServiceType == typeof(IRunRecorder));
+            services.Remove(recorder);
+            services.AddScoped<IRunRecorder>(provider => new FlakyRunRecorder(
+                (IRunRecorder)ActivatorUtilities.CreateInstance(provider, recorder.ImplementationType!),
+                RunsWhoseFailureCannotBeRecorded));
         });
     }
 
