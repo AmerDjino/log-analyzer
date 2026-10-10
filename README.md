@@ -173,8 +173,9 @@ Evals are not part of this workflow, because they call the real model and cost m
 ## Repository layout
 
 ```
+├─ docs/                             the account API and the model's output contract
 ├─ openspec/                         specs, changes and the spec-tdd workflow
-├─ schemas/                          JSON Schema for the model's output contract
+├─ schemas/                          JSON Schema for the model's output contract (docs/output-contract.md)
 ├─ scripts/                          scenario coverage check, its tests and fixtures
 ├─ src/
 │  ├─ LogAnalyzer.Api/               ASP.NET Core minimal API (composition root)

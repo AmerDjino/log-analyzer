@@ -1,0 +1,5 @@
+{
+  "summary": "The database connection pool ran out and orders failed to save; an unhandled exception crashed the process.",
+  "findings": [
+    {
+      "title": "Database connect

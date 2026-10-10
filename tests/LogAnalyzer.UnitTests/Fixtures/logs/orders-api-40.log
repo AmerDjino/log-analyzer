@@ -1,0 +1,40 @@
+Unhandled exception. System.NullReferenceException
+   at Orders.Api.Handlers.CheckoutHandler.Handle(CheckoutCommand command) in /src/Orders.Api/Handlers/CheckoutHandler.cs:line 57
+info: Microsoft.Hosting.Lifetime[0] Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0] Hosting environment: Production
+warn: Orders.Api[0] Setting 'Smtp:Host' is missing; order confirmations are not sent
+info: Orders.Api[0] Received order 1001 from customer 88
+info: Orders.Api[0] Order 1001 stored
+warn: Orders.Api[0] Connection pool at 90% of its limit
+info: Orders.Api[0] Received order 1002 from customer 91
+info: Orders.Api[0] Order 1002 stored
+warn: Orders.Api[0] Connection pool at 100% of its limit
+fail: Orders.Api[0] Database connection pool exhausted
+fail: Orders.Api[0] Order 1003 could not be stored
+info: Orders.Api[0] Received order 1004 from customer 23
+fail: Orders.Api[0] Request to inventory-service timed out after 30 s
+info: Orders.Api[0] Order 1004 stored
+fail: Orders.Api[0] Call to payments-api failed with status 503
+info: Orders.Api[0] Received order 1005 from customer 40
+warn: Orders.Api[0] Rejected request with an invalid API key from 203.0.113.7
+info: Orders.Api[0] Order 1005 stored
+info: Orders.Api[0] Received order 1006 from customer 58
+info: Orders.Api[0] Order 1006 stored
+info: Orders.Api[0] Received order 1007 from customer 65
+info: Orders.Api[0] Order 1007 stored
+info: Orders.Api[0] Received order 1008 from customer 72
+info: Orders.Api[0] Order 1008 stored
+info: Orders.Api[0] Received order 1009 from customer 79
+info: Orders.Api[0] Order 1009 stored
+info: Orders.Api[0] Received order 1010 from customer 86
+warn: Orders.Api[0] Payment gateway responded in 8432 ms
+info: Orders.Api[0] Received order 1011 from customer 93
+info: Orders.Api[0] Order 1011 stored
+info: Orders.Api[0] Received order 1012 from customer 3
+info: Orders.Api[0] Order 1012 stored
+info: Orders.Api[0] Received order 1013 from customer 10
+info: Orders.Api[0] Order 1013 stored
+info: Orders.Api[0] Received order 1014 from customer 17
+info: Orders.Api[0] Order 1014 stored
+info: Orders.Api[0] Received order 1015 from customer 24
+info: Orders.Api[0] Order 1015 stored

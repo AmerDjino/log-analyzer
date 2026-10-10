@@ -44,6 +44,11 @@ Each finding SHALL contain a title, a severity, a category, one or more cited li
 - **WHEN** the response is validated
 - **THEN** it is rejected with reason SCHEMA_VIOLATION at path `findings[0].suggested_action`
 
+#### Scenario: Finding without cited lines is rejected
+- **GIVEN** a finding whose list of cited line numbers is empty
+- **WHEN** the response is validated
+- **THEN** it is rejected with reason SCHEMA_VIOLATION at path `findings[0].line_refs`
+
 ### Requirement: Severity levels
 Each finding SHALL have exactly one severity from this closed set: critical (an outage, crash or data loss), error (failed operations without a full outage), warning (degradation or a risk of failure) and info (noteworthy but harmless).
 

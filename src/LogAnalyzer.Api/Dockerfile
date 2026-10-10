@@ -11,6 +11,8 @@ COPY src/LogAnalyzer.Infrastructure/LogAnalyzer.Infrastructure.csproj src/LogAna
 COPY src/LogAnalyzer.Api/LogAnalyzer.Api.csproj src/LogAnalyzer.Api/
 RUN dotnet restore src/LogAnalyzer.Api/LogAnalyzer.Api.csproj
 
+# LogAnalyzer.Core embeds the output contract from schemas/.
+COPY schemas/ schemas/
 COPY src/LogAnalyzer.Core/ src/LogAnalyzer.Core/
 COPY src/LogAnalyzer.Infrastructure/ src/LogAnalyzer.Infrastructure/
 COPY src/LogAnalyzer.Api/ src/LogAnalyzer.Api/

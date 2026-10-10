@@ -10,6 +10,7 @@ Every scenario in this change is deterministic. All tests run against canned mod
 | `log-analysis/complete-finding-is-accepted` | `Validate_AcceptsCompleteFinding` | unit | LogAnalyzer.UnitTests |
 | `log-analysis/line-numbers-start-at-1` | `Validate_TreatsLineNumbersAsOneBased` | unit | LogAnalyzer.UnitTests |
 | `log-analysis/finding-with-a-missing-field-is-rejected` | `Validate_RejectsFindingWithMissingField` | unit | LogAnalyzer.UnitTests |
+| `log-analysis/finding-without-cited-lines-is-rejected` | `Validate_RejectsFindingWithoutCitedLines` | unit | LogAnalyzer.UnitTests |
 | `log-analysis/each-defined-severity-is-accepted` | `Validate_AcceptsEachDefinedSeverity` | unit | LogAnalyzer.UnitTests |
 | `log-analysis/unknown-severity-is-rejected` | `Validate_RejectsUnknownSeverity` | unit | LogAnalyzer.UnitTests |
 | `log-analysis/each-defined-category-is-accepted` | `Validate_AcceptsEachDefinedCategory` | unit | LogAnalyzer.UnitTests |
@@ -34,5 +35,26 @@ Every scenario in this change is deterministic. All tests run against canned mod
 
 - `tests/LogAnalyzer.UnitTests/Fixtures/logs/orders-api-40.log`: 40 lines; line 1 reads "Unhandled exception. System.NullReferenceException", line 12 reads "fail: Orders.Api[0] Database connection pool exhausted".
 - `tests/LogAnalyzer.UnitTests/Fixtures/logs/orders-api-120.log`: 120 lines, for the out-of-range citation.
-- `tests/LogAnalyzer.UnitTests/Fixtures/responses/`: one JSON file per scenario, named after the scenario id.
+- `tests/LogAnalyzer.UnitTests/Fixtures/responses/`: one file per scenario, named after the scenario id, such as `log-analysis/complete-finding-is-accepted.json`. Responses that are deliberately not one JSON object (truncated, refused, fenced, prose, malformed) are `.txt` files.
 - A test helper that builds a validation input from response text, stop reason and a fixture log.
+
+## Tests without a scenario
+
+These pin rules that no scenario names, and carry no `Scenario` trait:
+
+- `ContractSchemaTests`: the schema's fields, required fields and closed sets match the C# contract types and `ToContractValue()`.
+- `ResponseValidationTests`, response level:
+  - A JSON array, a field named twice and an unpaired surrogate are `NOT_JSON`; the message for the repeated field names it.
+  - A valid analysis reported as cut off or refused is still rejected.
+  - An undefined stop reason makes `Validate` throw.
+- `ResponseValidationTests`, citations:
+  - The last line of the 120-line log is accepted, and the line after it is rejected.
+  - 12.0 and 1.2e1 are line 12.
+  - Numbers with a fraction, however small, are `SCHEMA_VIOLATION`; whole numbers too large for any log are `LINE_OUT_OF_RANGE`.
+  - Evidence in a different letter case is not found.
+  - Whitespace around the evidence is ignored.
+- `ResponseValidationTests`, text limits:
+  - Blank title, evidence, explanation and summary.
+  - A title of 120 emoji is accepted and one of 121 characters rejected.
+  - A summary of 1,000 emoji is accepted and one of 1,001 characters rejected.
+- `ResponseValidationTests`, ordering: one violation of each kind is reported in order.

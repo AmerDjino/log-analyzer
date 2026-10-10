@@ -7,7 +7,7 @@ Defines how every model response is checked against the analysis contract and th
 ## ADDED Requirements
 
 ### Requirement: Reject incomplete responses
-The system SHALL reject a response that the model service reports as stopped at its output limit (reason TRUNCATED) or as a refusal (reason REFUSED), without parsing its content.
+The system SHALL reject a response that the model service reports as cut off, because the model reached its output limit or its context window (reason TRUNCATED), or as a refusal (reason REFUSED), without parsing its content.
 
 #### Scenario: Truncated response is rejected
 - **GIVEN** a response whose stop reason says the output limit was reached
@@ -70,7 +70,7 @@ Every cited line number SHALL be between 1 and the number of lines in the submit
 - **THEN** it is rejected with reason LINE_OUT_OF_RANGE
 
 #### Scenario: Paraphrased evidence is rejected
-- **GIVEN** line 12 reads "Database connection pool exhausted"
+- **GIVEN** line 12 reads "fail: Orders.Api[0] Database connection pool exhausted"
 - **AND** a finding cites line 12 with evidence "The connection pool ran out"
 - **WHEN** the response is validated
 - **THEN** it is rejected with reason EVIDENCE_NOT_FOUND at path `findings[0].evidence`

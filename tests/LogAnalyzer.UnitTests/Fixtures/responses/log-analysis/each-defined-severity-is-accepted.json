@@ -1,0 +1,49 @@
+{
+  "summary": "The database connection pool ran out and orders failed to save; an unhandled exception crashed the process.",
+  "findings": [
+    {
+      "title": "Database connection pool exhausted",
+      "severity": "critical",
+      "category": "resource",
+      "line_refs": [
+        12
+      ],
+      "evidence": "Database connection pool exhausted",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Order could not be stored",
+      "severity": "error",
+      "category": "resource",
+      "line_refs": [
+        13
+      ],
+      "evidence": "Order 1003 could not be stored",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Connection pool near its limit",
+      "severity": "warning",
+      "category": "resource",
+      "line_refs": [
+        8
+      ],
+      "evidence": "Connection pool at 90% of its limit",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    },
+    {
+      "title": "Application started",
+      "severity": "info",
+      "category": "other",
+      "line_refs": [
+        3
+      ],
+      "evidence": "Application started",
+      "explanation": "Every pooled database connection is in use, so new requests cannot reach the database and orders fail to save.",
+      "suggested_action": "Look for connections that are not disposed, then check the Max Pool Size in the connection string."
+    }
+  ]
+}

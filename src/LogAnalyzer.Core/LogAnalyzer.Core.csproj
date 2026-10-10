@@ -7,4 +7,11 @@
     LogAnalyzer.UnitTests guards this rule.
   -->
 
+  <ItemGroup>
+    <!-- The output contract. Embedded, so the validator (and later the model gateway) uses exactly this file. -->
+    <EmbeddedResource Include="..\..\schemas\analysis-result.schema.json"
+                      LogicalName="LogAnalyzer.Core.Contract.analysis-result.schema.json"
+                      Link="Contract\analysis-result.schema.json" />
+  </ItemGroup>
+
 </Project>
