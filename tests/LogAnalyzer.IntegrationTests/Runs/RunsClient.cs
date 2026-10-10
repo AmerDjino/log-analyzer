@@ -68,6 +68,29 @@ public sealed class RunsClient(HttpClient client)
         return await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
     }
 
+    /// <summary>
+    /// Reads a run until it has completed or failed, for tests with a real worker, and fails the test after 30 seconds.
+    /// <paramref name="beforeEachRead"/> runs before every read, for example to move a test clock.
+    /// </summary>
+    public async Task<JsonElement> ReadWhenFinishedAsync(
+        Guid id, CancellationToken cancellationToken, Action? beforeEachRead = null)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(30);
+        while (true)
+        {
+            beforeEachRead?.Invoke();
+            var run = await ReadRunAsync(id, cancellationToken);
+            var status = run.GetProperty("status").GetString();
+            if (status is "completed" or "failed")
+            {
+                return run;
+            }
+
+            Assert.True(DateTime.UtcNow < deadline, $"Run {id} is still {status} after 30 seconds.");
+            await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+        }
+    }
+
     /// <summary>Lists runs; <paramref name="limit"/> and <paramref name="cursor"/> are sent as given, when not null.</summary>
     public Task<HttpResponseMessage> ListAsync(CancellationToken cancellationToken, string? limit = null, string? cursor = null)
     {

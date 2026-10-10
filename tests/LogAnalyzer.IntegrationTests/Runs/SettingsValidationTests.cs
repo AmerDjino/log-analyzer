@@ -5,13 +5,15 @@ using Microsoft.Extensions.Options;
 
 namespace LogAnalyzer.IntegrationTests.Runs;
 
-/// <summary>A size limit outside 1 byte to 100 MB stops the API when it starts, with a message naming the setting.</summary>
-public sealed class IngestionOptionsTests
+/// <summary>A run setting outside its allowed range stops the API when it starts, with a message naming the setting.</summary>
+public sealed class SettingsValidationTests
 {
     [Theory]
-    [InlineData("0")]
-    [InlineData("104857601")]
-    public void Startup_RefusesSizeLimitOutsideTheAllowedRange(string maxSubmissionBytes)
+    [InlineData("Ingestion:MaxSubmissionBytes", "0")]
+    [InlineData("Ingestion:MaxSubmissionBytes", "104857601")]
+    [InlineData("Analysis:MaxConcurrentRuns", "0")]
+    [InlineData("Analysis:MaxConcurrentRuns", "17")]
+    public void Startup_RefusesSettingOutsideItsRange(string setting, string value)
     {
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             builder.ConfigureAppConfiguration((_, configuration) =>
@@ -19,11 +21,11 @@ public sealed class IngestionOptionsTests
                 {
                     // Unreachable: the test needs no database.
                     ["ConnectionStrings:Postgres"] = "Host=127.0.0.1;Port=1;Database=none;Username=none;Password=none",
-                    ["Ingestion:MaxSubmissionBytes"] = maxSubmissionBytes,
+                    [setting] = value,
                 })));
 
         var exception = Assert.Throws<OptionsValidationException>(() => factory.CreateClient());
 
-        Assert.Contains("Ingestion:MaxSubmissionBytes", exception.Message, StringComparison.Ordinal);
+        Assert.Contains(setting, exception.Message, StringComparison.Ordinal);
     }
 }

@@ -1,0 +1,10 @@
+info: Orders.Api[0] Application started
+info: Orders.Api[0] Received order 2001 from customer 12
+warn: Orders.Api[0] Connection pool at 90% of its limit
+fail: Orders.Api[0] Database connection pool exhausted
+fail: Orders.Api[0] Order 2001 could not be stored
+info: Orders.Api[0] Received order 2002 from customer 15
+warn: Orders.Api[0] Payment gateway responded in 8432 ms
+fail: Orders.Api[0] Call to payments-api failed with status 503
+   at Orders.Api.Payments.PaymentsClient.ChargeAsync(Order order)
+info: Orders.Api[0] Order 2002 stored

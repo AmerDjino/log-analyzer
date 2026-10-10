@@ -38,22 +38,22 @@
 
 ## 4. Processing and the model seam
 
-- [ ] 4.1 Write the failing tests below, using `ScriptedAnalysisModel` and `RunsApiFactory.ProcessQueuedRunsAsync`; verify each fails because processing does not exist
+- [x] 4.1 Write the failing tests below, using `ScriptedAnalysisModel` and `RunsApiFactory.ProcessQueuedRunsAsync`; verify each fails because processing does not exist
   - `RunLifecycleTests`, `AttemptTests`, `CorrectiveRetryTests`, and the two "when the run completes" scenarios in `StatisticsTests`: 8 scenarios.
   - Unit tests for `AnalysisPipeline`, the stored rejection paths and the stand-in.
-- [ ] 4.2 Add the model seam (`IAnalysisModel`, `AnalysisRequest`, `ModelReply`, `ModelCallException`), `FailureReasons` and `StandInAnalysisModel` in Core; verify the stand-in's unit tests pass, with its replies passing the validator for every fixture log
-- [ ] 4.3 Add `AnalysisPipeline` and `IRunRecorder` in Core as listed below; verify the pipeline's unit tests pass
+- [x] 4.2 Add the model seam (`IAnalysisModel`, `AnalysisRequest`, `ModelReply`, `ModelCallException`), `FailureReasons` and `StandInAnalysisModel` in Core; verify the stand-in's unit tests pass, with its replies passing the validator for every fixture log
+- [x] 4.3 Add `AnalysisPipeline` and `IRunRecorder` in Core as listed below; verify the pipeline's unit tests pass
   - At most two model calls, including the correction.
   - Attempts recorded as they happen.
   - Findings stored only on acceptance.
   - Exceptions mapped to failure reasons.
-- [ ] 4.4 Add `RunProcessor` and the `IRunRecorder` implementation (attempts with masked paths, and the completing transaction) in Infrastructure; verify `RunLifecycleTests`, `AttemptTests`, `CorrectiveRetryTests` and the two statistics scenarios pass
-- [ ] 4.5 Add `RunWorker` as listed below, and register the stand-in; verify `RunWorkerTests` completes a run with the real worker and `HealthEndpointWithoutDatabaseTests` still passes
+- [x] 4.4 Add `RunProcessor` and the `IRunRecorder` implementation (attempts with masked paths, and the completing transaction) in Infrastructure; verify `RunLifecycleTests`, `AttemptTests`, `CorrectiveRetryTests` and the two statistics scenarios pass
+- [x] 4.5 Add `RunWorker` as listed below, and register the stand-in; verify `RunWorkerTests` completes a run with the real worker and `HealthEndpointWithoutDatabaseTests` still passes
   - It waits for migrations.
   - It claims runs with SKIP LOCKED.
   - It wakes on the post-commit signal or a poll.
   - It runs `Analysis:MaxConcurrentRuns` loops.
-- [ ] 4.6 Document processing, the stand-in and the failure reasons in docs/runs-api.md; verify every reason in `FailureReasons` appears in it
+- [x] 4.6 Document processing, the stand-in and the failure reasons in docs/runs-api.md; verify every reason in `FailureReasons` appears in it
 
 ## 5. Recovery after a restart
 

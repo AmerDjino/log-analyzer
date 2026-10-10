@@ -201,3 +201,51 @@ The time range is returned to the microsecond. A log in which no line has a time
 - `nextCursor` requests the next page: send it back as `cursor`, unchanged. It is null on the last page. A cursor the API cannot read gets `400 INVALID_CURSOR`.
 - A cursor marks the last run of its page, so runs submitted in the meantime do not shift the pages that follow. It is not a secret: whatever it says, the list holds only your own runs.
 - `highestSeverity` is the most serious severity among the run's findings. It is set when the run completes, and is null before that and for a run without findings.
+
+## Processing
+
+A background worker in the API analyzes queued runs, oldest first. It processes `Analysis:MaxConcurrentRuns` runs at a time (environment variable `Analysis__MaxConcurrentRuns`): 2 by default, and 1 to 16. Any other value stops the API at startup with a message naming the setting. A submission wakes the worker at once, and the worker also looks for queued runs every 5 seconds.
+
+1. The run's status becomes `running`, and the model gets every line with its number.
+2. The model's response must pass the validator, described in [output-contract.md](output-contract.md), before any part of it is stored or shown. If it passes, the run completes with its summary and findings.
+3. If the validator rejects the response, for any reason, the model is asked once more, with the same lines, the rejected response and every reason it was rejected. That includes a response cut off at the model's output limit (`TRUNCATED`) and a refusal (`REFUSED`).
+4. If the corrected response passes, the run completes with its findings. If it is rejected too, the run fails with `VALIDATION_FAILED`, and nothing from either response is stored or returned.
+
+A run gets at most two model calls.
+
+### Attempts
+
+Every response the validator evaluated is stored as an attempt of its run, as soon as it is evaluated. No endpoint returns attempts yet. An attempt holds:
+
+- its number: 1 for the first response, 2 for the corrected one;
+- its outcome, `accepted` or `rejected`;
+- for a rejected response, each reason: the reason code and the path of the failing field, such as `LINE_OUT_OF_RANGE` at `findings[0].line_refs[0]`;
+- the model and the prompt version that produced it;
+- when the model call started and ended.
+
+The response text is never stored, and neither are the reasons' messages, which quote it. A path keeps the contract's field names and array indexes. Any other name in it was written by the model, so it is stored as `*`: `findings[0]["max tokens"]` becomes `findings[0].*`.
+
+A model call that yields no response, such as one that times out, is not an attempt.
+
+### The stand-in model
+
+Until Claude is integrated, runs are analyzed by a stand-in model. It makes no network calls, and gives the same answer for the same log. Its attempts record the model and prompt version `stand-in`. It never answers with anything the validator rejects.
+
+- It flags up to three lines with different text: critical lines first, then error lines, then warning lines, by the level rule in [Levels](#levels).
+- Each flagged line becomes one finding. Its title is the level and the line number, such as `Error logged on line 12`, and its severity is the line's level. Its category is `exception` or `timeout` when the line says so, and `other` otherwise. Its evidence is the whole line, trimmed.
+- The summary and each finding's explanation say that no AI model analyzed the log.
+- A log without critical, error or warning lines gets no findings, and a summary that says so.
+
+### Failure reasons
+
+A failed run has exactly one failure reason. The set is closed. The validator's reason codes, such as `EVIDENCE_NOT_FOUND`, appear only on attempts, never as a failure reason.
+
+| Reason | Meaning |
+|---|---|
+| `VALIDATION_FAILED` | The model's response and its corrected response were both rejected. Nothing from either is stored. |
+| `MODEL_UNAVAILABLE` | The model service failed, or did not answer in time, after retries. Submitting the log again later may work. |
+| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a missing or wrong API key. The API's configuration must be fixed. |
+| `INTERRUPTED` | The API stopped while it was processing the run. Submit the log again. |
+| `INTERNAL_ERROR` | An unexpected error. The server log has the details, with the run's id. |
+
+With the stand-in model, a run can fail only with `INTERRUPTED` or `INTERNAL_ERROR`.

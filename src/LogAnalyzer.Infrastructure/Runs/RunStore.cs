@@ -11,11 +11,11 @@ public readonly record struct RunPosition(DateTimeOffset SubmittedAt, Guid Id);
 /// Stores submitted runs, and reads them back for the person who submitted them. Every read goes through
 /// <see cref="Owned"/>, which filters on the person's account id in SQL, so another person's run is never found.
 /// </summary>
-public sealed class RunStore(LogAnalyzerDbContext database, TimeProvider timeProvider)
+public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queueSignal, TimeProvider timeProvider)
 {
     /// <summary>
-    /// Stores an accepted submission as a queued run, with its lines and statistics, in one transaction.
-    /// Returns the new run's id, a UUIDv7 built from the submission time.
+    /// Stores an accepted submission as a queued run, with its lines and statistics, in one transaction, then wakes the
+    /// worker. Returns the new run's id, a UUIDv7 built from the submission time.
     /// </summary>
     public async Task<Guid> SubmitAsync(
         Guid userId,
@@ -51,6 +51,7 @@ public sealed class RunStore(LogAnalyzerDbContext database, TimeProvider timePro
         database.Runs.Add(run);
         database.RunLogs.Add(new RunLog { RunId = run.Id, Lines = [.. lines] });
         await database.SaveChangesAsync(cancellationToken);
+        queueSignal.Notify();
         return run.Id;
     }
 

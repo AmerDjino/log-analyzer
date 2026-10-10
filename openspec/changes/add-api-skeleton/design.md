@@ -313,7 +313,7 @@ The run resource is camelCase:
 
 - **Core:**
   - Ingestion: byte checks, splitting, file names, statistics with the level and timestamp rules, and `IngestionOptions`.
-  - Analysis: the model seam, `AnalysisPipeline`, `IRunRecorder`, `FailureReasons` and `StandInAnalysisModel`.
+  - Processing: the model seam, `AnalysisPipeline`, `IRunRecorder`, `FailureReasons`, the stored rejection paths and `StandInAnalysisModel`. (A namespace named Analysis would hide the contract's `Analysis` record.)
 - **Infrastructure:**
   - The run entities and their mapping, and the `AddRuns` migration.
   - `RunStore`, the `IRunRecorder` implementation, `RunProcessor`, `RunWorker` and the queue signal.

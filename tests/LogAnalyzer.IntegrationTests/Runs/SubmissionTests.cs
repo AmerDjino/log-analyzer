@@ -139,11 +139,13 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         var cancellationToken = TestContext.Current.CancellationToken;
         var (runs, person) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
         await using var database = new RunsDatabase(factory.ConnectionString);
+        var modelRequests = await ModelRequestsAfterProcessingAsync(cancellationToken);
 
         using var response = await runs.PasteAsync("  \t\n \r\n\t  \n", cancellationToken);
 
         await ProblemAssert.HasCodeAsync(response, HttpStatusCode.BadRequest, "EMPTY_INPUT", cancellationToken);
         Assert.Equal(0, await database.CountRunsAsync(person.Id, cancellationToken));
+        Assert.Equal(modelRequests, await ModelRequestsAfterProcessingAsync(cancellationToken));
     }
 
     [Fact]
@@ -167,11 +169,13 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         var cancellationToken = TestContext.Current.CancellationToken;
         var (runs, person) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
         await using var database = new RunsDatabase(factory.ConnectionString);
+        var modelRequests = await ModelRequestsAfterProcessingAsync(cancellationToken);
 
         using var response = await runs.UploadAsync("large.log", LogOfSize(OversizedByteCount), cancellationToken);
 
         await ProblemAssert.HasCodeAsync(response, HttpStatusCode.RequestEntityTooLarge, "INPUT_TOO_LARGE", cancellationToken);
         Assert.Equal(0, await database.CountRunsAsync(person.Id, cancellationToken));
+        Assert.Equal(modelRequests, await ModelRequestsAfterProcessingAsync(cancellationToken));
     }
 
     // Without Content-Length the limit can only be found while reading, as for a chunked upload.
@@ -223,6 +227,14 @@ public sealed class SubmissionTests(RunsApiFactory factory) : IClassFixture<Runs
         await ProblemAssert.HasCodeAsync(
             withBogusCharset, HttpStatusCode.UnsupportedMediaType, "UNSUPPORTED_CHARSET", cancellationToken);
         await ProblemAssert.HasCodeAsync(tooLarge, HttpStatusCode.RequestEntityTooLarge, "INPUT_TOO_LARGE", cancellationToken);
+    }
+
+    // Processes every queued run, then counts the model's requests. A count taken before a submission and one taken
+    // after it are equal only if the submission never reached the model.
+    private async Task<int> ModelRequestsAfterProcessingAsync(CancellationToken cancellationToken)
+    {
+        await factory.ProcessQueuedRunsAsync(cancellationToken);
+        return factory.Model.Requests.Count;
     }
 
     // A UTF-8 log of exactly the given size: lines of 99 characters and a line break, the last line cut short.
