@@ -61,7 +61,7 @@ When the API reports that the person's session has ended, the interface SHALL as
 - **AND** after they sign in, the pasted log is still in the paste area
 
 ### Requirement: Submit a log
-The interface SHALL let a person paste a log or choose a file and submit it for analysis. Submitting MUST be disabled while the input is empty, and a file over the size limit MUST be refused before anything is uploaded.
+The interface SHALL let a person paste a log or choose a file and submit it for analysis. Submitting MUST be disabled while the input is empty. A chosen file MUST be sent as its bytes, unchanged, with its file name, and a file larger than the size limit the API reports MUST be refused before it is uploaded.
 
 #### Scenario: Submit is disabled for empty input
 - **GIVEN** the paste area is empty and no file is chosen
@@ -69,10 +69,21 @@ The interface SHALL let a person paste a log or choose a file and submit it for 
 - **THEN** the submit button is disabled
 
 #### Scenario: Oversized file is refused before upload
-- **GIVEN** the size limit is 10 MB
-- **WHEN** a person chooses a 12 MB file
-- **THEN** a message explains the limit
-- **AND** no request is sent to the API
+- **GIVEN** the API's size limit is configured as 1 MB
+- **WHEN** a person chooses a 1.5 MB file
+- **THEN** a message says that the file is larger than the 1 MB limit
+- **AND** the file is not uploaded
+
+#### Scenario: File that is not UTF-8 is explained
+- **GIVEN** a person chooses a file containing bytes that are not valid UTF-8
+- **WHEN** they submit it
+- **THEN** a message says that the file is not a UTF-8 text log
+- **AND** no run is created
+
+#### Scenario: Chosen file keeps its name
+- **GIVEN** a person chooses the file "orders-api.log"
+- **WHEN** they submit it
+- **THEN** the run list shows the new run with the file name "orders-api.log"
 
 #### Scenario: Successful submission opens the run
 - **GIVEN** a person has pasted a valid log
