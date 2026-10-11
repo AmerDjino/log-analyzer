@@ -15,7 +15,8 @@ builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadReq
 // Statuses, severities and categories are written in lowercase, as stored and as the output contract spells them.
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
-builder.Services.AddOpenApi();
+// The problem details schema lists every code the API reports.
+builder.Services.AddOpenApi(options => options.AddSchemaTransformer<ProblemCodeSchemaTransformer>());
 builder.Services.AddInfrastructure();
 builder.Services.AddAccountSessions();
 // The submission size limit, checked when the API starts.

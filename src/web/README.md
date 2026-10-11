@@ -13,6 +13,16 @@ Run these in `src/web`.
 | `npm test` | Runs the Vitest unit tests (watch mode locally; add `-- --watch=false` for a single run). |
 | `npm run build` | Builds for production into `dist/web/browser`. |
 
+## The API's OpenAPI document
+
+`openapi.json` is a copy of the document the API serves at `/openapi/v1.json`. After an API change, update it from the repository root (Docker must be running):
+
+```sh
+UPDATE_OPENAPI_SNAPSHOT=1 dotnet test tests/LogAnalyzer.IntegrationTests --filter FullyQualifiedName~OpenApiDocumentTests
+```
+
+Until then, `OpenApiDocumentTests.Document_EqualsWebCopy` fails and names this command.
+
 ## Tests and scenario ids
 
 When a test proves a spec scenario, put the scenario id in brackets in the test name, so the coverage check in `scripts/check-scenario-coverage.mjs` can find it:

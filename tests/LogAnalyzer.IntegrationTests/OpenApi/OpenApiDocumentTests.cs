@@ -1,5 +1,8 @@
 using System.Net;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace LogAnalyzer.IntegrationTests.OpenApi;
 
@@ -7,7 +10,7 @@ namespace LogAnalyzer.IntegrationTests.OpenApi;
 /// The OpenAPI document that the Angular API client is generated from. It is served only in Development,
 /// which is the test host's environment.
 /// </summary>
-public sealed class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
+public sealed partial class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
 {
     // Every answer of each endpoint that docs/accounts-api.md and docs/runs-api.md list, the success first, with the
     // schema of the success body (null for none).
@@ -76,6 +79,73 @@ public sealed class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFix
         Assert.Equal("string", schema.GetProperty("type").GetString());
         Assert.Equal("binary", schema.GetProperty("format").GetString());
     }
+
+    // The web app's messages are typed over this list, so a code missing from it would have no message.
+    [Fact]
+    public async Task Document_ListsEveryCodeOfErrorTables()
+    {
+        using var document = await ReadDocumentAsync();
+
+        var problem = document.RootElement.GetProperty("components").GetProperty("schemas").GetProperty("ProblemDetails");
+
+        Assert.True(
+            problem.GetProperty("properties").TryGetProperty("code", out var code),
+            "The ProblemDetails schema has no code.");
+        var documented = new[] { "accounts-api.md", "runs-api.md" }
+            .SelectMany(name => ErrorTableRow().Matches(File.ReadAllText(Path.Combine(RepositoryRoot, "docs", name))))
+            .Select(match => match.Groups[1].Value)
+            .ToHashSet();
+        Assert.Equal(documented, code.GetProperty("enum").EnumerateArray().Select(value => value.GetString()!).ToHashSet());
+    }
+
+    // The web app generates its types from the copy, so an API change must update it. The failure names the command.
+    [Fact]
+    public async Task Document_EqualsWebCopy()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        using var client = factory.CreateClientWithoutCookies();
+        var served = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json", cancellationToken));
+        var copyPath = Path.Combine(RepositoryRoot, "src", "web", "openapi.json");
+
+        if (Environment.GetEnvironmentVariable("UPDATE_OPENAPI_SNAPSHOT") == "1")
+        {
+            // Relaxed escaping keeps media types such as application/problem+json readable.
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                NewLine = "\n",
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            };
+            await File.WriteAllTextAsync(copyPath, served!.ToJsonString(options) + "\n", cancellationToken);
+            return;
+        }
+
+        Assert.True(
+            File.Exists(copyPath)
+                && JsonNode.DeepEquals(served, JsonNode.Parse(await File.ReadAllTextAsync(copyPath, cancellationToken))),
+            "src/web/openapi.json is missing or differs from the served document. To update it, set UPDATE_OPENAPI_SNAPSHOT=1: "
+                + "UPDATE_OPENAPI_SNAPSHOT=1 dotnet test tests/LogAnalyzer.IntegrationTests --filter FullyQualifiedName~OpenApiDocumentTests");
+    }
+
+    // The folder that holds LogAnalyzer.slnx, above the test's output folder.
+    private static string RepositoryRoot
+    {
+        get
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (!File.Exists(Path.Combine(directory.FullName, "LogAnalyzer.slnx")))
+            {
+                directory = directory.Parent
+                    ?? throw new InvalidOperationException($"No folder above {AppContext.BaseDirectory} holds LogAnalyzer.slnx.");
+            }
+
+            return directory.FullName;
+        }
+    }
+
+    // A row of an error table, such as "| `EMAIL_TAKEN` | 409 | ... |". The failure reasons table has no status column.
+    [GeneratedRegex(@"^\| `([A-Z_]+)` \| \d{3} \|", RegexOptions.Multiline)]
+    private static partial Regex ErrorTableRow();
 
     private async Task<JsonDocument> ReadDocumentAsync()
     {

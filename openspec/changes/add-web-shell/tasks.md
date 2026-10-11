@@ -16,14 +16,14 @@
 
 ## 2. Error codes in the OpenAPI document, and its committed copy
 
-- [ ] 2.1 Write the failing `OpenApiDocumentTests` below; verify the enum test fails because `ProblemDetails` has no `code`, and the copy test fails because `src/web/openapi.json` does not exist
+- [x] 2.1 Write the failing `OpenApiDocumentTests` below; verify the enum test fails because `ProblemDetails` has no `code`, and the copy test fails because `src/web/openapi.json` does not exist
   - The `ProblemDetails` schema's `code` enum lists exactly the codes in the error tables of docs/accounts-api.md and docs/runs-api.md.
   - The served document equals `src/web/openapi.json` as JSON. A difference fails with a message that names `UPDATE_OPENAPI_SNAPSHOT=1`, and with that variable set the test rewrites the copy instead.
-- [ ] 2.2 Add `ApiErrorCodes` and the `code` schema transformer, as listed below; verify the enum test passes, and every other integration test except the copy test still passes
+- [x] 2.2 Add `ApiErrorCodes` and the `code` schema transformer, as listed below; verify the enum test passes, and every other integration test except the copy test still passes
   - `ApiErrorCodes` is the one list of codes that `AccountErrors`, `RunErrors` and `Utf8RequestBodies` use.
   - The transformer, registered in `Program.cs`, adds `code` to `ProblemDetails` as a string enum of those codes. Its description says that answers the framework produces carry no `code`.
-- [ ] 2.3 Write `src/web/openapi.json` by running the copy test with `UPDATE_OPENAPI_SNAPSHOT=1`; verify the test then passes without the variable, and the copy holds `/runs/limits`, `/runs/{id}/lines` and the `code` enum
-- [ ] 2.4 Say in docs/accounts-api.md that the OpenAPI document lists every code, and in src/web/README.md how to update the copy after an API change; verify the documented command rewrites the copy and the test passes afterwards
+- [x] 2.3 Write `src/web/openapi.json` by running the copy test with `UPDATE_OPENAPI_SNAPSHOT=1`; verify the test then passes without the variable, and the copy holds `/runs/limits`, `/runs/{id}/lines` and the `code` enum
+- [x] 2.4 Say in docs/accounts-api.md that the OpenAPI document lists every code, and in src/web/README.md how to update the copy after an API change; verify the documented command rewrites the copy and the test passes afterwards
 
 ## 3. Generated types and test scaffolding in the web app
 
