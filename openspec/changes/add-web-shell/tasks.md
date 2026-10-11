@@ -2,17 +2,17 @@
 
 ## 1. The lines and limits endpoints
 
-- [ ] 1.1 On a branch that holds this plan and starts from a `main` that includes `add-api-skeleton` (PR #7), write the failing integration tests below, with the fixtures from test-plan.md; verify each fails because the routes do not exist. Today a signed-in `GET /runs/limits` answers 404 `RUN_NOT_FOUND`, because `/runs/{id}` takes "limits" as an id, and `GET /runs/{id}/lines` answers routing's 404.
+- [x] 1.1 On a branch that holds this plan and starts from a `main` that includes `add-api-skeleton` (PR #7), write the failing integration tests below, with the fixtures from test-plan.md; verify each fails because the routes do not exist. Today a signed-in `GET /runs/limits` answers 404 `RUN_NOT_FOUND`, because `/runs/{id}` takes "limits" as an id, and `GET /runs/{id}/lines` answers routing's 404.
   - `ReadLinesTests` for the three analysis-history scenarios, and the `ReadLinesTests` checks listed under "Tests without a scenario".
   - `SubmissionLimitsTests.ReadLimits_ReportsConfiguredSizeLimit` with `RunsApiFactory`, and the default-limit test with `PostgresApiFactory` as a second class fixture.
   - `RunsClient.ReadLinesAsync` and `ReadLimitsAsync`.
   - The `OpenApiDocumentTests` rows for `GET /runs/limits` and `GET /runs/{id}/lines`.
-- [ ] 1.2 Add `RunStore.ReadOwnedLinesAsync` and `GET /runs/{id}/lines`, as listed below; verify `ReadLinesTests` and its `OpenApiDocumentTests` row pass, and `AccessPolicyTests` still passes without changes
+- [x] 1.2 Add `RunStore.ReadOwnedLinesAsync` and `GET /runs/{id}/lines`, as listed below; verify `ReadLinesTests` and its `OpenApiDocumentTests` row pass, and `AccessPolicyTests` still passes without changes
   - `ReadOwnedLinesAsync` is one SQL statement that selects `lines[from:to]` from `run_logs`, joined to `runs` through the ownership filter.
   - The endpoint answers `RunLinesResponse` with `RunLineResponse` items. It reads the id as text, and `from` and `to` as required whole numbers.
   - It declares 200, 400, 401 and 404 for OpenAPI.
-- [ ] 1.3 Add `GET /runs/limits`, answering `SubmissionLimitsResponse` from `IngestionOptions`, with 200 and 401 declared for OpenAPI; verify `SubmissionLimitsTests` and its `OpenApiDocumentTests` row pass, and `AccessPolicyTests` and `ReadRunTests` still pass without changes
-- [ ] 1.4 Document both endpoints in docs/runs-api.md: their paths and answers, clamping, the framework's 400 for an unreadable `from` or `to`, and `RUN_NOT_FOUND`; verify every status and code the group's tests assert appears in it
+- [x] 1.3 Add `GET /runs/limits`, answering `SubmissionLimitsResponse` from `IngestionOptions`, with 200 and 401 declared for OpenAPI; verify `SubmissionLimitsTests` and its `OpenApiDocumentTests` row pass, and `AccessPolicyTests` and `ReadRunTests` still pass without changes
+- [x] 1.4 Document both endpoints in docs/runs-api.md: their paths and answers, clamping, the framework's 400 for an unreadable `from` or `to`, and `RUN_NOT_FOUND`; verify every status and code the group's tests assert appears in it
 
 ## 2. Error codes in the OpenAPI document, and its committed copy
 

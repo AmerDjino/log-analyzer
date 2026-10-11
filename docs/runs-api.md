@@ -19,7 +19,7 @@ Errors are problem details with a `code` member, as described in [accounts-api.m
 | `INVALID_LIMIT` | 400 | `limit` is not a whole number from 1 to 100. |
 | `INVALID_CURSOR` | 400 | `cursor` is not a cursor the API can read. |
 
-On `POST /runs`, a `Content-Type` other than `text/plain` gets `415` from the framework, without a `code`.
+On `POST /runs`, a `Content-Type` other than `text/plain` gets `415` from the framework, without a `code`. On `GET /runs/{id}/lines`, a `from` or `to` that is missing or not a whole number from -2,147,483,648 to 2,147,483,647 gets `400` from the framework, without a `code`.
 
 ## Submit a log
 
@@ -69,6 +69,17 @@ The limit applies to the bytes as sent. It is set by `Ingestion:MaxSubmissionByt
 - CRLF, LF and a lone CR each end a line. A line break at the very end does not start another line, and empty lines in between count. A paste of three lines, each ending with CRLF, has 3 lines.
 - Lines are numbered from 1 and stored without their line breaks, otherwise unchanged. Other characters, such as NEL (U+0085) and the line separator U+2028, stay inside their line, as editors show it.
 - Line N is the same line everywhere: in the statistics, in what the model receives, and in a finding's cited lines and evidence.
+
+## Read the size limit
+
+`GET /runs/limits` (needs a session)
+
+```json
+{ "maxSubmissionBytes": 10485760 }
+```
+
+- `200 OK` with the size limit that `POST /runs` applies, in bytes. It is set by `Ingestion:MaxSubmissionBytes`, as described in [Size limit](#size-limit).
+- A client can check a file against it and refuse a larger one before sending it. The limit changes only when the API restarts with another setting.
 
 ## Statistics
 
@@ -172,6 +183,25 @@ The time range is returned to the microsecond. A log in which no line has a time
 - `summary` and `findings` are null until the run completes. A completed run without findings has an empty list. Findings come in the model's order. `lineRefs` are line numbers from 1, and `evidence`, without the white space at its start and end, appears on at least one of the cited lines.
 - `failureReason` is null unless the run failed.
 - An unknown id, a malformed id such as `7f3c`, and another person's run all get `404 RUN_NOT_FOUND` with the same body, so the answer reveals nothing about other people's runs.
+
+## Read a run's lines
+
+`GET /runs/{id}/lines?from=2&to=3` (needs a session)
+
+```json
+{
+  "lines": [
+    { "number": 2, "text": "2026-10-10T09:00:04Z fail: Orders.Api[0] Payment for order 42 failed" },
+    { "number": 3, "text": "2026-10-10T09:00:05Z crit: Orders.Api[0] Database connection pool exhausted" }
+  ]
+}
+```
+
+- `200 OK` with lines `from` to `to` of the run's log, in order, each with its number. Lines are numbered and stored as described in [Lines](#lines).
+- `from` and `to` are required whole numbers from -2,147,483,648 to 2,147,483,647. A missing value, or any other value, gets `400` from the framework, without a `code`.
+- The range is clamped to the lines that exist. A `from` below 1 starts at line 1, and a `to` past the last line stops at the last line: asking a 500-line log for lines 495 to 520 returns lines 495 to 500. A range that ends before it starts, or begins after the last line, returns an empty list.
+- Any range can be read, up to the whole log, whatever the run's status: the lines are stored when the log is submitted.
+- An unknown id, a malformed id and another person's run all get `404 RUN_NOT_FOUND` with the same body, as in [Read a run](#read-a-run).
 
 ## List your runs
 

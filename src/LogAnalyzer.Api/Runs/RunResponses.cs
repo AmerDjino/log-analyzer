@@ -6,6 +6,9 @@ namespace LogAnalyzer.Api.Runs;
 /// <summary>The answer to an accepted submission: the new run's id and its status, queued.</summary>
 internal sealed record SubmissionResponse(Guid Id, RunStatus Status);
 
+/// <summary>The size limit that POST /runs applies to a submission, in bytes.</summary>
+internal sealed record SubmissionLimitsResponse(int MaxSubmissionBytes);
+
 /// <summary>
 /// A run as its owner reads it. The statistics are there for every status; the summary and the findings only once the
 /// run has completed, and the failure reason only once it has failed.
@@ -91,3 +94,14 @@ internal sealed record RunListItemResponse(
     public static RunListItemResponse From(Run run) =>
         new(run.Id, run.FileName, run.SubmittedAt, run.Status, run.HighestSeverity);
 }
+
+/// <summary>A range of a run's lines, in order, clamped to the lines that exist; empty when the range holds none of them.</summary>
+internal sealed record RunLinesResponse(IReadOnlyList<RunLineResponse> Lines)
+{
+    // The stored slice starts at line from, or at line 1 when from is below 1.
+    public static RunLinesResponse From(int from, string[] lines) =>
+        new(lines.Select((text, index) => new RunLineResponse(Math.Max(from, 1) + index, text)).ToList());
+}
+
+/// <summary>One line of a run's log, numbered from 1, as stored at submission: without its line break.</summary>
+internal sealed record RunLineResponse(int Number, string Text);

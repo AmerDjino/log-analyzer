@@ -121,6 +121,29 @@ public sealed class RunsClient(HttpClient client)
         page.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("id").GetGuid()).ToList();
 
     /// <summary>
+    /// Reads a range of a run's lines; <paramref name="from"/> and <paramref name="to"/> are sent as given, when not null.
+    /// </summary>
+    public Task<HttpResponseMessage> ReadLinesAsync(string id, string? from, string? to, CancellationToken cancellationToken)
+    {
+        var query = new List<string>();
+        if (from is not null)
+        {
+            query.Add($"from={Uri.EscapeDataString(from)}");
+        }
+
+        if (to is not null)
+        {
+            query.Add($"to={Uri.EscapeDataString(to)}");
+        }
+
+        var path = $"/runs/{Uri.EscapeDataString(id)}/lines";
+        return client.GetAsync(query.Count == 0 ? path : $"{path}?{string.Join('&', query)}", cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> ReadLimitsAsync(CancellationToken cancellationToken) =>
+        client.GetAsync("/runs/limits", cancellationToken);
+
+    /// <summary>
     /// Checks that a submission was accepted: 202 with status queued and no Location header, which would point past nginx.
     /// Returns the new run's id.
     /// </summary>
