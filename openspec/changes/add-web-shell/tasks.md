@@ -55,24 +55,24 @@
 
 ## 5. Sign-in, account creation, sign-out and the session guard
 
-- [ ] 5.1 Write the failing tests below, with stubs that compile of `Session`, `requireSession`, the ended-session interceptor and the sign-in and register pages; verify the suite compiles, the existing `app.spec.ts` tests still pass, and every new test fails, most because `app.routes.ts` has no routes yet, so no page opens and no guard sends `GET /api/auth/me`. A check that something does not happen, such as the interceptor leaving `INVALID_CREDENTIALS` and a 401 from `GET /auth/me` alone, may already pass against the stubs, as a guard.
+- [x] 5.1 Write the failing tests below, with stubs that compile of `Session`, `requireSession`, the ended-session interceptor and the sign-in and register pages; verify the suite compiles, the existing `app.spec.ts` tests still pass, and every new test fails, most because `app.routes.ts` has no routes yet, so no page opens and no guard sends `GET /api/auth/me`. A check that something does not happen, such as the interceptor leaving `INVALID_CREDENTIALS` and a 401 from `GET /auth/me` alone, may already pass against the stubs, as a guard.
   - `pages/register/register.spec.ts`: the three account-creation scenarios, and a signed-in person who opens `/register` is sent to `/`.
   - `pages/sign-in/sign-in.spec.ts`: the failed-sign-in and locked-account scenarios, and its checks listed under "Tests without a scenario".
   - `app.spec.ts`: the sign-out scenario, the header links and an unknown path.
   - `session/require-session.spec.ts` and `session/session-ended.interceptor.spec.ts`.
-- [ ] 5.2 Add `Session`, which holds the account as a signal read once from `GET /auth/me`, the `requireSession` guard and the routes from design.md, with placeholder pages for `/`, `/runs` and `/runs/:id` that later groups fill; verify `require-session.spec.ts` and the routing tests in `app.spec.ts` pass
-- [ ] 5.3 Add the ended-session interceptor and register it in app.config.ts (`withInterceptors`) and test-app.ts; verify `session-ended.interceptor.spec.ts` passes
+- [x] 5.2 Add `Session`, which holds the account as a signal read once from `GET /auth/me`, the `requireSession` guard and the routes from design.md, with placeholder pages for `/`, `/runs` and `/runs/:id` that later groups fill; verify `require-session.spec.ts` and the routing tests in `app.spec.ts` pass
+- [x] 5.3 Add the ended-session interceptor and register it in app.config.ts (`withInterceptors`) and test-app.ts; verify `session-ended.interceptor.spec.ts` passes
   - On a 401 `SIGN_IN_REQUIRED` from any request except `GET /auth/me`, it clears the account and navigates to `/sign-in?returnUrl=<the current URL>&ended=1`.
-- [ ] 5.4 Add the sign-in page, as listed below; verify `sign-in.spec.ts` passes
+- [x] 5.4 Add the sign-in page, as listed below; verify `sign-in.spec.ts` passes
   - Messages from messages.ts appear in an `aria-live` region, and the email address is kept.
   - It shows the session-ended note, and checks that `returnUrl` is an app path.
   - Signed-in people are sent to `/`.
-- [ ] 5.5 Add the register page, as listed below; verify `register.spec.ts` passes
+- [x] 5.5 Add the register page, as listed below; verify `register.spec.ts` passes
   - It sends `POST /auth/register`, then `POST /auth/sign-in` with the same credentials.
   - Field errors are tied to their fields with `aria-describedby`, and the email address is kept.
   - Signed-in people are sent to `/`.
-- [ ] 5.6 Add the header's links, email address and sign-out button, shown only when signed in. Sign-out sends `POST /auth/sign-out`, clears the account and shows the sign-in page; verify `app.spec.ts` and the whole web suite (`npm test -- --watch=false`) pass, and `npm run build` stays within its budgets
-- [ ] 5.7 Document in the README's Run section how to create an account and sign in at http://localhost:8080, in Chrome, Edge or Firefox, because Safari drops the `Secure` session cookie on `http://localhost`; verify the steps work on the running stack
+- [x] 5.6 Add the header's links, email address and sign-out button, shown only when signed in. Sign-out sends `POST /auth/sign-out`, clears the account and shows the sign-in page; verify `app.spec.ts` and the whole web suite (`npm test -- --watch=false`) pass, and `npm run build` stays within its budgets
+- [x] 5.7 Document in the README's Run section how to create an account and sign in at http://localhost:8080, in Chrome, Edge or Firefox, because Safari drops the `Secure` session cookie on `http://localhost`; verify the steps work on the running stack
 
 ## 6. The run page: status, findings and evidence
 

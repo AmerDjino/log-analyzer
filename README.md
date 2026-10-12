@@ -47,6 +47,8 @@ docker compose up --build
 
 Ports come from `.env`. `docker compose up` waits for PostgreSQL to be healthy before starting the API, and for the API before starting the web app.
 
+To use the app, open http://localhost:8080/register, create an account with an email address and a password of at least 12 characters, and you are signed in. Later, sign in at http://localhost:8080/sign-in. Use Chrome, Edge or Firefox: Safari drops the `Secure` session cookie on `http://localhost`, so signing in fails there.
+
 **API and web app on your machine, PostgreSQL in Docker:**
 
 ```bash

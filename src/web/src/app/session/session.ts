@@ -1,0 +1,45 @@
+import { Injectable, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { Account, ApiClient } from '../api/api-client';
+
+/**
+ * Who is signed in. The session cookie is HttpOnly, so the app cannot see it: it asks GET /auth/me once, and keeps the
+ * answer until a sign-in, a sign-out or an ended session changes it.
+ */
+@Injectable({ providedIn: 'root' })
+export class Session {
+  private readonly api = inject(ApiClient);
+  // undefined until GET /auth/me has answered; null when signed out.
+  private readonly current = signal<Account | null | undefined>(undefined);
+  private loading: Promise<Account | null> | undefined;
+
+  readonly account = this.current.asReadonly();
+
+  /** The signed-in account, or null. Asks GET /auth/me only the first time; any failure counts as signed out. */
+  load(): Promise<Account | null> {
+    const known = this.current();
+    if (known !== undefined) {
+      return Promise.resolve(known);
+    }
+
+    this.loading ??= firstValueFrom(this.api.me()).then(
+      (account) => this.settle(account),
+      () => this.settle(null),
+    );
+    return this.loading;
+  }
+
+  signedIn(account: Account): void {
+    this.settle(account);
+  }
+
+  signedOut(): void {
+    this.settle(null);
+  }
+
+  private settle(account: Account | null): Account | null {
+    this.loading = undefined;
+    this.current.set(account);
+    return account;
+  }
+}
