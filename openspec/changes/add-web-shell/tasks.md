@@ -44,12 +44,12 @@
 
 ## 4. The API client, error reading and messages
 
-- [ ] 4.1 Write the failing `api/api-client.spec.ts`, `api/api-error.spec.ts` and `messages.spec.ts` from test-plan.md, with stubs of `ApiClient`, `api-error.ts` and `messages.ts` that compile; verify the suite compiles and each new test fails on its assertions
-- [ ] 4.2 Implement `ApiClient`, as listed below; verify `api-client.spec.ts` passes
+- [x] 4.1 Write the failing `api/api-client.spec.ts`, `api/api-error.spec.ts` and `messages.spec.ts` from test-plan.md, with stubs of `ApiClient`, `api-error.ts` and `messages.ts` that compile; verify the suite compiles and each new test fails on its assertions
+- [x] 4.2 Implement `ApiClient`, as listed below; verify `api-client.spec.ts` passes
   - One method per endpoint the pages use, on `HttpClient` with the base path `/api` and the generated types.
   - A paste is sent as a string, and a file as the same `File`, both with `Content-Type: text/plain`. A file also sends `fileName`.
   - Add `provideHttpClient(withFetch())` to the providers in app.config.ts, which has none yet. 5.3 adds `withInterceptors` with the ended-session interceptor.
-- [ ] 4.3 Implement `api-error.ts` and `messages.ts`, as listed below; verify `api-error.spec.ts`, `messages.spec.ts` and the whole web suite (`npm test -- --watch=false`) pass, and `npm run build` passes, fails when one code's entry is removed from messages.ts, and passes again once the entry is restored
+- [x] 4.3 Implement `api-error.ts` and `messages.ts`, as listed below; verify `api-error.spec.ts`, `messages.spec.ts` and the whole web suite (`npm test -- --watch=false`) pass, and `npm run build` passes, fails when one code's entry is removed from messages.ts, and passes again once the entry is restored
   - `api-error.ts` reads the status and the `code` from a failed request.
   - `messages.ts` is a record over the generated code union. It gives the account codes their fields, explains the five failure reasons, holds a general message, and writes sizes in MB of 1,048,576 bytes with up to two decimals.
 
