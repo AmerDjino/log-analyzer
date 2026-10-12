@@ -87,7 +87,6 @@
   - The code graders and the `claude-haiku-5-5` judge score the answers, and a case passes at 2 of 3.
   - It writes `eval-report.json` with the pass rate, tokens and latency per case.
   - It reads the key from `dotnet user-secrets` or `ANTHROPIC_API_KEY`.
-- [ ] 8.3 With the user's go-ahead, since it costs money, run the evals once with their key on their machine; verify every case passes at 2 of 3, and keep `eval-report.json` with the change's verification. If a case fails, fix the v1 prompt rather than the grader, unless the grader is wrong.
 - [x] 8.4 Rewrite the evals README and the comment in `LogAnalyzer.Evals.csproj`; verify the README's commands run as written
   - The case format, `GoldenLogs/`, how to run locally, and the cost.
   - That evals never run in CI and need no GitHub secret.
@@ -110,3 +109,4 @@
 
 - Review the whole branch once, then run `/opsx:verify add-claude-integration` and fix what either finds in the same pull request.
 - Archive the change in that pull request, then open it for the user to merge.
+- Deferred by the user on 2026-10-12 (was task 8.3): run the evals once, with the user's go-ahead since it costs money, with their key on their machine (`RUN_EVALS=1 dotnet test tests/LogAnalyzer.Evals`). Every case should pass at 2 of 3. If a case fails, fix the v1 prompt rather than the grader, unless the grader is wrong. The report's latencies also show whether the 60-second default timeout suits real calls.
