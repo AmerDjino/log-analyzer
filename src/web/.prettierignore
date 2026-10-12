@@ -1,0 +1,2 @@
+# Written by npm run api:generate; CI checks that it matches the generator output exactly.
+src/app/api/schema.d.ts
