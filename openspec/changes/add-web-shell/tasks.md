@@ -132,12 +132,12 @@
 
 ## 9. Integration checks
 
-- [ ] 9.1 On a fresh database, check the whole flow by hand, as listed below; verify each step behaves as the specs say and `/api/health` stays Healthy
+- [x] 9.1 On a fresh database, check the whole flow by hand, as listed below; verify each step behaves as the specs say and `/api/health` stays Healthy
   - Reset the stack with `docker compose down --volumes`, then `docker compose up --build --wait`.
   - In Chrome at http://localhost:8080: create an account; submit `orders-api-40.log` as a file and as a paste; follow a run to completion; filter its findings.
   - Open a finding's evidence and see its lines numbered and in monospace.
   - Browse the run list, then sign out.
-- [ ] 9.2 Run the full test suite (`dotnet test`, `npm --prefix src/web test -- --watch=false`, `npm --prefix src/web run build` and the Playwright tests), `node scripts/check-scenario-coverage.mjs` and `openspec validate add-web-shell --strict`; verify all pass and the coverage report shows the 25 scenarios of this change as already having tests
+- [x] 9.2 Run the full test suite (`dotnet test`, `npm --prefix src/web test -- --watch=false`, `npm --prefix src/web run build` and the Playwright tests), `node scripts/check-scenario-coverage.mjs` and `openspec validate add-web-shell --strict`; verify all pass and the coverage report shows the 25 scenarios of this change as already having tests
 
 ## Workflow follow-up
 
