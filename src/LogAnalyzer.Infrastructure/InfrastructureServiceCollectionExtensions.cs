@@ -83,7 +83,7 @@ public static class InfrastructureServiceCollectionExtensions
             .ValidateOnStart();
         services.AddSingleton<IValidateOptions<ModelOptions>, ModelOptionsValidation>();
         services.AddSingleton<IPromptTemplates, EmbeddedPromptTemplates>();
-        services.AddSingleton<IAnalysisModel>(_ => new StandInAnalysisModel());
+        services.AddSingleton(AnalysisModels.Create);
         services.AddScoped<IRunRecorder, RunRecorder>();
         services.AddScoped<AnalysisPipeline>();
         services.AddSingleton<RunProcessor>();

@@ -272,9 +272,33 @@ The response text is never stored, and neither are the reasons' messages, which 
 
 A model call that yields no response, such as one that times out, is not an attempt.
 
+### Models
+
+`Model:Provider` (environment variable `Model__Provider`) chooses the model that analyzes runs, in any letter case:
+
+- `StandIn`, the default: the stand-in model below. It needs no key and makes no network calls, so the local stack and CI run without one.
+- `Claude`: Claude, through the Anthropic API. It needs `Model:Claude:ApiKey`; see the README for where to put the key.
+
+Any other value stops the API at startup with a message naming `Model:Provider`. With Claude, so does a missing key, a prompt version without templates, or a setting below out of its range. The stand-in never reads Claude's settings.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `Model:Claude:ApiKey` | none | The Anthropic API key. It is passed only to the SDK client, and never logged, returned or stored. |
+| `Model:Claude:Model` | `claude-opus-5-5` | The model to call. |
+| `Model:Claude:PromptVersion` | `log-analysis/v1` | The prompt templates, a folder under `prompts/` holding `system.md` and `correction.md`. They are built into the API, so a version cannot change after the API is built. |
+| `Model:Claude:Effort` | `medium` | How much the model thinks before it answers: `low`, `medium`, `high` or `max`. |
+| `Model:Claude:MaxOutputTokens` | 16,000 | The output limit of one call, from 1 to 128,000. |
+| `Model:Claude:Timeout` | `00:01:00` | How long one try of a call may take, as `hh:mm:ss`, at most 10 minutes. |
+| `Model:Claude:MaxRetries` | 2 | How many times a call is sent again after a transient failure, from 0 to 10. |
+| `Model:Claude:BaseUrl` | empty | Where the Anthropic API is; empty for its usual address. The integration tests point it at a local fake. |
+
+Each Claude call sends the cached system prompt and the numbered log, each line as `N: text`, and asks for the output contract as the response format. A corrective call is a new request with the same system prompt and log, plus the rejected response and the reasons it was rejected. A response must end with stop reason `end_turn` to be read as complete. `max_tokens` and `model_context_window_exceeded` count as cut off (`TRUNCATED`), `refusal` as a refusal (`REFUSED`), and any other stop reason as cut off, so it is never accepted. There is no fallback to another model.
+
+Changing the model or the prompt version affects only runs processed afterwards: a run records what it was analyzed with when its processing starts.
+
 ### The stand-in model
 
-Until Claude is integrated, runs are analyzed by a stand-in model. It makes no network calls, and gives the same answer for the same log. Its attempts record the model and prompt version `stand-in`. It never answers with anything the validator rejects.
+The stand-in makes no network calls, and gives the same answer for the same log. Its attempts record the model and prompt version `stand-in`. It never answers with anything the validator rejects.
 
 - It flags up to three lines with different text: critical lines first, then error lines, then warning lines, by the level rule in [Levels](#levels).
 - Each flagged line becomes one finding. Its title is the level and the line number, such as `Error logged on line 12`, and its severity is the line's level. Its category is `exception` or `timeout` when the line says so, and `other` otherwise. Its evidence is the whole line, trimmed.

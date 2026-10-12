@@ -44,17 +44,17 @@
 
 ## 5. The Claude model through the SDK
 
-- [ ] 5.1 Write the failing tests below, with the fixtures from test-plan.md; verify each fails because no Claude model is registered
+- [x] 5.1 Write the failing tests below, with the fixtures from test-plan.md; verify each fails because no Claude model is registered
   - `FakeMessagesApi` and its canned Messages answers.
   - `ClaudeApiFactory`, with the fake key `fake-key-for-tests` and `Model:Claude:BaseUrl` pointing at the fake. Delays and timeouts use real time, because the factory's test clock only moves by hand.
   - `ClaudeGatewayTests` for its eight scenarios in test-plan.md, and its checks listed under "Tests without a scenario".
   - The fast stop-reason table tests in `Models/`.
-- [ ] 5.2 Implement `ClaudeAnalysisModel` as design.md describes; verify the stop-reason table tests and every `ClaudeGatewayTests` test that needs no retry pass
+- [x] 5.2 Implement `ClaudeAnalysisModel` as design.md describes; verify the stop-reason table tests and every `ClaudeGatewayTests` test that needs no retry pass
   - One Messages request per call: the configured model, effort and `MaxTokens`, the output format built from `AnalysisContract.SchemaJson`, and no fallback.
   - The cached system prompt and log block, and the single-turn correction.
   - The reply text joins the text blocks. The stop reason maps through the table, and the reply carries usage and the `request-id`.
-- [ ] 5.3 Register Claude for `Model:Provider=Claude`, passing the key only to the client's constructor. Verify `Run_CallsModelServiceWhenClaudeIsSelected` and `Run_NeverExposesApiKey` pass, and the whole integration suite passes.
-- [ ] 5.4 Document the providers and their settings in docs/runs-api.md, and say in docs/output-contract.md that the contract is now sent as the output format; verify the setting names match `ModelOptions`
+- [x] 5.3 Register Claude for `Model:Provider=Claude`, passing the key only to the client's constructor. Verify `Run_CallsModelServiceWhenClaudeIsSelected` and `Run_NeverExposesApiKey` pass, and the whole integration suite passes.
+- [x] 5.4 Document the providers and their settings in docs/runs-api.md, and say in docs/output-contract.md that the contract is now sent as the output format; verify the setting names match `ModelOptions`
 
 ## 6. Retries and timeouts
 

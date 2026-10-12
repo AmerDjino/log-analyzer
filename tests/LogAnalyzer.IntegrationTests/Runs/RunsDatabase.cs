@@ -136,6 +136,49 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
         return values;
     }
 
+    /// <summary>What the run was analyzed with, as recorded when processing started, and its content hash.</summary>
+    public async Task<(string? Model, string? PromptVersion, byte[]? ContentSha256)> ReadAnalyzedWithAsync(
+        Guid runId, CancellationToken cancellationToken)
+    {
+        await using var command = Command("SELECT model, prompt_version, content_sha256 FROM runs WHERE id = @id", runId);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        Assert.True(await reader.ReadAsync(cancellationToken), $"No stored run {runId}.");
+        return (
+            reader.IsDBNull(0) ? null : reader.GetString(0),
+            reader.IsDBNull(1) ? null : reader.GetString(1),
+            reader.IsDBNull(2) ? null : reader.GetFieldValue<byte[]>(2));
+    }
+
+    /// <summary>Every column, of every table, that holds the value in some row, read as text: "table.column".</summary>
+    public async Task<List<string>> FindValueAsync(string value, CancellationToken cancellationToken)
+    {
+        var columns = new List<(string Table, string Column)>();
+        await using (var list = _dataSource.CreateCommand(
+            "SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = 'public'"))
+        await using (var reader = await list.ExecuteReaderAsync(cancellationToken))
+        {
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                columns.Add((reader.GetString(0), reader.GetString(1)));
+            }
+        }
+
+        var found = new List<string>();
+        foreach (var (table, column) in columns)
+        {
+            // The names come from the catalog, not from a test.
+            await using var search = _dataSource.CreateCommand(
+                $"""SELECT EXISTS (SELECT 1 FROM "{table}" WHERE "{column}"::text LIKE '%' || @value || '%')""");
+            search.Parameters.AddWithValue("value", value);
+            if ((bool)(await search.ExecuteScalarAsync(cancellationToken))!)
+            {
+                found.Add($"{table}.{column}");
+            }
+        }
+
+        return found;
+    }
+
     public async Task<long> CountFindingsAsync(Guid runId, CancellationToken cancellationToken)
     {
         await using var command = Command("SELECT count(*) FROM run_findings WHERE run_id = @id", runId);

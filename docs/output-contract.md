@@ -2,7 +2,7 @@
 
 What the model must return for one log, and how each response is checked before the system uses any part of it. The rules come from the `log-analysis` and `response-validation` specs in `openspec/specs/`. The decisions behind them are in `openspec/changes/archive/2026-10-10-add-analysis-contract/design.md`.
 
-The machine-readable contract is [`schemas/analysis-result.schema.json`](../schemas/analysis-result.schema.json). The validator in `LogAnalyzer.Core` checks every response against it, and from `add-claude-integration` on it is sent to the model as the output format. The schema uses only what Claude's structured outputs accept, so a few limits (non-blank text, title and summary length, line range, evidence on the cited line) are checked by the validator alone.
+The machine-readable contract is [`schemas/analysis-result.schema.json`](../schemas/analysis-result.schema.json). The validator in `LogAnalyzer.Core` checks every response against it, and Claude receives it as the response format of every request (structured outputs), so its answer has the contract's shape. The schema uses only what Claude's structured outputs accept, so a few limits (non-blank text, title and summary length, line range, evidence on the cited line) are checked by the validator alone.
 
 ## The response
 
