@@ -3,7 +3,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Account } from '../../api/api-client';
-import { ana, problems } from '../../testing/answers';
+import { ana, limits, problems } from '../../testing/answers';
 import { answerSession, flushError, provideTestApp, typeInto } from '../../testing/test-app';
 
 describe('RegisterPage', () => {
@@ -55,6 +55,7 @@ describe('RegisterPage', () => {
     });
     signIn.flush(ana);
     await harness.fixture.whenStable();
+    http.expectOne('/api/runs/limits').flush(limits);
 
     expect(TestBed.inject(Router).url).toBe('/');
     expect(harness.routeNativeElement!.querySelector('h2')?.textContent).toContain('Submit a log');
@@ -84,6 +85,7 @@ describe('RegisterPage', () => {
 
   it('sends a signed-in person who opens /register to /', async () => {
     await open(ana);
+    http.expectOne('/api/runs/limits').flush(limits);
 
     expect(TestBed.inject(Router).url).toBe('/');
   });

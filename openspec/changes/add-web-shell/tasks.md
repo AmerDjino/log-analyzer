@@ -105,14 +105,14 @@
 
 ## 8. The submit page, the draft and the end-to-end flows
 
-- [ ] 8.1 Write the failing `pages/submit/submit.spec.ts`, for the four submit scenarios and its checks listed under "Tests without a scenario", and `session/submission-draft.spec.ts`, with a submit page and `SubmissionDraft` that compile; verify the suite compiles and each new test fails on its assertions. The exceptions are checks a stub can already satisfy, such as nothing being written to `localStorage` or `sessionStorage` and the draft being kept for the same account: they may pass, as guards.
-- [ ] 8.2 Create the end-to-end package and write the four failing Playwright tests, as listed below; verify, against `docker compose up --build --wait`, that Playwright finds all four and each fails because the page cannot submit a log yet
+- [x] 8.1 Write the failing `pages/submit/submit.spec.ts`, for the four submit scenarios and its checks listed under "Tests without a scenario", and `session/submission-draft.spec.ts`, with a submit page and `SubmissionDraft` that compile; verify the suite compiles and each new test fails on its assertions. The exceptions are checks a stub can already satisfy, such as nothing being written to `localStorage` or `sessionStorage` and the draft being kept for the same account: they may pass, as guards.
+- [x] 8.2 Create the end-to-end package and write the four failing Playwright tests, as listed below; verify, against `docker compose up --build --wait`, that Playwright finds all four and each fails because the page cannot submit a log yet
   - `tests/e2e/package.json` with `@playwright/test` at an exact version, and its committed `package-lock.json`.
   - `playwright.config.ts` and the account helper, as test-plan.md describes.
   - `tests/e2e/.gitignore` for `test-results/` and `playwright-report/`.
   - `session.e2e.ts` and `submit.e2e.ts`, for the four end-to-end scenarios.
-- [ ] 8.3 Add `SubmissionDraft`: the pasted text, the chosen file and the account they belong to, kept in memory only, and cleared on sign-out and when another account signs in; verify the sign-out, other-account, same-account, file and storage tests in `submission-draft.spec.ts` pass
-- [ ] 8.4 Add the submit page, as listed below; verify `submit.spec.ts` and `submission-draft.spec.ts` pass, and the whole web suite (`npm test -- --watch=false`) still passes, with every earlier spec whose tests land on `/` signed in (such as `register.spec.ts`, `sign-in.spec.ts` and `app.spec.ts`) now answering the submit page's `GET /api/runs/limits`
+- [x] 8.3 Add `SubmissionDraft`: the pasted text, the chosen file and the account they belong to, kept in memory only, and cleared on sign-out and when another account signs in; verify the sign-out, other-account, same-account, file and storage tests in `submission-draft.spec.ts` pass
+- [x] 8.4 Add the submit page, as listed below; verify `submit.spec.ts` and `submission-draft.spec.ts` pass, and the whole web suite (`npm test -- --watch=false`) still passes, with every earlier spec whose tests land on `/` signed in (such as `register.spec.ts`, `sign-in.spec.ts` and `app.spec.ts`) now answering the submit page's `GET /api/runs/limits`
   - The paste area and file picker, bound to the draft. While a file is chosen, its name and size are shown and the paste area is disabled.
   - Submit is disabled while the paste area is empty and no file is chosen, and while a submission is being sent. A paste of only white space and an empty file are sent anyway, unchanged, and the API's `EMPTY_INPUT` answer gets its message.
   - Limits:
@@ -122,13 +122,13 @@
   - A paste is sent as text, and a file as the same `File` with `Content-Type: text/plain` and `fileName`.
   - A 202 clears the draft and opens the run's page.
   - Errors get their message from messages.ts in an `aria-live` region, and the input stays. A 413 gets the size message with or without a code, since nginx's own 413 page has none.
-- [ ] 8.5 Rebuild the stack and run the Playwright tests; verify all four pass
-- [ ] 8.6 Add the Playwright steps to the stack job, as listed below; verify the same commands pass locally against the stack
+- [x] 8.5 Rebuild the stack and run the Playwright tests; verify all four pass
+- [x] 8.6 Add the Playwright steps to the stack job, as listed below; verify the same commands pass locally against the stack
   - Place them between "API health through nginx" and "Show container logs", so the container logs still print on a failure and "Stop the stack" still runs last.
   - `actions/setup-node` with `node-version: ${{ env.NODE_VERSION }}`, `cache: npm` and `cache-dependency-path: tests/e2e/package-lock.json`.
   - `npm ci`, `npx playwright install --with-deps chromium` and `npx playwright test`, each with `working-directory: tests/e2e`.
   - `actions/upload-artifact` with `if: failure()` and the paths `tests/e2e/playwright-report/` and `tests/e2e/test-results/`. The paths start at the repository root, because `working-directory` applies only to `run` steps.
-- [ ] 8.7 Document the end-to-end tests in the root README's Test section, CI table and repository layout, and in src/web/README.md: start the stack, then run `npm ci`, `npx playwright install chromium` and `npx playwright test` in `tests/e2e`, with `BASE_URL` to point elsewhere; verify the documented commands run as written
+- [x] 8.7 Document the end-to-end tests in the root README's Test section, CI table and repository layout, and in src/web/README.md: start the stack, then run `npm ci`, `npx playwright install chromium` and `npx playwright test` in `tests/e2e`, with `BASE_URL` to point elsewhere; verify the documented commands run as written
 
 ## 9. Integration checks
 

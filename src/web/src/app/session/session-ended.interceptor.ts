@@ -19,7 +19,7 @@ export const sessionEndedInterceptor: HttpInterceptorFn = (request, next) => {
         apiErrorOf(error).code === 'SIGN_IN_REQUIRED' &&
         request.url !== '/api/auth/me'
       ) {
-        session.signedOut();
+        session.ended();
         void router.navigate(['/sign-in'], { queryParams: { returnUrl: router.url, ended: 1 } });
       }
       return throwError(() => error);

@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Account, ApiClient } from '../api/api-client';
+import { SubmissionDraft } from './submission-draft';
 
 /**
  * Who is signed in. The session cookie is HttpOnly, so the app cannot see it: it asks GET /auth/me once, and keeps the
@@ -9,6 +10,7 @@ import { Account, ApiClient } from '../api/api-client';
 @Injectable({ providedIn: 'root' })
 export class Session {
   private readonly api = inject(ApiClient);
+  private readonly draft = inject(SubmissionDraft);
   // undefined until GET /auth/me has answered; null when signed out.
   private readonly current = signal<Account | null | undefined>(undefined);
   private loading: Promise<Account | null> | undefined;
@@ -33,12 +35,22 @@ export class Session {
     this.settle(account);
   }
 
+  /** The person signed out: the unsent draft goes too. */
   signedOut(): void {
+    this.draft.clear();
+    this.settle(null);
+  }
+
+  /** The API said the session has ended: the draft stays, for whoever signs in next with the same account. */
+  ended(): void {
     this.settle(null);
   }
 
   private settle(account: Account | null): Account | null {
     this.loading = undefined;
+    if (account !== null) {
+      this.draft.ownedBy(account.id);
+    }
     this.current.set(account);
     return account;
   }

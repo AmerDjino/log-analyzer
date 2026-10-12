@@ -32,6 +32,20 @@ The types come from [openapi-typescript](https://openapi-ts.dev/). Every 7.x rel
 
 `src/app/testing/` holds what the unit tests share: `test-app.ts` gives the app's routes and HTTP setup with every request answered through `HttpTestingController`, and `answers.ts` holds canned API answers typed with the generated types. The production build leaves the folder out (`tsconfig.app.json`).
 
+## End-to-end tests
+
+The Playwright tests in `tests/e2e` drive this app in Chromium against the Docker Compose stack, with the real API. From the repository root:
+
+```sh
+docker compose up --build --wait
+cd tests/e2e
+npm ci
+npx playwright install chromium
+npx playwright test
+```
+
+They use http://localhost:8080; set `BASE_URL` to test another address. CI runs them in the Docker Compose stack job.
+
 ## Tests and scenario ids
 
 When a test proves a spec scenario, put the scenario id in brackets in the test name, so the coverage check in `scripts/check-scenario-coverage.mjs` can find it:

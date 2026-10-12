@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { ana, runListPage } from '../testing/answers';
+import { ana, limits, runListPage } from '../testing/answers';
 import { answerSession, provideTestApp } from '../testing/test-app';
 
 describe('requireSession', () => {
@@ -23,6 +23,7 @@ describe('requireSession', () => {
     await first;
     http.expectOne('/api/runs').flush(runListPage);
     await harness.navigateByUrl('/');
+    http.expectOne('/api/runs/limits').flush(limits);
     await harness.navigateByUrl('/runs');
     http.expectOne('/api/runs').flush(runListPage);
 

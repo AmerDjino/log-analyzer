@@ -3,7 +3,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { App } from './app';
 import { Account } from './api/api-client';
-import { ana, runListPage } from './testing/answers';
+import { ana, limits, runListPage } from './testing/answers';
 import { answerSession, provideTestApp } from './testing/test-app';
 
 describe('App', () => {
@@ -96,6 +96,7 @@ describe('App', () => {
 
   it('lands a signed-in person who opens an unknown path on /', async () => {
     await openAt('/nope', ana);
+    http.expectOne('/api/runs/limits').flush(limits);
 
     expect(TestBed.inject(Router).url).toBe('/');
   });

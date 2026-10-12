@@ -88,10 +88,23 @@ node --test scripts/check-scenario-coverage.test.mjs
 node scripts/check-scenario-coverage.mjs
 ```
 
+The end-to-end tests run Playwright in Chromium against the Docker Compose stack:
+
+```bash
+docker compose up --build --wait               # the stack on the current code
+cd tests/e2e
+npm ci
+npx playwright install chromium                # once
+npx playwright test                            # set BASE_URL to test another address
+```
+
+Each test creates its own account, so the tests can share the stack's database. A failed run leaves a report in `tests/e2e/playwright-report/` (`npx playwright show-report`).
+
 | Project | What it holds |
 |---|---|
 | `tests/LogAnalyzer.UnitTests` | Fast tests with no network or database, including the rule that `LogAnalyzer.Core` depends on no infrastructure. |
 | `tests/LogAnalyzer.IntegrationTests` | The API hosted in memory against PostgreSQL started by Testcontainers. |
+| `tests/e2e` | Playwright tests of whole flows in the browser, against the Docker Compose stack. |
 | `tests/LogAnalyzer.Evals` | Golden-set evals for `[eval]` scenarios. They call the real model, so they run on demand or nightly, never on pull requests. |
 
 ## Spec-driven workflow
@@ -171,7 +184,7 @@ FAIL
 | Specs and scenario coverage | `openspec schema validate spec-tdd`, `openspec validate --all --strict`, `openspec validate --archived`, the coverage check and its tests |
 | Backend | `dotnet build` with warnings as errors, unit tests, integration tests |
 | Frontend | `npm ci`, generated API types up to date (`npm run api:generate`, then `git diff --exit-code`), `ng test`, `ng build` |
-| Docker Compose stack | `docker compose up --wait` until every service is healthy, then `/api/health` through nginx |
+| Docker Compose stack | `docker compose up --wait` until every service is healthy, `/api/health` through nginx, then the Playwright tests in `tests/e2e` |
 
 Evals are not part of this workflow, because they call the real model and cost money.
 
@@ -187,7 +200,7 @@ Evals are not part of this workflow, because they call the real model and cost m
 │  ├─ LogAnalyzer.Core/              domain, validation, orchestration; no infrastructure
 │  ├─ LogAnalyzer.Infrastructure/    PostgreSQL, and later the Claude client
 │  └─ web/                           Angular 22 app, nginx config, Dockerfile
-├─ tests/                            UnitTests, IntegrationTests, Evals
+├─ tests/                            UnitTests, IntegrationTests, Evals, and e2e (Playwright)
 ├─ docker-compose.yml
 ├─ Directory.Build.props             shared build settings
 ├─ Directory.Packages.props          every NuGet package version
