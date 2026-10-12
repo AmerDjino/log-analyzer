@@ -1,3 +1,4 @@
+using LogAnalyzer.Core.Processing;
 using LogAnalyzer.Core.Validation;
 
 namespace LogAnalyzer.IntegrationTests.Runs;
@@ -44,6 +45,27 @@ public sealed class AttemptTests(RunsApiFactory factory) : IClassFixture<RunsApi
         Assert.DoesNotContain(
             await database.ReadAttemptValuesAsync(runId, cancellationToken),
             value => value.Contains(Marker, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Process_StoresEachAttemptsUsage()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var (runs, _) = await RunsClient.SignInNewPersonAsync(factory, cancellationToken);
+        await using var database = new RunsDatabase(factory.ConnectionString);
+        var runId = await runs.SubmitAcceptedAsync(FixtureLogs.Read(FixtureLogs.OrdersApi40), "orders-api.log", cancellationToken);
+        factory.Model.Reply(
+            runId,
+            ModelReplies.CitesLinePastTheEnd("The database ran out of connections."),
+            usage: new ModelUsage(InputTokens: 4210, OutputTokens: 610, TransportRetries: 1, RequestId: "req_first"));
+        factory.Model.Reply(runId, ModelReplies.OrdersAnalysis);
+
+        await factory.ProcessQueuedRunsAsync(cancellationToken);
+
+        var attempts = await database.ReadAttemptsAsync(runId, cancellationToken);
+        Assert.Equal(
+            [(4210, 610, 1, "req_first"), (0, 0, 0, null)],
+            attempts.Select(attempt => (attempt.InputTokens, attempt.OutputTokens, attempt.TransportRetries, attempt.RequestId)));
     }
 
     // A field name the model made up is part of its response, so its path is stored with the name masked.

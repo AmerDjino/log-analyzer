@@ -9,14 +9,14 @@
 
 ## 2. Usage on attempts, and the migration
 
-- [ ] 2.1 Write the failing tests below; verify each fails on its assertions, or because the column does not exist
+- [x] 2.1 Write the failing tests below; verify each fails on its assertions, or because the column does not exist
   - `StandInAnalysisModelTests`: a reply reports zero tokens, no transport retries and no request id.
   - `AnalysisPipelineTests`: a reply's tokens, retries and request id reach the attempt given to `IRunRecorder`.
   - `DatabaseMigrationTests`: `AddAttemptUsage` adds `input_tokens`, `output_tokens`, `transport_retries` and `request_id` to `run_attempts`, and `content_sha256`, `prompt_version` and `model` to `runs`, with the index on `(user_id, content_sha256)`.
   - `AttemptTests`: a scripted reply with usage is stored with those values. `RunsDatabase` gains reads of the new columns, and `ScriptedAnalysisModel.Reply` takes optional usage.
-- [ ] 2.2 Give `ModelReply` the fields `InputTokens`, `OutputTokens`, `TransportRetries` and `RequestId`. Make the stand-in report zeros and no id, and have `AnalysisPipeline` pass them into the recorded attempt. Verify the unit tests from 2.1 and the whole unit suite pass.
-- [ ] 2.3 Add the columns to `RunAttempt` and `Run`, and generate the migration `AddAttemptUsage` with `dotnet ef migrations add`. Existing rows get zeros and null. `RunRecorder` stores the usage. Verify the migration and attempt tests from 2.1, and the whole integration suite, pass.
-- [ ] 2.4 Say in docs/runs-api.md that every attempt stores its tokens, transport retries and request id, and that a later change returns them; verify the column names match the migration
+- [x] 2.2 Give `ModelReply` the fields `InputTokens`, `OutputTokens`, `TransportRetries` and `RequestId`. Make the stand-in report zeros and no id, and have `AnalysisPipeline` pass them into the recorded attempt. Verify the unit tests from 2.1 and the whole unit suite pass.
+- [x] 2.3 Add the columns to `RunAttempt` and `Run`, and generate the migration `AddAttemptUsage` with `dotnet ef migrations add`. Existing rows get zeros and null. `RunRecorder` stores the usage. Verify the migration and attempt tests from 2.1, and the whole integration suite, pass.
+- [x] 2.4 Say in docs/runs-api.md that every attempt stores its tokens, transport retries and request id, and that a later change returns them; verify the column names match the migration
 
 ## 3. Reuse of the person's own completed runs
 

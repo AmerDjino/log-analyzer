@@ -129,6 +129,17 @@ public sealed class StandInAnalysisModelTests
         Assert.Contains("no critical, error or warning lines", analysis.Summary, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Analyze_ReportsNoTokensNoRetriesAndNoRequestId()
+    {
+        var reply = await AnalyzeAsync(["fail: Orders.Api[0] Order 1003 could not be stored"]);
+
+        Assert.Equal(0, reply.Usage.InputTokens);
+        Assert.Equal(0, reply.Usage.OutputTokens);
+        Assert.Equal(0, reply.Usage.TransportRetries);
+        Assert.Null(reply.Usage.RequestId);
+    }
+
     private static Task<ModelReply> AnalyzeAsync(IReadOnlyList<string> lines) =>
         new StandInAnalysisModel().AnalyzeAsync(
             new AnalysisRequest(Guid.CreateVersion7(), [.. lines.Select((text, index) => new NumberedLine(index + 1, text))], null),

@@ -40,6 +40,18 @@ public sealed class Run
     /// <summary>The size of the submitted body, in bytes.</summary>
     public int ByteCount { get; set; }
 
+    /// <summary>
+    /// The SHA-256 of the submitted body's bytes, which finds an earlier run of the same log to reuse. Null for runs
+    /// submitted before reuse existed, which are never reused.
+    /// </summary>
+    public byte[]? ContentSha256 { get; set; }
+
+    /// <summary>The prompt version the configured model used, written when processing starts; null until then.</summary>
+    public string? PromptVersion { get; set; }
+
+    /// <summary>The configured model, written with <see cref="PromptVersion"/>.</summary>
+    public string? Model { get; set; }
+
     public int LineCount { get; set; }
 
     public int CriticalCount { get; set; }

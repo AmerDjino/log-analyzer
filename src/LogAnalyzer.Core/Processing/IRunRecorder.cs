@@ -6,13 +6,15 @@ namespace LogAnalyzer.Core.Processing;
 /// <summary>One model response the validator evaluated.</summary>
 /// <param name="Sequence">1 for the first response, 2 for the corrected one.</param>
 /// <param name="Violations">Why the response was rejected; empty when it was accepted.</param>
+/// <param name="Usage">What the call that returned the response cost.</param>
 public sealed record AttemptRecord(
     int Sequence,
     string Model,
     string PromptVersion,
     DateTimeOffset StartedAt,
     DateTimeOffset FinishedAt,
-    IReadOnlyList<Violation> Violations)
+    IReadOnlyList<Violation> Violations,
+    ModelUsage Usage)
 {
     public bool IsAccepted => Violations.Count == 0;
 }

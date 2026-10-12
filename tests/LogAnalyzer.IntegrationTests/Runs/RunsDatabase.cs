@@ -91,7 +91,8 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
     {
         await using var command = Command(
             """
-            SELECT sequence, outcome, rejection_reasons::text, model, prompt_version, started_at, finished_at
+            SELECT sequence, outcome, rejection_reasons::text, model, prompt_version, started_at, finished_at,
+                input_tokens, output_tokens, transport_retries, request_id
             FROM run_attempts WHERE run_id = @id ORDER BY sequence
             """,
             runId);
@@ -108,7 +109,11 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
                 reader.GetString(3),
                 reader.GetString(4),
                 reader.GetFieldValue<DateTimeOffset>(5),
-                reader.GetFieldValue<DateTimeOffset>(6)));
+                reader.GetFieldValue<DateTimeOffset>(6),
+                reader.GetInt32(7),
+                reader.GetInt32(8),
+                reader.GetInt32(9),
+                reader.IsDBNull(10) ? null : reader.GetString(10)));
         }
 
         return attempts;
@@ -206,7 +211,7 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
 public sealed record StoredRun(
     Guid UserId, string? FileName, string Status, string? FailureReason, int ByteCount, int LineCount);
 
-/// <summary>An attempt as stored: its outcome, and each rejection reason's code and path.</summary>
+/// <summary>An attempt as stored: its outcome, each rejection reason's code and path, and its usage.</summary>
 public sealed record StoredAttempt(
     int Sequence,
     string Outcome,
@@ -214,7 +219,11 @@ public sealed record StoredAttempt(
     string Model,
     string PromptVersion,
     DateTimeOffset StartedAt,
-    DateTimeOffset FinishedAt);
+    DateTimeOffset FinishedAt,
+    int InputTokens,
+    int OutputTokens,
+    int TransportRetries,
+    string? RequestId);
 
 /// <summary>A finding as stored, in contract spelling.</summary>
 public sealed record StoredFinding(

@@ -26,8 +26,8 @@ public sealed class ScriptedAnalysisModel(FakeTimeProvider clock) : IAnalysisMod
     public IReadOnlyList<AnalysisRequest> RequestsFor(Guid runId) => [.. _requests.Where(request => request.RunId == runId)];
 
     /// <summary>The run's next model call answers with this text.</summary>
-    public void Reply(Guid runId, string text, StopReason stopReason = StopReason.Completed) =>
-        Script(runId).Enqueue(() => new ModelReply(text, stopReason, Model, PromptVersion));
+    public void Reply(Guid runId, string text, StopReason stopReason = StopReason.Completed, ModelUsage? usage = null) =>
+        Script(runId).Enqueue(() => new ModelReply(text, stopReason, Model, PromptVersion) { Usage = usage ?? ModelUsage.None });
 
     /// <summary>The run's next model call yields no response.</summary>
     public void Fail(Guid runId, string failureReason) =>

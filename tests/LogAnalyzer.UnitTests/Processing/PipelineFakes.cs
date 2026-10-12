@@ -16,8 +16,8 @@ internal sealed class FakeAnalysisModel(FakeTimeProvider clock) : IAnalysisModel
 
     public List<AnalysisRequest> Requests { get; } = [];
 
-    public void Reply(string text, StopReason stopReason = StopReason.Completed) =>
-        _script.Enqueue(_ => new ModelReply(text, stopReason, Model, PromptVersion));
+    public void Reply(string text, StopReason stopReason = StopReason.Completed, ModelUsage? usage = null) =>
+        _script.Enqueue(_ => new ModelReply(text, stopReason, Model, PromptVersion) { Usage = usage ?? ModelUsage.None });
 
     public void Throw(Exception exception) => _script.Enqueue(_ => throw exception);
 

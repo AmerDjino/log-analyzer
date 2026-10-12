@@ -248,13 +248,14 @@ A run gets at most two model calls.
 
 ### Attempts
 
-Every response the validator evaluated is stored as an attempt of its run, as soon as it is evaluated. No endpoint returns attempts yet. An attempt holds:
+Every response the validator evaluated is stored as an attempt of its run, as soon as it is evaluated. No endpoint returns attempts yet; `add-attempt-timeline-and-insights` adds one. An attempt holds:
 
 - its number: 1 for the first response, 2 for the corrected one;
 - its outcome, `accepted` or `rejected`;
 - for a rejected response, each reason: the reason code and the path of the failing field, such as `LINE_OUT_OF_RANGE` at `findings[0].line_refs[0]`;
 - the model and the prompt version that produced it;
-- when the model call started and ended.
+- when the model call started and ended;
+- what the call cost: the tokens the model read (`input_tokens`, cache reads and writes included) and wrote (`output_tokens`, thinking included), how many times it was sent again after a transient failure (`transport_retries`), and the model service's id for the request that answered (`request_id`). The stand-in records zeros and no request id.
 
 The response text is never stored, and neither are the reasons' messages, which quote it. A path keeps the contract's field names and array indexes. Any other name in it was written by the model, so it is stored as `*`: `findings[0]["max tokens"]` becomes `findings[0].*`.
 
