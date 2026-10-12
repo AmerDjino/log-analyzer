@@ -48,5 +48,7 @@ public class PostgresApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:Postgres"] = _postgres.GetConnectionString(),
+                // The stand-in, whatever the developer's user secrets or environment choose, so no test calls Anthropic.
+                ["Model:Provider"] = "StandIn",
             }));
 }

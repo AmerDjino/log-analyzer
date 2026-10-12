@@ -24,6 +24,8 @@ public sealed class ClaudeApiFactory : PostgresApiFactory
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
+    private static readonly ClaudeOptions Defaults = new();
+
     public FakeMessagesApi Messages { get; } = new();
 
     /// <summary>Every message the API logged, with its exception, from every category and level.</summary>
@@ -79,6 +81,10 @@ public sealed class ClaudeApiFactory : PostgresApiFactory
                 ["Model:Claude:PromptVersion"] = settings.PromptVersion,
                 ["Model:Claude:Timeout"] = settings.Timeout.ToString("c", CultureInfo.InvariantCulture),
                 ["Model:Claude:MaxRetries"] = "2",
+                // The defaults, set here so a developer's own user secrets or environment cannot change them.
+                ["Model:Claude:Model"] = Defaults.Model,
+                ["Model:Claude:Effort"] = Defaults.Effort,
+                ["Model:Claude:MaxOutputTokens"] = Defaults.MaxOutputTokens.ToString(CultureInfo.InvariantCulture),
             }));
         builder.ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Trace).AddProvider(factory.Logs));
         builder.ConfigureServices(services =>

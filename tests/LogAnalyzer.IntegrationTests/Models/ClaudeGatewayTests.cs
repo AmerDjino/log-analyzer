@@ -179,8 +179,9 @@ public sealed class ClaudeGatewayTests(ClaudeApiFactory factory) : IClassFixture
         var attempt = Assert.Single(await database.ReadAttemptsAsync(runId, cancellationToken));
         Assert.Equal(FakeMessagesApi.InputTokens, attempt.InputTokens);
         Assert.Equal(FakeMessagesApi.OutputTokens, attempt.OutputTokens);
+        // Less a timer tick, which the fake's delay may end early by on Windows.
         Assert.True(
-            attempt.FinishedAt - attempt.StartedAt >= answerTime,
+            attempt.FinishedAt - attempt.StartedAt >= answerTime - TimeSpan.FromMilliseconds(50),
             $"Latency {attempt.FinishedAt - attempt.StartedAt} is shorter than the {answerTime} the answer took.");
         Assert.Equal("claude-opus-5-5", attempt.Model);
         Assert.Equal(0, attempt.TransportRetries);

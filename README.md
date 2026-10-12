@@ -78,7 +78,7 @@ ANTHROPIC_API_KEY=<your Anthropic API key>
 docker compose up --build --detach
 ```
 
-Compose hands the key to the API as a Docker secret, a file in `/run/secrets`, so it does not show in `docker inspect`.
+Compose hands the key to the API as a Docker secret, a file in `/run/secrets`, so it does not show in `docker inspect`. Compose refuses to start when `ANTHROPIC_API_KEY` is not defined at all, so a `.env` made before Claude support needs the two lines from `.env.example`, `MODEL_PROVIDER=StandIn` and an empty `ANTHROPIC_API_KEY=`, even to keep the stand-in.
 
 **API on your machine:** keep the key in user secrets, outside the repository:
 

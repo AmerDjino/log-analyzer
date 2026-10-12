@@ -133,7 +133,10 @@ public sealed class ClaudeTransportTests(ClaudeApiFactory factory) : IClassFixtu
         Assert.Contains(factory.Logs.Entries, entry => entry.Contains("retry 1 follows in 00:00:03", StringComparison.Ordinal));
         var requests = factory.Messages.Requests;
         var gap = requests[1].ReceivedAt - requests[0].ReceivedAt;
-        Assert.True(gap >= TimeSpan.FromSeconds(3), $"The retry came {gap} after the rate limit, before its retry-after of 3 seconds.");
+        // Less a timer tick, which a delay may end early by on Windows.
+        Assert.True(
+            gap >= TimeSpan.FromSeconds(3) - TimeSpan.FromMilliseconds(50),
+            $"The retry came {gap} after the rate limit, before its retry-after of 3 seconds.");
     }
 
     [Fact]

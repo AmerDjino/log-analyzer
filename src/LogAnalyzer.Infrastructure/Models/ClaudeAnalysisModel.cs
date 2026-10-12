@@ -130,7 +130,7 @@ public sealed partial class ClaudeAnalysisModel : IAnalysisModel, IDisposable
 
     private async Task<ModelReply> CallAsync(MessageCreateParams parameters, int retries, CancellationToken cancellationToken)
     {
-        var response = await _client.WithRawResponse.Messages.Create(parameters, cancellationToken);
+        using var response = await _client.WithRawResponse.Messages.Create(parameters, cancellationToken);
         var message = await response.Deserialize(cancellationToken);
 
         var text = string.Concat(message.Content.Select(block => block.Value).OfType<TextBlock>().Select(block => block.Text));

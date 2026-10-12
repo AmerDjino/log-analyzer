@@ -69,6 +69,7 @@ volumes:
   postgres-data:
 
 secrets:
-  # Read from ANTHROPIC_API_KEY in .env or the shell; empty when it is not set, which the stand-in never reads.
+  # Read from ANTHROPIC_API_KEY in .env or the shell. It must be defined, even empty (ANTHROPIC_API_KEY=), or Compose
+  # refuses to start; the stand-in never reads it.
   Model__Claude__ApiKey:
     environment: ANTHROPIC_API_KEY

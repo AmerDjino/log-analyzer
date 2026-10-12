@@ -8,6 +8,21 @@ public sealed class ModelOptionsValidationTests
     private readonly ModelOptionsValidation _validation = new(new FixedPromptTemplates("log-analysis/v1"));
 
     [Fact]
+    public void Defaults_AreTheStandInAndClaudeOpusAtMediumEffort()
+    {
+        var options = new ModelOptions();
+
+        Assert.Equal(ModelProviders.StandIn, options.Provider);
+        Assert.Equal("claude-opus-5-5", options.Claude.Model);
+        Assert.Equal("log-analysis/v1", options.Claude.PromptVersion);
+        Assert.Equal("medium", options.Claude.Effort);
+        Assert.Equal(16_000, options.Claude.MaxOutputTokens);
+        Assert.Equal(TimeSpan.FromSeconds(60), options.Claude.Timeout);
+        Assert.Equal(2, options.Claude.MaxRetries);
+        Assert.Null(options.Claude.BaseUrl);
+    }
+
+    [Fact]
     public void Validate_AcceptsTheStandInWithoutKey()
     {
         Assert.True(_validation.Validate(null, new ModelOptions()).Succeeded);

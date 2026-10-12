@@ -31,6 +31,8 @@ public sealed class RestartedApiFactory : WebApplicationFactory<Program>
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:Postgres"] = _connectionString,
+                // The stand-in, whatever the developer's user secrets or environment choose, so no test calls Anthropic.
+                ["Model:Provider"] = "StandIn",
             }));
         if (_model is { } model)
         {

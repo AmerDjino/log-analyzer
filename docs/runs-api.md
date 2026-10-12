@@ -299,7 +299,7 @@ Changing the model or the prompt version affects only runs processed afterwards:
 A Claude call that gets no answer is retried when the failure may pass, and fails the run at once when it cannot:
 
 - **Retried:** rate limiting (429), overload (529), any other server error (5xx), a try that takes longer than `Model:Claude:Timeout`, and a failed connection. Each retry waits 1 second, then 2, doubling up to 30 seconds and varied by up to a fifth, or as long as the service's `retry-after` asks, up to 30 seconds. After `Model:Claude:MaxRetries` retries, the run fails with `MODEL_UNAVAILABLE`.
-- **Not retried:** any other client error, such as a rejected key (401), a missing permission (403), an unknown model (404) or a request the service refuses (400, 422). The run fails with `MODEL_CONFIGURATION_ERROR`.
+- **Not retried:** any other client error, such as a rejected key (401), a missing permission (403), an unknown model (404) or a request the service refuses (400, 413, 422). The run fails with `MODEL_CONFIGURATION_ERROR`. That includes a log too long for the model's context window: the size limit allows logs far larger than the model can read, until `add-large-log-support` splits them.
 
 Retries happen inside one model call, so they do not count as attempts. The attempt that the call produced records how many there were. The server log has each failure, without the key.
 
@@ -320,7 +320,7 @@ A failed run has exactly one failure reason. The set is closed. The validator's 
 |---|---|
 | `VALIDATION_FAILED` | The model's response and its corrected response were both rejected. Nothing from either is stored. |
 | `MODEL_UNAVAILABLE` | The model service was rate limited, overloaded, failing or unreachable, or did not answer in time, on every try. Submitting the log again later may work. The server log has the cause. |
-| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a wrong API key or an unknown model. The API's configuration must be fixed; the server log has the cause. |
+| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a wrong API key, an unknown model, or a log too long for the model to read. The server log has the cause: fix the configuration, or submit a shorter log. |
 | `INTERRUPTED` | The API stopped while it was processing the run. Submit the log again. |
 | `INTERNAL_ERROR` | An unexpected error, for example while the run's lines were read. The server log has the details, with the run's id. |
 
