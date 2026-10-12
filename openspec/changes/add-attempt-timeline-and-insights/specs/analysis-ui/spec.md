@@ -12,7 +12,7 @@ The run page SHALL show every attempt in order with its outcome, its rejection r
 - **AND** the second attempt is marked accepted
 
 ### Requirement: Show reliability and cost insights
-The insights page SHALL show the aggregated metrics per prompt version for a chosen period and let a person compare two prompt versions side by side.
+The insights page SHALL show the aggregated metrics of the person's own runs per prompt version for a chosen period and let a person compare two prompt versions side by side.
 
 #### Scenario: Two prompt versions are compared
 - **GIVEN** metrics exist for "log-analysis/v1" and "log-analysis/v2"

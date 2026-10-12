@@ -7,10 +7,11 @@ Defines how the system calls the model: how the credentials are protected, how c
 ## ADDED Requirements
 
 ### Requirement: Keep the API key on the server
-The system SHALL read the model API key only from server-side configuration and MUST refuse to start when it is missing, naming the missing setting. The key value MUST NOT appear in any API response, log entry or stored record.
+The system SHALL read the model API key only from server-side configuration. When Claude is the selected model provider, it MUST refuse to start without a key, naming the missing setting. The key value MUST NOT appear in any API response, log entry or stored record.
 
 #### Scenario: Missing key stops startup
-- **GIVEN** no API key is configured
+- **GIVEN** Claude is the selected model provider
+- **AND** no API key is configured
 - **WHEN** the API starts
 - **THEN** startup fails with a message naming the missing setting
 
@@ -18,6 +19,45 @@ The system SHALL read the model API key only from server-side configuration and 
 - **GIVEN** a configured API key and a completed run
 - **WHEN** every API response, log entry and stored record from that run is searched for the key value
 - **THEN** no match is found
+
+### Requirement: Choose the model provider
+The system SHALL analyze runs with the model provider that configuration selects: the stand-in model by default, or Claude. The stand-in needs no API key.
+
+#### Scenario: Stand-in runs without a key
+- **GIVEN** no model provider and no API key are configured
+- **WHEN** a log is submitted
+- **THEN** the run completes
+- **AND** its attempts record the model "stand-in"
+
+#### Scenario: Claude is used when selected
+- **GIVEN** Claude is the selected model provider and an API key is configured
+- **WHEN** a run is processed
+- **THEN** the request goes to the model service
+- **AND** its attempts record the configured Claude model
+
+#### Scenario: Unknown provider stops startup
+- **GIVEN** the model provider is configured as "gpt"
+- **WHEN** the API starts
+- **THEN** startup fails with a message naming the setting
+
+### Requirement: Map the model's stop reasons
+The system SHALL pass the model service's stop reason to validation as follows: end_turn as a complete answer; max_tokens and model_context_window_exceeded as a response cut off at the output limit; refusal as a refusal. Any other stop reason MUST be treated as a response cut off, so it is never accepted.
+
+#### Scenario: Output limit is rejected as truncated
+- **GIVEN** the model service ends its first response with stop reason max_tokens
+- **WHEN** the run is processed
+- **THEN** the first attempt is rejected with reason TRUNCATED
+- **AND** a corrected response is requested
+
+#### Scenario: Refusal is rejected as refused
+- **GIVEN** the model service ends its first response with stop reason refusal
+- **WHEN** the run is processed
+- **THEN** the first attempt is rejected with reason REFUSED
+
+#### Scenario: Unexpected stop reason is never accepted
+- **GIVEN** the model service ends a response with stop reason pause_turn
+- **WHEN** the run is processed
+- **THEN** that response's attempt is rejected with reason TRUNCATED
 
 ### Requirement: Bound every model call
 The system SHALL abandon a model call that has not finished within the configured timeout (60 seconds by default) and MUST treat it as a transient failure.
