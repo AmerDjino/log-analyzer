@@ -91,7 +91,8 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
     {
         await using var command = Command(
             """
-            SELECT sequence, outcome, rejection_reasons::text, model, prompt_version, started_at, finished_at
+            SELECT sequence, outcome, rejection_reasons::text, model, prompt_version, started_at, finished_at,
+                input_tokens, output_tokens, transport_retries, request_id
             FROM run_attempts WHERE run_id = @id ORDER BY sequence
             """,
             runId);
@@ -108,7 +109,11 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
                 reader.GetString(3),
                 reader.GetString(4),
                 reader.GetFieldValue<DateTimeOffset>(5),
-                reader.GetFieldValue<DateTimeOffset>(6)));
+                reader.GetFieldValue<DateTimeOffset>(6),
+                reader.GetInt32(7),
+                reader.GetInt32(8),
+                reader.GetInt32(9),
+                reader.IsDBNull(10) ? null : reader.GetString(10)));
         }
 
         return attempts;
@@ -129,6 +134,49 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
         }
 
         return values;
+    }
+
+    /// <summary>What the run was analyzed with, as recorded when processing started, and its content hash.</summary>
+    public async Task<(string? Model, string? PromptVersion, byte[]? ContentSha256)> ReadAnalyzedWithAsync(
+        Guid runId, CancellationToken cancellationToken)
+    {
+        await using var command = Command("SELECT model, prompt_version, content_sha256 FROM runs WHERE id = @id", runId);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        Assert.True(await reader.ReadAsync(cancellationToken), $"No stored run {runId}.");
+        return (
+            reader.IsDBNull(0) ? null : reader.GetString(0),
+            reader.IsDBNull(1) ? null : reader.GetString(1),
+            reader.IsDBNull(2) ? null : reader.GetFieldValue<byte[]>(2));
+    }
+
+    /// <summary>Every column, of every table, that holds the value in some row, read as text: "table.column".</summary>
+    public async Task<List<string>> FindValueAsync(string value, CancellationToken cancellationToken)
+    {
+        var columns = new List<(string Table, string Column)>();
+        await using (var list = _dataSource.CreateCommand(
+            "SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = 'public'"))
+        await using (var reader = await list.ExecuteReaderAsync(cancellationToken))
+        {
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                columns.Add((reader.GetString(0), reader.GetString(1)));
+            }
+        }
+
+        var found = new List<string>();
+        foreach (var (table, column) in columns)
+        {
+            // The names come from the catalog, not from a test.
+            await using var search = _dataSource.CreateCommand(
+                $"""SELECT EXISTS (SELECT 1 FROM "{table}" WHERE "{column}"::text LIKE '%' || @value || '%')""");
+            search.Parameters.AddWithValue("value", value);
+            if ((bool)(await search.ExecuteScalarAsync(cancellationToken))!)
+            {
+                found.Add($"{table}.{column}");
+            }
+        }
+
+        return found;
     }
 
     public async Task<long> CountFindingsAsync(Guid runId, CancellationToken cancellationToken)
@@ -206,7 +254,7 @@ public sealed class RunsDatabase(string connectionString) : IAsyncDisposable
 public sealed record StoredRun(
     Guid UserId, string? FileName, string Status, string? FailureReason, int ByteCount, int LineCount);
 
-/// <summary>An attempt as stored: its outcome, and each rejection reason's code and path.</summary>
+/// <summary>An attempt as stored: its outcome, each rejection reason's code and path, and its usage.</summary>
 public sealed record StoredAttempt(
     int Sequence,
     string Outcome,
@@ -214,7 +262,11 @@ public sealed record StoredAttempt(
     string Model,
     string PromptVersion,
     DateTimeOffset StartedAt,
-    DateTimeOffset FinishedAt);
+    DateTimeOffset FinishedAt,
+    int InputTokens,
+    int OutputTokens,
+    int TransportRetries,
+    string? RequestId);
 
 /// <summary>A finding as stored, in contract spelling.</summary>
 public sealed record StoredFinding(

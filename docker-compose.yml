@@ -31,6 +31,11 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=loganalyzer;Username=loganalyzer;Password=${POSTGRES_PASSWORD}"
+      # StandIn (no key, no network) unless .env says Claude.
+      Model__Provider: ${MODEL_PROVIDER:-StandIn}
+    # The API key reaches the API as a file in /run/secrets, so it stays out of docker inspect.
+    secrets:
+      - Model__Claude__ApiKey
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,3 +67,9 @@ services:
 
 volumes:
   postgres-data:
+
+secrets:
+  # Read from ANTHROPIC_API_KEY in .env or the shell. It must be defined, even empty (ANTHROPIC_API_KEY=), or Compose
+  # refuses to start; the stand-in never reads it.
+  Model__Claude__ApiKey:
+    environment: ANTHROPIC_API_KEY

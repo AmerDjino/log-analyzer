@@ -1,0 +1,400 @@
+2026-10-08 14:00:01.231 +00:00 [INF] Microsoft.Hosting.Lifetime: Now listening on: http://[::]:8080
+2026-10-08 14:00:02.717 +00:00 [INF] Microsoft.Hosting.Lifetime: Application started. Press Ctrl+C to shut down.
+2026-10-08 14:00:03.580 +00:00 [INF] Microsoft.Hosting.Lifetime: Hosting environment: Production
+2026-10-08 14:00:04.221 +00:00 [INF] Microsoft.Hosting.Lifetime: Content root path: /app
+2026-10-08 14:00:04.916 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:05.514 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3149 - 200 - application/json 55ms
+2026-10-08 14:00:06.248 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5756 - 200 - application/json 51ms
+2026-10-08 14:00:07.263 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4135 - 200 - application/json 76ms
+2026-10-08 14:00:07.545 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 36ms
+2026-10-08 14:00:08.907 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6974 - 200 - application/json 48ms
+2026-10-08 14:00:10.314 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:10.687 +00:00 [INF] Orders.Api.Orders.OrderService: Order 19629 stored for customer 125
+2026-10-08 14:00:10.750 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4667 - 200 - application/json 67ms
+2026-10-08 14:00:11.574 +00:00 [INF] Orders.Api.Orders.OrderService: Order 72824 stored for customer 567
+2026-10-08 14:00:12.891 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (4,125ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:00:13.373 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/569/orders - 200 - application/json 4148ms
+2026-10-08 14:00:14.745 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2205 - 200 - application/json 31ms
+2026-10-08 14:00:14.908 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8175 - 200 - application/json 18ms
+2026-10-08 14:00:16.182 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3642 - 200 - application/json 48ms
+2026-10-08 14:00:16.874 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:18.289 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5690 - 200 - application/json 40ms
+2026-10-08 14:00:19.246 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4608 - 200 - application/json 78ms
+2026-10-08 14:00:20.166 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2280 - 200 - application/json 89ms
+2026-10-08 14:00:21.101 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:21.940 +00:00 [INF] Orders.Api.Orders.OrderService: Order 80832 stored for customer 203
+2026-10-08 14:00:22.327 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:22.379 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6695 - 200 - application/json 39ms
+2026-10-08 14:00:23.835 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4941 - 200 - application/json 10ms
+2026-10-08 14:00:24.699 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:25.486 +00:00 [INF] Orders.Api.Orders.OrderService: Order 74799 stored for customer 590
+2026-10-08 14:00:26.902 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9060 - 200 - application/json 68ms
+2026-10-08 14:00:27.281 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 43ms
+2026-10-08 14:00:28.269 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (4,733ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:00:28.664 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/398/orders - 200 - application/json 4738ms
+2026-10-08 14:00:28.893 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:30.165 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:30.219 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9907 - 200 - application/json 9ms
+2026-10-08 14:00:30.974 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5393 - 200 - application/json 24ms
+2026-10-08 14:00:31.218 +00:00 [INF] Orders.Api.Orders.OrderService: Order 64288 stored for customer 747
+2026-10-08 14:00:32.278 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:32.988 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2833 - 200 - application/json 51ms
+2026-10-08 14:00:34.154 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7680 - 200 - application/json 87ms
+2026-10-08 14:00:34.783 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1726 - 200 - application/json 55ms
+2026-10-08 14:00:35.921 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9704 - 200 - application/json 52ms
+2026-10-08 14:00:37.377 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5448 - 200 - application/json 54ms
+2026-10-08 14:00:38.012 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:39.057 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1934 - 200 - application/json 35ms
+2026-10-08 14:00:39.969 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,725ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:00:40.438 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/631/orders - 200 - application/json 3758ms
+2026-10-08 14:00:41.669 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 8ms
+2026-10-08 14:00:42.932 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 82ms
+2026-10-08 14:00:43.224 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:43.346 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8416 - 200 - application/json 72ms
+2026-10-08 14:00:43.941 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5129 - 200 - application/json 13ms
+2026-10-08 14:00:44.955 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:46.181 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5308 - 200 - application/json 90ms
+2026-10-08 14:00:47.025 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5409 - 200 - application/json 74ms
+2026-10-08 14:00:48.324 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7106 - 200 - application/json 86ms
+2026-10-08 14:00:49.174 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6128 - 200 - application/json 59ms
+2026-10-08 14:00:50.391 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9508 - 200 - application/json 71ms
+2026-10-08 14:00:51.365 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 5ms
+2026-10-08 14:00:51.416 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4414 - 200 - application/json 16ms
+2026-10-08 14:00:52.437 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,222ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:00:53.010 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/916/orders - 200 - application/json 3227ms
+2026-10-08 14:00:53.193 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2732 - 200 - application/json 27ms
+2026-10-08 14:00:54.123 +00:00 [INF] Orders.Api.Orders.OrderService: Order 70635 stored for customer 746
+2026-10-08 14:00:55.238 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4352 - 200 - application/json 14ms
+2026-10-08 14:00:55.685 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7308 - 200 - application/json 20ms
+2026-10-08 14:00:56.789 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5245 - 200 - application/json 19ms
+2026-10-08 14:00:58.201 +00:00 [INF] Orders.Api.Orders.OrderService: Order 38157 stored for customer 577
+2026-10-08 14:00:58.643 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 51ms
+2026-10-08 14:00:59.416 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 69ms
+2026-10-08 14:01:00.052 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 90ms
+2026-10-08 14:01:01.463 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:02.103 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,814ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:01:03.561 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/245/orders - 200 - application/json 2843ms
+2026-10-08 14:01:04.460 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1623 - 200 - application/json 22ms
+2026-10-08 14:01:05.571 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 77ms
+2026-10-08 14:01:05.999 +00:00 [INF] Orders.Api.Orders.OrderService: Order 48967 stored for customer 857
+2026-10-08 14:01:06.752 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:06.972 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2783 - 200 - application/json 45ms
+2026-10-08 14:01:07.104 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:07.577 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:08.752 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:09.466 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 73ms
+2026-10-08 14:01:10.184 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 29ms
+2026-10-08 14:01:11.648 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7875 - 200 - application/json 67ms
+2026-10-08 14:01:12.650 +00:00 [INF] Orders.Api.Orders.OrderService: Order 77085 stored for customer 858
+2026-10-08 14:01:13.045 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7080 - 200 - application/json 71ms
+2026-10-08 14:01:13.867 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1797 - 200 - application/json 16ms
+2026-10-08 14:01:15.302 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7633 - 200 - application/json 67ms
+2026-10-08 14:01:15.674 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,434ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:01:16.640 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/895/orders - 200 - application/json 3455ms
+2026-10-08 14:01:17.489 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7333 - 200 - application/json 67ms
+2026-10-08 14:01:18.659 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3308 - 200 - application/json 11ms
+2026-10-08 14:01:19.343 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4505 - 200 - application/json 21ms
+2026-10-08 14:01:20.426 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:20.979 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:21.290 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5903 - 200 - application/json 66ms
+2026-10-08 14:01:21.906 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3072 - 200 - application/json 69ms
+2026-10-08 14:01:22.634 +00:00 [INF] Orders.Api.Orders.OrderService: Order 28758 stored for customer 544
+2026-10-08 14:01:23.852 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1356 - 200 - application/json 63ms
+2026-10-08 14:01:25.019 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1546 - 200 - application/json 70ms
+2026-10-08 14:01:25.810 +00:00 [INF] Orders.Api.Orders.OrderService: Order 41279 stored for customer 579
+2026-10-08 14:01:27.012 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,159ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:01:28.414 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/252/orders - 200 - application/json 3174ms
+2026-10-08 14:01:28.992 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2429 - 200 - application/json 4ms
+2026-10-08 14:01:29.527 +00:00 [INF] Orders.Api.Orders.OrderService: Order 53363 stored for customer 123
+2026-10-08 14:01:30.874 +00:00 [INF] Orders.Api.Orders.OrderService: Order 72566 stored for customer 321
+2026-10-08 14:01:30.952 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2169 - 200 - application/json 38ms
+2026-10-08 14:01:32.201 +00:00 [INF] Orders.Api.Orders.OrderService: Order 30793 stored for customer 567
+2026-10-08 14:01:32.878 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:34.307 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 76ms
+2026-10-08 14:01:35.339 +00:00 [INF] Orders.Api.Orders.OrderService: Order 98617 stored for customer 347
+2026-10-08 14:01:35.845 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8316 - 200 - application/json 6ms
+2026-10-08 14:01:36.443 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/8254 - 200 - application/json 66ms
+2026-10-08 14:01:37.142 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:37.391 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 39ms
+2026-10-08 14:01:37.967 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3648 - 200 - application/json 67ms
+2026-10-08 14:01:38.285 +00:00 [INF] Orders.Api.Orders.OrderService: Order 61671 stored for customer 577
+2026-10-08 14:01:38.891 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:39.968 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,515ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:01:41.198 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/973/orders - 200 - application/json 2527ms
+2026-10-08 14:01:42.401 +00:00 [INF] Orders.Api.Orders.OrderService: Order 42678 stored for customer 735
+2026-10-08 14:01:43.536 +00:00 [INF] Orders.Api.Orders.OrderService: Order 74205 stored for customer 196
+2026-10-08 14:01:43.983 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4478 - 200 - application/json 24ms
+2026-10-08 14:01:44.860 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/1739 - 200 - application/json 9ms
+2026-10-08 14:01:45.523 +00:00 [INF] Orders.Api.Orders.OrderService: Order 25780 stored for customer 166
+2026-10-08 14:01:46.465 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4419 - 200 - application/json 73ms
+2026-10-08 14:01:46.608 +00:00 [INF] Orders.Api.Orders.OrderService: Order 30585 stored for customer 429
+2026-10-08 14:01:48.028 +00:00 [INF] Orders.Api.Orders.OrderService: Order 99308 stored for customer 959
+2026-10-08 14:01:48.256 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:49.303 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6638 - 200 - application/json 57ms
+2026-10-08 14:01:49.553 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,583ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:01:50.486 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/957/orders - 200 - application/json 2620ms
+2026-10-08 14:01:51.105 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:52.470 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9869 - 200 - application/json 81ms
+2026-10-08 14:01:53.640 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4977 - 200 - application/json 12ms
+2026-10-08 14:01:54.039 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3917 - 200 - application/json 17ms
+2026-10-08 14:01:55.021 +00:00 [INF] Orders.Api.Orders.OrderService: Order 66753 stored for customer 556
+2026-10-08 14:01:55.728 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 51ms
+2026-10-08 14:01:57.068 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6804 - 200 - application/json 41ms
+2026-10-08 14:01:57.337 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:58.792 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4655 - 200 - application/json 34ms
+2026-10-08 14:01:59.590 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:59.768 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 78ms
+2026-10-08 14:02:00.839 +00:00 [INF] Orders.Api.Orders.OrderService: Order 86927 stored for customer 994
+2026-10-08 14:02:01.932 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4001 - 200 - application/json 41ms
+2026-10-08 14:02:02.743 +00:00 [INF] Orders.Api.Orders.OrderService: Order 12249 stored for customer 182
+2026-10-08 14:02:03.180 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:04.024 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (4,772ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:02:04.596 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/180/orders - 200 - application/json 4787ms
+2026-10-08 14:02:05.475 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9045 - 200 - application/json 34ms
+2026-10-08 14:02:05.655 +00:00 [INF] Orders.Api.Orders.OrderService: Order 21339 stored for customer 296
+2026-10-08 14:02:06.243 +00:00 [INF] Orders.Api.Orders.OrderService: Order 72677 stored for customer 425
+2026-10-08 14:02:06.318 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7491 - 200 - application/json 30ms
+2026-10-08 14:02:07.808 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:08.492 +00:00 [INF] Orders.Api.Orders.OrderService: Order 44302 stored for customer 334
+2026-10-08 14:02:09.213 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3221 - 200 - application/json 66ms
+2026-10-08 14:02:10.342 +00:00 [INF] Orders.Api.Orders.OrderService: Order 61397 stored for customer 757
+2026-10-08 14:02:10.720 +00:00 [INF] Orders.Api.Orders.OrderService: Order 32435 stored for customer 831
+2026-10-08 14:02:11.032 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3702 - 200 - application/json 47ms
+2026-10-08 14:02:11.379 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2501 - 200 - application/json 71ms
+2026-10-08 14:02:11.596 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3219 - 200 - application/json 9ms
+2026-10-08 14:02:12.560 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3324 - 200 - application/json 35ms
+2026-10-08 14:02:13.323 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8861 - 200 - application/json 80ms
+2026-10-08 14:02:14.711 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,800ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:02:15.669 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/212/orders - 200 - application/json 3827ms
+2026-10-08 14:02:16.000 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1654 - 200 - application/json 57ms
+2026-10-08 14:02:17.303 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2845 - 200 - application/json 62ms
+2026-10-08 14:02:18.256 +00:00 [INF] Orders.Api.Orders.OrderService: Order 21123 stored for customer 360
+2026-10-08 14:02:18.437 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 43ms
+2026-10-08 14:02:19.770 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:20.879 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:02:20.930 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:21.187 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3427 - 200 - application/json 50ms
+2026-10-08 14:02:21.879 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 19ms
+2026-10-08 14:02:22.922 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 8ms
+2026-10-08 14:02:23.332 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5950 - 200 - application/json 54ms
+2026-10-08 14:02:23.970 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,209ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:02:24.790 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/632/orders - 200 - application/json 2238ms
+2026-10-08 14:02:25.930 +00:00 [INF] Orders.Api.Orders.OrderService: Order 56434 stored for customer 756
+2026-10-08 14:02:26.916 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 45ms
+2026-10-08 14:02:27.386 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7649 - 200 - application/json 88ms
+2026-10-08 14:02:28.195 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 80ms
+2026-10-08 14:02:28.835 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9040 - 200 - application/json 21ms
+2026-10-08 14:02:30.287 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 18ms
+2026-10-08 14:02:31.193 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:02:32.291 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:33.510 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4780 - 200 - application/json 52ms
+2026-10-08 14:02:34.141 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:34.602 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 54ms
+2026-10-08 14:02:34.859 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4273 - 200 - application/json 65ms
+2026-10-08 14:02:35.363 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4388 - 200 - application/json 31ms
+2026-10-08 14:02:36.429 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,297ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:02:37.220 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/650/orders - 200 - application/json 2332ms
+2026-10-08 14:02:38.092 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 32ms
+2026-10-08 14:02:39.182 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6634 - 200 - application/json 32ms
+2026-10-08 14:02:39.572 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5395 - 200 - application/json 39ms
+2026-10-08 14:02:39.644 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2921 - 200 - application/json 31ms
+2026-10-08 14:02:39.884 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5002 - 200 - application/json 35ms
+2026-10-08 14:02:40.430 +00:00 [INF] Orders.Api.Orders.OrderService: Order 44722 stored for customer 380
+2026-10-08 14:02:41.789 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 15ms
+2026-10-08 14:02:42.065 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:02:42.803 +00:00 [INF] Orders.Api.Orders.OrderService: Order 74643 stored for customer 229
+2026-10-08 14:02:43.079 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4864 - 200 - application/json 85ms
+2026-10-08 14:02:43.259 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1703 - 200 - application/json 29ms
+2026-10-08 14:02:44.347 +00:00 [INF] Orders.Api.Orders.OrderService: Order 56939 stored for customer 543
+2026-10-08 14:02:44.666 +00:00 [INF] Orders.Api.Orders.OrderService: Order 60196 stored for customer 439
+2026-10-08 14:02:45.169 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,699ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:02:45.889 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/239/orders - 200 - application/json 2714ms
+2026-10-08 14:02:46.386 +00:00 [INF] Orders.Api.Orders.OrderService: Order 29150 stored for customer 626
+2026-10-08 14:02:46.951 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:47.134 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 7ms
+2026-10-08 14:02:48.597 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:49.748 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3097 - 200 - application/json 8ms
+2026-10-08 14:02:51.057 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6768 - 200 - application/json 20ms
+2026-10-08 14:02:52.303 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1502 - 200 - application/json 47ms
+2026-10-08 14:02:53.665 +00:00 [INF] Orders.Api.Orders.OrderService: Order 51275 stored for customer 925
+2026-10-08 14:02:53.715 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3730 - 200 - application/json 56ms
+2026-10-08 14:02:55.140 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9126 - 200 - application/json 34ms
+2026-10-08 14:02:55.495 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 87ms
+2026-10-08 14:02:56.564 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9299 - 200 - application/json 23ms
+2026-10-08 14:02:57.251 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6146 - 200 - application/json 38ms
+2026-10-08 14:02:58.507 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,341ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:02:59.057 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/373/orders - 200 - application/json 3381ms
+2026-10-08 14:02:59.134 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 76ms
+2026-10-08 14:02:59.503 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:00.250 +00:00 [INF] Orders.Api.Orders.OrderService: Order 12231 stored for customer 905
+2026-10-08 14:03:01.499 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7724 - 200 - application/json 9ms
+2026-10-08 14:03:01.880 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9836 - 200 - application/json 38ms
+2026-10-08 14:03:02.471 +00:00 [INF] Orders.Api.Orders.OrderService: Order 26248 stored for customer 165
+2026-10-08 14:03:03.142 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 77ms
+2026-10-08 14:03:04.557 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7555 - 200 - application/json 11ms
+2026-10-08 14:03:06.016 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 56ms
+2026-10-08 14:03:06.105 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7121 - 200 - application/json 76ms
+2026-10-08 14:03:06.152 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7267 - 200 - application/json 37ms
+2026-10-08 14:03:06.578 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,354ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:03:07.133 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/431/orders - 200 - application/json 3388ms
+2026-10-08 14:03:08.219 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6830 - 200 - application/json 25ms
+2026-10-08 14:03:08.973 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6331 - 200 - application/json 90ms
+2026-10-08 14:03:10.035 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8248 - 200 - application/json 59ms
+2026-10-08 14:03:10.644 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 65ms
+2026-10-08 14:03:10.710 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1348 - 200 - application/json 47ms
+2026-10-08 14:03:11.682 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 88ms
+2026-10-08 14:03:12.458 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7594 - 200 - application/json 88ms
+2026-10-08 14:03:12.871 +00:00 [INF] Orders.Api.Orders.OrderService: Order 58858 stored for customer 417
+2026-10-08 14:03:13.039 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:03:14.379 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9241 - 200 - application/json 43ms
+2026-10-08 14:03:14.941 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8342 - 200 - application/json 15ms
+2026-10-08 14:03:15.616 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:16.030 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2348 - 200 - application/json 24ms
+2026-10-08 14:03:17.329 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6621 - 200 - application/json 34ms
+2026-10-08 14:03:18.583 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:18.777 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:03:19.918 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (4,198ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:03:20.607 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/718/orders - 200 - application/json 4206ms
+2026-10-08 14:03:21.233 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6040 - 200 - application/json 53ms
+2026-10-08 14:03:22.434 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 27ms
+2026-10-08 14:03:23.047 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9330 - 200 - application/json 60ms
+2026-10-08 14:03:23.812 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:25.109 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5389 - 200 - application/json 63ms
+2026-10-08 14:03:26.185 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 88ms
+2026-10-08 14:03:27.503 +00:00 [INF] Orders.Api.Orders.OrderService: Order 64345 stored for customer 484
+2026-10-08 14:03:28.527 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 53ms
+2026-10-08 14:03:29.805 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 45ms
+2026-10-08 14:03:30.145 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9324 - 200 - application/json 29ms
+2026-10-08 14:03:30.463 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6928 - 200 - application/json 69ms
+2026-10-08 14:03:31.555 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1200 - 200 - application/json 74ms
+2026-10-08 14:03:32.240 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8004 - 200 - application/json 52ms
+2026-10-08 14:03:33.251 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,490ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:03:34.090 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/431/orders - 200 - application/json 2527ms
+2026-10-08 14:03:34.680 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4996 - 200 - application/json 31ms
+2026-10-08 14:03:35.598 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6752 - 200 - application/json 11ms
+2026-10-08 14:03:37.093 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4762 - 200 - application/json 30ms
+2026-10-08 14:03:37.145 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3128 - 200 - application/json 37ms
+2026-10-08 14:03:38.420 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:38.504 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 57ms
+2026-10-08 14:03:39.632 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9018 - 200 - application/json 6ms
+2026-10-08 14:03:39.985 +00:00 [INF] Orders.Api.Orders.OrderService: Order 31920 stored for customer 898
+2026-10-08 14:03:40.584 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1590 - 200 - application/json 90ms
+2026-10-08 14:03:41.149 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 68ms
+2026-10-08 14:03:42.381 +00:00 [INF] Orders.Api.Orders.OrderService: Order 50051 stored for customer 500
+2026-10-08 14:03:43.207 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:43.440 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 53ms
+2026-10-08 14:03:44.881 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:44.951 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 74ms
+2026-10-08 14:03:45.074 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (2,286ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:03:45.704 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/198/orders - 200 - application/json 2308ms
+2026-10-08 14:03:46.746 +00:00 [INF] Orders.Api.Orders.OrderService: Order 11571 stored for customer 697
+2026-10-08 14:03:47.319 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4916 - 200 - application/json 89ms
+2026-10-08 14:03:48.123 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1999 - 200 - application/json 70ms
+2026-10-08 14:03:49.488 +00:00 [INF] Orders.Api.Orders.OrderService: Order 58477 stored for customer 300
+2026-10-08 14:03:49.573 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7997 - 200 - application/json 26ms
+2026-10-08 14:03:50.667 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4672 - 200 - application/json 17ms
+2026-10-08 14:03:52.107 +00:00 [INF] Orders.Api.Orders.OrderService: Order 27733 stored for customer 401
+2026-10-08 14:03:52.361 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2670 - 200 - application/json 49ms
+2026-10-08 14:03:53.419 +00:00 [INF] Orders.Api.Orders.OrderService: Order 32672 stored for customer 682
+2026-10-08 14:03:54.005 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:55.234 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 28ms
+2026-10-08 14:03:55.409 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2815 - 200 - application/json 76ms
+2026-10-08 14:03:55.535 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,843ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:03:55.755 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/987/orders - 200 - application/json 3855ms
+2026-10-08 14:03:56.160 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7210 - 200 - application/json 18ms
+2026-10-08 14:03:56.693 +00:00 [INF] Orders.Api.Orders.OrderService: Order 72853 stored for customer 145
+2026-10-08 14:03:56.734 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9001 - 200 - application/json 61ms
+2026-10-08 14:03:57.900 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8414 - 200 - application/json 61ms
+2026-10-08 14:03:59.050 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8797 - 200 - application/json 82ms
+2026-10-08 14:03:59.556 +00:00 [INF] Orders.Api.Orders.OrderService: Order 22008 stored for customer 209
+2026-10-08 14:04:00.377 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:04:01.854 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 80ms
+2026-10-08 14:04:02.444 +00:00 [INF] Orders.Api.Orders.OrderService: Order 34294 stored for customer 211
+2026-10-08 14:04:02.673 +00:00 [INF] Orders.Api.Orders.OrderService: Order 91162 stored for customer 951
+2026-10-08 14:04:03.509 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:04:04.029 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9307 - 200 - application/json 24ms
+2026-10-08 14:04:04.960 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,300ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:04:06.175 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/876/orders - 200 - application/json 3337ms
+2026-10-08 14:04:07.656 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 36ms
+2026-10-08 14:04:08.687 +00:00 [INF] Orders.Api.Orders.OrderService: Order 23438 stored for customer 514
+2026-10-08 14:04:09.535 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 35ms
+2026-10-08 14:04:10.919 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2454 - 200 - application/json 52ms
+2026-10-08 14:04:11.376 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4756 - 200 - application/json 55ms
+2026-10-08 14:04:12.126 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 21ms
+2026-10-08 14:04:12.801 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 19ms
+2026-10-08 14:04:14.176 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 88ms
+2026-10-08 14:04:15.416 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7100 - 200 - application/json 27ms
+2026-10-08 14:04:16.618 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6087 - 200 - application/json 63ms
+2026-10-08 14:04:17.108 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:04:17.920 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 37ms
+2026-10-08 14:04:19.336 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8622 - 200 - application/json 31ms
+2026-10-08 14:04:20.031 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 16ms
+2026-10-08 14:04:20.346 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 20ms
+2026-10-08 14:04:20.606 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 86ms
+2026-10-08 14:04:21.482 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (4,167ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:04:21.827 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/991/orders - 200 - application/json 4192ms
+2026-10-08 14:04:22.090 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 90ms
+2026-10-08 14:04:22.828 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:04:23.470 +00:00 [INF] Orders.Api.Orders.OrderService: Order 49157 stored for customer 160
+2026-10-08 14:04:23.782 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:04:24.408 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:04:24.828 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3432 - 200 - application/json 78ms
+2026-10-08 14:04:25.214 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3059 - 200 - application/json 35ms
+2026-10-08 14:04:25.417 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5926 - 200 - application/json 27ms
+2026-10-08 14:04:25.684 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9366 - 200 - application/json 81ms
+2026-10-08 14:04:25.793 +00:00 [INF] Orders.Api.Orders.OrderService: Order 81528 stored for customer 112
+2026-10-08 14:04:26.943 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6145 - 200 - application/json 71ms
+2026-10-08 14:04:26.994 +00:00 [INF] Orders.Api.Orders.OrderService: Order 96803 stored for customer 637
+2026-10-08 14:04:28.394 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,690ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:04:29.284 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/655/orders - 200 - application/json 3700ms
+2026-10-08 14:04:30.673 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:04:32.009 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7431 - 200 - application/json 90ms
+2026-10-08 14:04:32.424 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5545 - 200 - application/json 18ms
+2026-10-08 14:04:33.702 +00:00 [INF] Orders.Api.Orders.OrderService: Order 46832 stored for customer 195
+2026-10-08 14:04:33.884 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 48ms
+2026-10-08 14:04:34.104 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:04:35.543 +00:00 [INF] Orders.Api.Orders.OrderService: Order 24963 stored for customer 379
+2026-10-08 14:04:36.977 +00:00 [INF] Orders.Api.Orders.OrderService: Order 54532 stored for customer 453
+2026-10-08 14:04:38.416 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:04:38.942 +00:00 [INF] Orders.Api.Orders.OrderService: Order 12775 stored for customer 256
+2026-10-08 14:04:39.354 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7985 - 200 - application/json 45ms
+2026-10-08 14:04:39.863 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:04:41.242 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1754 - 200 - application/json 7ms
+2026-10-08 14:04:41.947 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9943 - 200 - application/json 19ms
+2026-10-08 14:04:43.343 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5935 - 200 - application/json 63ms
+2026-10-08 14:04:43.699 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2014 - 200 - application/json 22ms
+2026-10-08 14:04:44.397 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,379ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:04:45.027 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/761/orders - 200 - application/json 3413ms
+2026-10-08 14:04:45.536 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:04:46.808 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 53ms
+2026-10-08 14:04:47.541 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3308 - 200 - application/json 43ms
+2026-10-08 14:04:48.723 +00:00 [INF] Orders.Api.Orders.OrderService: Order 69125 stored for customer 827
+2026-10-08 14:04:49.083 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6472 - 200 - application/json 72ms
+2026-10-08 14:04:50.382 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7003 - 200 - application/json 16ms
+2026-10-08 14:04:50.811 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2332 - 200 - application/json 69ms
+2026-10-08 14:04:51.832 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 68ms
+2026-10-08 14:04:52.899 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 4ms
+2026-10-08 14:04:53.870 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2789 - 200 - application/json 34ms
+2026-10-08 14:04:55.107 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6989 - 200 - application/json 62ms
+2026-10-08 14:04:56.174 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1945 - 200 - application/json 77ms
+2026-10-08 14:04:56.316 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:04:57.810 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:04:58.502 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9909 - 200 - application/json 75ms
+2026-10-08 14:04:59.523 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2221 - 200 - application/json 17ms
+2026-10-08 14:05:00.448 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (4,259ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:05:01.193 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/172/orders - 200 - application/json 4273ms
+2026-10-08 14:05:02.591 +00:00 [INF] Orders.Api.Orders.OrderService: Order 55436 stored for customer 992
+2026-10-08 14:05:03.985 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:05:04.080 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9304 - 200 - application/json 64ms
+2026-10-08 14:05:05.472 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2551 - 200 - application/json 39ms
+2026-10-08 14:05:06.282 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7534 - 200 - application/json 22ms
+2026-10-08 14:05:07.264 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:05:07.580 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2332 - 200 - application/json 58ms
+2026-10-08 14:05:07.942 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:05:08.192 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6090 - 200 - application/json 21ms
+2026-10-08 14:05:09.669 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 17ms
+2026-10-08 14:05:09.847 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,516ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:05:10.485 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/889/orders - 200 - application/json 3537ms
+2026-10-08 14:05:11.518 +00:00 [WRN] Microsoft.EntityFrameworkCore.Database.Command: Executed DbCommand (3,167ms) [Parameters=[@p0='?'], CommandType='Text', CommandTimeout='30'] SELECT o.id, o.total, o.created_at FROM orders AS o WHERE o.customer_id = @p0 ORDER BY o.created_at DESC
+2026-10-08 14:05:12.663 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/435/orders - 200 - application/json 3202ms
+2026-10-08 14:05:13.118 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3828 - 200 - application/json 83ms

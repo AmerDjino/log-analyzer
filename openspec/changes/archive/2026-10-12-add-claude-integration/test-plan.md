@@ -44,16 +44,16 @@ An xUnit test carries `[Trait("Scenario", "<id>")]`. An eval case's file path be
     - a valid analysis of the log the test submitted, as structured-output JSON;
     - answers with the stop reasons `end_turn`, `max_tokens`, `refusal` (with `stop_details`) and `pause_turn`;
     - usage of 4,210 input and 610 output tokens, and a `request-id` header;
-    - 429 with `retry-after: 1`, 529 overloaded, 401, and a 6-second delay.
+    - 429 with `retry-after`, 529 overloaded, 500, 400, 401, and an answer delayed by a given time.
 
-    It also records each request it receives: headers, model, `output_config` and the message text.
-  - `ClaudeApiFactory` derives from `RunsApiFactory`:
+    It also records each request it receives, with its headers, body and arrival time. Resetting it between tests ends any delayed answer still waiting.
+  - `ClaudeApiFactory` derives from `PostgresApiFactory`, with the real clock and no worker:
     - It sets `Model:Provider=Claude`, a fixed fake API key (`fake-key-for-tests`, never shaped like a real key) and `Model:Claude:BaseUrl` to the fake's address.
-    - It sets `Model:Claude:Timeout` to 5 s and `Model:Claude:MaxRetries` to 2.
-    - It replaces `ScriptedAnalysisModel` with the real `ClaudeAnalysisModel`.
+    - It sets `Model:Claude:MaxRetries` to 2, and `Model:Claude:Timeout` to 30 s, so a fake slowed down by a busy test machine does not time a try out.
+    - `CreateHost` starts a second host on the same database with another prompt version, base URL or timeout. The timeout scenario uses one with 5 s and an answer delayed by 15 s; the connection failure check uses one pointed at a closed local port.
     - It adds a log sink that captures every message the API writes, for the key search.
     - It registers a test template source with `log-analysis/v1` and `log-analysis/v2`, so tests can switch prompt versions without shipping a v2 prompt.
-  - `ReuseTests` use `RunsApiFactory` with `ScriptedAnalysisModel`. The model gains a configurable prompt version and model (`log-analysis/v1`, `claude-test`), which reuse compares, and a count of the calls it received.
+  - `ReuseTests` use `RunsApiFactory` with `ScriptedAnalysisModel`. The model gains a configurable prompt version and model (`log-analysis/v1`, `claude-test`), which reuse compares; the requests it records give the count of calls.
   - `ModelSettingsTests` reuse the process-start helper from `SettingsValidationTests`. It is moved into a shared helper. The tests set `Model__Provider` and `Model__Claude__ApiKey` as environment variables.
   - `ModelProviderTests` use `WorkerApiFactory`, which keeps the stand-in and the real worker, with no key configured.
   - `Runs_KeepTheirPromptVersionAfterConfigurationChange` starts a second host, configured with `log-analysis/v2`, against the same database, as the restart tests do.

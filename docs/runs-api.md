@@ -36,6 +36,7 @@ Content-Type: text/plain
 - The body is the log itself: `Content-Type: text/plain`, with no charset or `charset=utf-8`. A body sent without a `Content-Type` is read the same way.
 - `fileName` names an uploaded file. A paste sends none, and its run has no file name.
 - `202 Accepted` with `{ "id": "<uuid>", "status": "queued" }`. There is no `Location` header: behind nginx it would point at the web app. The run is analyzed in the background.
+- `200 OK` with `{ "id": "<uuid>", "status": "completed" }` when the submission reuses one of your runs, as described in [Reuse](#reuse).
 
 Send a paste as its text, and an upload as the file's bytes, unchanged. In a browser, send the `File` itself (a `Blob`), never `file.text()`: the browser would replace invalid UTF-8 with U+FFFD, and the API could no longer refuse it.
 
@@ -53,6 +54,16 @@ A submission gets exactly one answer. The checks run in this order, and only the
 6. One leading UTF-8 byte order mark is removed. Then `400 EMPTY_INPUT` when nothing but white space is left, including for an empty file.
 
 A rejected submission creates no run and never reaches the model.
+
+### Reuse
+
+A submission that passes the checks is compared with your completed runs. When one of them has exactly the same bytes and was analyzed with the model and prompt version configured now, the answer is `200 OK` with that run's id and status `completed`. No run is created and the model is not called.
+
+- The bytes are compared through their SHA-256, as sent, before the byte order mark is removed.
+- Only your own runs count. Another person's identical log gets a new run, and their run is never revealed.
+- A queued, running or failed run is never reused, and neither is a run analyzed with another model or prompt version. Changing either setting makes the next identical submission analyze the log again.
+- The file name plays no part. The reused run keeps the name it was submitted with.
+- Runs submitted before reuse existed have no stored hash, so they are never reused.
 
 ### Size limit
 
@@ -248,21 +259,53 @@ A run gets at most two model calls.
 
 ### Attempts
 
-Every response the validator evaluated is stored as an attempt of its run, as soon as it is evaluated. No endpoint returns attempts yet. An attempt holds:
+Every response the validator evaluated is stored as an attempt of its run, as soon as it is evaluated. No endpoint returns attempts yet; `add-attempt-timeline-and-insights` adds one. An attempt holds:
 
 - its number: 1 for the first response, 2 for the corrected one;
 - its outcome, `accepted` or `rejected`;
 - for a rejected response, each reason: the reason code and the path of the failing field, such as `LINE_OUT_OF_RANGE` at `findings[0].line_refs[0]`;
 - the model and the prompt version that produced it;
-- when the model call started and ended.
+- when the model call started and ended;
+- what the call cost: the tokens the model read (`input_tokens`, cache reads and writes included) and wrote (`output_tokens`, thinking included), how many times it was sent again after a transient failure (`transport_retries`), and the model service's id for the request that answered (`request_id`). The stand-in records zeros and no request id.
 
 The response text is never stored, and neither are the reasons' messages, which quote it. A path keeps the contract's field names and array indexes. Any other name in it was written by the model, so it is stored as `*`: `findings[0]["max tokens"]` becomes `findings[0].*`.
 
 A model call that yields no response, such as one that times out, is not an attempt.
 
+### Models
+
+`Model:Provider` (environment variable `Model__Provider`) chooses the model that analyzes runs, in any letter case:
+
+- `StandIn`, the default: the stand-in model below. It needs no key and makes no network calls, so the local stack and CI run without one.
+- `Claude`: Claude, through the Anthropic API. It needs `Model:Claude:ApiKey`; see the README for where to put the key.
+
+Any other value stops the API at startup with a message naming `Model:Provider`. With Claude, so does a missing key, a prompt version without templates, or a setting below out of its range. The stand-in never reads Claude's settings.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `Model:Claude:ApiKey` | none | The Anthropic API key. It is passed only to the SDK client, and never logged, returned or stored. |
+| `Model:Claude:Model` | `claude-opus-5-5` | The model to call. |
+| `Model:Claude:PromptVersion` | `log-analysis/v1` | The prompt templates, a folder under `prompts/` holding `system.md` and `correction.md`. They are built into the API, so a version cannot change after the API is built. |
+| `Model:Claude:Effort` | `medium` | How much the model thinks before it answers: `low`, `medium`, `high` or `max`. |
+| `Model:Claude:MaxOutputTokens` | 16,000 | The output limit of one call, from 1 to 128,000. |
+| `Model:Claude:Timeout` | `00:01:00` | How long one try of a call may take, as `hh:mm:ss`, at most 10 minutes. |
+| `Model:Claude:MaxRetries` | 2 | How many times a call is sent again after a transient failure, from 0 to 10. |
+| `Model:Claude:BaseUrl` | empty | Where the Anthropic API is; empty for its usual address. The integration tests point it at a local fake. |
+
+Each Claude call sends the cached system prompt and the numbered log, each line as `N: text`, and asks for the output contract as the response format. A corrective call is a new request with the same system prompt and log, plus the rejected response and the reasons it was rejected. A response must end with stop reason `end_turn` to be read as complete. `max_tokens` and `model_context_window_exceeded` count as cut off (`TRUNCATED`), `refusal` as a refusal (`REFUSED`), and any other stop reason as cut off, so it is never accepted. There is no fallback to another model.
+
+Changing the model or the prompt version affects only runs processed afterwards: a run records what it was analyzed with when its processing starts.
+
+A Claude call that gets no answer is retried when the failure may pass, and fails the run at once when it cannot:
+
+- **Retried:** rate limiting (429), overload (529), any other server error (5xx), a try that takes longer than `Model:Claude:Timeout`, and a failed connection. Each retry waits 1 second, then 2, doubling up to 30 seconds and varied by up to a fifth, or as long as the service's `retry-after` asks, up to 30 seconds. After `Model:Claude:MaxRetries` retries, the run fails with `MODEL_UNAVAILABLE`.
+- **Not retried:** any other client error, such as a rejected key (401), a missing permission (403), an unknown model (404) or a request the service refuses (400, 413, 422). The run fails with `MODEL_CONFIGURATION_ERROR`. That includes a log too long for the model's context window: the size limit allows logs far larger than the model can read, until `add-large-log-support` splits them.
+
+Retries happen inside one model call, so they do not count as attempts. The attempt that the call produced records how many there were. The server log has each failure, without the key.
+
 ### The stand-in model
 
-Until Claude is integrated, runs are analyzed by a stand-in model. It makes no network calls, and gives the same answer for the same log. Its attempts record the model and prompt version `stand-in`. It never answers with anything the validator rejects.
+The stand-in makes no network calls, and gives the same answer for the same log. Its attempts record the model and prompt version `stand-in`. It never answers with anything the validator rejects.
 
 - It flags up to three lines with different text: critical lines first, then error lines, then warning lines, by the level rule in [Levels](#levels).
 - Each flagged line becomes one finding. Its title is the level and the line number, such as `Error logged on line 12`, and its severity is the line's level. Its category is `exception` or `timeout` when the line says so, and `other` otherwise. Its evidence is the whole line, trimmed.
@@ -276,8 +319,8 @@ A failed run has exactly one failure reason. The set is closed. The validator's 
 | Reason | Meaning |
 |---|---|
 | `VALIDATION_FAILED` | The model's response and its corrected response were both rejected. Nothing from either is stored. |
-| `MODEL_UNAVAILABLE` | The model service failed, or did not answer in time, after retries. Submitting the log again later may work. The server log has the cause. |
-| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a missing or wrong API key. The API's configuration must be fixed; the server log has the cause. |
+| `MODEL_UNAVAILABLE` | The model service was rate limited, overloaded, failing or unreachable, or did not answer in time, on every try. Submitting the log again later may work. The server log has the cause. |
+| `MODEL_CONFIGURATION_ERROR` | The model service refused the request in a way that retrying cannot fix, such as a wrong API key, an unknown model, or a log too long for the model to read. The server log has the cause: fix the configuration, or submit a shorter log. |
 | `INTERRUPTED` | The API stopped while it was processing the run. Submit the log again. |
 | `INTERNAL_ERROR` | An unexpected error, for example while the run's lines were read. The server log has the details, with the run's id. |
 

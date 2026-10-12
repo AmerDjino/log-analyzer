@@ -14,13 +14,14 @@ public readonly record struct RunPosition(DateTimeOffset SubmittedAt, Guid Id);
 public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queueSignal, TimeProvider timeProvider)
 {
     /// <summary>
-    /// Stores an accepted submission as a queued run, with its lines and statistics, in one transaction, then wakes the
-    /// worker. Returns the new run's id, a UUIDv7 built from the submission time.
+    /// Stores an accepted submission as a queued run, with its lines, statistics and content hash, in one transaction,
+    /// then wakes the worker. Returns the new run's id, a UUIDv7 built from the submission time.
     /// </summary>
     public async Task<Guid> SubmitAsync(
         Guid userId,
         string? fileName,
         int byteCount,
+        byte[] contentSha256,
         string[] lines,
         LogStatistics statistics,
         CancellationToken cancellationToken)
@@ -35,6 +36,7 @@ public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queue
             Status = RunStatus.Queued,
             SubmittedAt = submittedAt,
             ByteCount = byteCount,
+            ContentSha256 = contentSha256,
             LineCount = statistics.LineCount,
             CriticalCount = statistics.Levels.Critical,
             ErrorCount = statistics.Levels.Error,
@@ -54,6 +56,22 @@ public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queue
         queueSignal.Notify();
         return run.Id;
     }
+
+    /// <summary>
+    /// The person's latest completed run of the same content, analyzed with this model and prompt version, or null when
+    /// there is none. Another person's runs are never considered.
+    /// </summary>
+    public Task<Guid?> FindReusableAsync(
+        Guid userId, byte[] contentSha256, string model, string promptVersion, CancellationToken cancellationToken) =>
+        Owned(userId)
+            .Where(run => run.ContentSha256 == contentSha256
+                && run.Status == RunStatus.Completed
+                && run.Model == model
+                && run.PromptVersion == promptVersion)
+            .OrderByDescending(run => run.SubmittedAt)
+            .ThenByDescending(run => run.Id)
+            .Select(run => (Guid?)run.Id)
+            .FirstOrDefaultAsync(cancellationToken);
 
     /// <summary>The person's run with its findings in the model's order, or null when they have no run with this id.</summary>
     public Task<Run?> FindOwnedAsync(Guid userId, Guid runId, CancellationToken cancellationToken) =>

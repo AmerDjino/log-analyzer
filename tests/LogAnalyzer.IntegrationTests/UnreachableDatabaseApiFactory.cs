@@ -15,5 +15,7 @@ public sealed class UnreachableDatabaseApiFactory : WebApplicationFactory<Progra
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:Postgres"] = UnreachableConnectionString,
+                // The stand-in, whatever the developer's user secrets or environment choose, so no test calls Anthropic.
+                ["Model:Provider"] = "StandIn",
             }));
 }

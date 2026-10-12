@@ -86,7 +86,8 @@ public sealed class AnalysisPipeline(IAnalysisModel model, IRunRecorder recorder
             var finishedAt = timeProvider.GetUtcNow();
 
             var result = ResponseValidator.Validate(new ValidationInput(reply.Text, reply.StopReason, lines));
-            var attempt = new AttemptRecord(sequence, reply.Model, reply.PromptVersion, startedAt, finishedAt, result.Violations);
+            var attempt = new AttemptRecord(
+                sequence, reply.Model, reply.PromptVersion, startedAt, finishedAt, result.Violations, reply.Usage);
             if (result.IsAccepted)
             {
                 await recorder.CompleteAsync(runId, attempt, result.Analysis, writeToken);

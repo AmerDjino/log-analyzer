@@ -1,0 +1,13 @@
+{
+  "log": "clean-log-has-no-findings.log",
+  "graders": [
+    {
+      "kind": "noFindings"
+    },
+    {
+      "kind": "summary",
+      "question": "Does this summary say that no problems were found in the log?",
+      "expected": "yes"
+    }
+  ]
+}

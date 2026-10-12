@@ -12,19 +12,19 @@ namespace LogAnalyzer.IntegrationTests.OpenApi;
 /// </summary>
 public sealed partial class OpenApiDocumentTests(PostgresApiFactory factory) : IClassFixture<PostgresApiFactory>
 {
-    // Every answer of each endpoint that docs/accounts-api.md and docs/runs-api.md list, the success first, with the
-    // schema of the success body (null for none).
-    public static TheoryData<string, string, string, string?, string[]> Operations => new()
+    // Every answer of each endpoint that docs/accounts-api.md and docs/runs-api.md list: the successes first, with the
+    // schema of their body (null for none). A submission answers 202 for a new run and 200 for a reused one.
+    public static TheoryData<string, string, string[], string?, string[]> Operations => new()
     {
-        { "/auth/register", "post", "201", "AccountResponse", ["400", "409", "415"] },
-        { "/auth/sign-in", "post", "200", "AccountResponse", ["400", "401", "403", "415"] },
-        { "/auth/sign-out", "post", "204", null, ["401"] },
-        { "/auth/me", "get", "200", "AccountResponse", ["401"] },
-        { "/runs", "post", "202", "SubmissionResponse", ["400", "401", "413", "415"] },
-        { "/runs", "get", "200", "RunPageResponse", ["400", "401"] },
-        { "/runs/{id}", "get", "200", "RunResponse", ["401", "404"] },
-        { "/runs/{id}/lines", "get", "200", "RunLinesResponse", ["400", "401", "404"] },
-        { "/runs/limits", "get", "200", "SubmissionLimitsResponse", ["401"] },
+        { "/auth/register", "post", ["201"], "AccountResponse", ["400", "409", "415"] },
+        { "/auth/sign-in", "post", ["200"], "AccountResponse", ["400", "401", "403", "415"] },
+        { "/auth/sign-out", "post", ["204"], null, ["401"] },
+        { "/auth/me", "get", ["200"], "AccountResponse", ["401"] },
+        { "/runs", "post", ["202", "200"], "SubmissionResponse", ["400", "401", "413", "415"] },
+        { "/runs", "get", ["200"], "RunPageResponse", ["400", "401"] },
+        { "/runs/{id}", "get", ["200"], "RunResponse", ["401", "404"] },
+        { "/runs/{id}/lines", "get", ["200"], "RunLinesResponse", ["400", "401", "404"] },
+        { "/runs/limits", "get", ["200"], "SubmissionLimitsResponse", ["401"] },
     };
 
     [Fact]
@@ -42,16 +42,16 @@ public sealed partial class OpenApiDocumentTests(PostgresApiFactory factory) : I
     [Theory]
     [MemberData(nameof(Operations))]
     public async Task Document_ListsEveryAnswerOfEndpoint(
-        string path, string method, string success, string? successSchema, string[] errors)
+        string path, string method, string[] successes, string? successSchema, string[] errors)
     {
         using var document = await ReadDocumentAsync();
 
         var responses = document.RootElement.GetProperty("paths").GetProperty(path).GetProperty(method).GetProperty("responses");
 
         Assert.Equal(
-            errors.Append(success).Order(StringComparer.Ordinal),
+            errors.Concat(successes).Order(StringComparer.Ordinal),
             responses.EnumerateObject().Select(response => response.Name).Order(StringComparer.Ordinal));
-        if (successSchema is not null)
+        foreach (var success in successes.Where(_ => successSchema is not null))
         {
             var schema = responses.GetProperty(success).GetProperty("content").GetProperty("application/json").GetProperty("schema");
             Assert.EndsWith($"/{successSchema}", schema.GetProperty("$ref").GetString(), StringComparison.Ordinal);

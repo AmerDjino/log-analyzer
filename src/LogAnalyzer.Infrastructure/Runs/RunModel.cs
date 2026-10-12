@@ -52,6 +52,8 @@ internal static class RunModel
             run.HasIndex(r => new { r.UserId, r.SubmittedAt, r.Id }).IsDescending(false, true, true);
             // Claiming the oldest queued run.
             run.HasIndex(r => new { r.SubmittedAt, r.Id }).HasFilter("status = 'queued'");
+            // Finding the person's earlier run of the same log, to reuse.
+            run.HasIndex(r => new { r.UserId, r.ContentSha256 });
         });
 
         builder.Entity<RunLog>(log =>

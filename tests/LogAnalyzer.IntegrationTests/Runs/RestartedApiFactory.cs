@@ -31,6 +31,8 @@ public sealed class RestartedApiFactory : WebApplicationFactory<Program>
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:Postgres"] = _connectionString,
+                // The stand-in, whatever the developer's user secrets or environment choose, so no test calls Anthropic.
+                ["Model:Provider"] = "StandIn",
             }));
         if (_model is { } model)
         {
@@ -49,6 +51,10 @@ public sealed class BlockingAnalysisModel : IAnalysisModel
     private readonly TaskCompletionSource _called = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public Task Called => _called.Task;
+
+    public string ConfiguredModel => "blocking";
+
+    public string ConfiguredPromptVersion => "blocking";
 
     public async Task<ModelReply> AnalyzeAsync(AnalysisRequest request, CancellationToken cancellationToken)
     {

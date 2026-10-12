@@ -36,4 +36,16 @@ public sealed class RunAttempt
     public DateTimeOffset StartedAt { get; set; }
 
     public DateTimeOffset FinishedAt { get; set; }
+
+    /// <summary>The tokens the model read, cache reads and writes included; 0 for the stand-in.</summary>
+    public int InputTokens { get; set; }
+
+    /// <summary>The tokens the model wrote, thinking included; 0 for the stand-in.</summary>
+    public int OutputTokens { get; set; }
+
+    /// <summary>How many times the call was sent again after a transient failure.</summary>
+    public int TransportRetries { get; set; }
+
+    /// <summary>The model service's id for the request that answered; null for the stand-in.</summary>
+    public string? RequestId { get; set; }
 }

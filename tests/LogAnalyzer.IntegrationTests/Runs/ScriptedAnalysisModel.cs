@@ -8,7 +8,8 @@ namespace LogAnalyzer.IntegrationTests.Runs;
 /// <summary>
 /// The model for run tests. Each test scripts the replies, or failures, for its own run, which are given in order. Every
 /// request is recorded. A run without a script fails with MODEL_UNAVAILABLE, so a run processed by accident shows.
-/// Each call takes one second on the test clock, so attempts have distinct times.
+/// Each call takes one second on the test clock, so attempts have distinct times. Its configured model and prompt
+/// version, which reuse compares, can be changed to act as a configuration change.
 /// </summary>
 public sealed class ScriptedAnalysisModel(FakeTimeProvider clock) : IAnalysisModel
 {
@@ -20,14 +21,19 @@ public sealed class ScriptedAnalysisModel(FakeTimeProvider clock) : IAnalysisMod
 
     private readonly ConcurrentQueue<AnalysisRequest> _requests = new();
 
+    public string ConfiguredModel { get; set; } = Model;
+
+    public string ConfiguredPromptVersion { get; set; } = PromptVersion;
+
     /// <summary>Every request received, in order, for any run.</summary>
     public IReadOnlyList<AnalysisRequest> Requests => [.. _requests];
 
     public IReadOnlyList<AnalysisRequest> RequestsFor(Guid runId) => [.. _requests.Where(request => request.RunId == runId)];
 
     /// <summary>The run's next model call answers with this text.</summary>
-    public void Reply(Guid runId, string text, StopReason stopReason = StopReason.Completed) =>
-        Script(runId).Enqueue(() => new ModelReply(text, stopReason, Model, PromptVersion));
+    public void Reply(Guid runId, string text, StopReason stopReason = StopReason.Completed, ModelUsage? usage = null) =>
+        Script(runId).Enqueue(() =>
+            new ModelReply(text, stopReason, ConfiguredModel, ConfiguredPromptVersion) { Usage = usage ?? ModelUsage.None });
 
     /// <summary>The run's next model call yields no response.</summary>
     public void Fail(Guid runId, string failureReason) =>

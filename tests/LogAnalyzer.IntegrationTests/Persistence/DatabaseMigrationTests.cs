@@ -34,6 +34,36 @@ public sealed class DatabaseMigrationTests(PostgresApiFactory factory) : IClassF
             cancellationToken);
         Assert.Contains(migrations, id => id.EndsWith("_InitialAccounts", StringComparison.Ordinal));
         Assert.Contains(migrations, id => id.EndsWith("_AddRuns", StringComparison.Ordinal));
+        Assert.Contains(migrations, id => id.EndsWith("_AddAttemptUsage", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Startup_AddsUsageAndReuseColumns()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        using var client = factory.CreateClient();
+        await using var connection = new NpgsqlConnection(factory.ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        var columns = await ReadStringsAsync(
+            connection,
+            """
+            SELECT table_name || '.' || column_name || ' ' || data_type || ' ' || is_nullable || ' ' || coalesce(column_default, '')
+            FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name IN ('runs', 'run_attempts')
+            """,
+            cancellationToken);
+        Assert.Contains("run_attempts.input_tokens integer NO 0", columns);
+        Assert.Contains("run_attempts.output_tokens integer NO 0", columns);
+        Assert.Contains("run_attempts.transport_retries integer NO 0", columns);
+        Assert.Contains("run_attempts.request_id text YES ", columns);
+        Assert.Contains("runs.content_sha256 bytea YES ", columns);
+        Assert.Contains("runs.prompt_version text YES ", columns);
+        Assert.Contains("runs.model text YES ", columns);
+
+        var indexes = await ReadStringsAsync(
+            connection, "SELECT indexdef FROM pg_indexes WHERE tablename = 'runs'", cancellationToken);
+        Assert.Contains(indexes, definition => definition.EndsWith("(user_id, content_sha256)", StringComparison.Ordinal));
     }
 
     private static async Task<List<string>> ReadStringsAsync(

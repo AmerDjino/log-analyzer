@@ -14,7 +14,21 @@ public sealed record Correction(string RejectedResponseText, IReadOnlyList<Viola
 public sealed record AnalysisRequest(Guid RunId, IReadOnlyList<NumberedLine> Lines, Correction? Correction);
 
 /// <summary>A model's response: its text exactly as returned, why the model stopped, and what produced it.</summary>
-public sealed record ModelReply(string Text, StopReason StopReason, string Model, string PromptVersion);
+public sealed record ModelReply(string Text, StopReason StopReason, string Model, string PromptVersion)
+{
+    /// <summary>What the call cost. A model with no service behind it reports <see cref="ModelUsage.None"/>.</summary>
+    public ModelUsage Usage { get; init; } = ModelUsage.None;
+}
+
+/// <summary>What one model call cost.</summary>
+/// <param name="InputTokens">The tokens the model read, cache reads and writes included.</param>
+/// <param name="OutputTokens">The tokens the model wrote, thinking included.</param>
+/// <param name="TransportRetries">How many times the call was sent again after a transient failure.</param>
+/// <param name="RequestId">The model service's id for the request that answered; null without a service.</param>
+public sealed record ModelUsage(int InputTokens, int OutputTokens, int TransportRetries, string? RequestId)
+{
+    public static ModelUsage None { get; } = new(0, 0, 0, null);
+}
 
 /// <summary>
 /// A model that analyzes logs. Its reply is text, so every reply goes through the validator before any part of it is
@@ -22,6 +36,12 @@ public sealed record ModelReply(string Text, StopReason StopReason, string Model
 /// </summary>
 public interface IAnalysisModel
 {
+    /// <summary>The model configuration selects. A run records it, and reuse compares it.</summary>
+    string ConfiguredModel { get; }
+
+    /// <summary>The prompt version configuration selects. A run records it, and reuse compares it.</summary>
+    string ConfiguredPromptVersion { get; }
+
     Task<ModelReply> AnalyzeAsync(AnalysisRequest request, CancellationToken cancellationToken);
 }
 

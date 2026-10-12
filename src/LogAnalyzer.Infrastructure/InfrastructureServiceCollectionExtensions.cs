@@ -1,5 +1,6 @@
 using LogAnalyzer.Core.Processing;
 using LogAnalyzer.Infrastructure.Accounts;
+using LogAnalyzer.Infrastructure.Models;
 using LogAnalyzer.Infrastructure.Persistence;
 using LogAnalyzer.Infrastructure.Runs;
 using Microsoft.AspNetCore.DataProtection;
@@ -76,8 +77,13 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<UserSessionRepository>();
         services.AddScoped<RunStore>();
 
-        // Runs are analyzed by the stand-in model; add-claude-integration adds Claude and a setting to choose.
-        services.AddSingleton<IAnalysisModel, StandInAnalysisModel>();
+        // Model:Provider chooses the model that analyzes runs: the stand-in unless configured.
+        services.AddOptions<ModelOptions>()
+            .BindConfiguration(ModelOptions.SectionName)
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<ModelOptions>, ModelOptionsValidation>();
+        services.AddSingleton<IPromptTemplates, EmbeddedPromptTemplates>();
+        services.AddSingleton(AnalysisModels.Create);
         services.AddScoped<IRunRecorder, RunRecorder>();
         services.AddScoped<AnalysisPipeline>();
         services.AddSingleton<RunProcessor>();

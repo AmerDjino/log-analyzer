@@ -78,5 +78,9 @@ internal sealed class RunRecorder(LogAnalyzerDbContext database, TimeProvider ti
         PromptVersion = attempt.PromptVersion,
         StartedAt = attempt.StartedAt,
         FinishedAt = attempt.FinishedAt,
+        InputTokens = attempt.Usage.InputTokens,
+        OutputTokens = attempt.Usage.OutputTokens,
+        TransportRetries = attempt.Usage.TransportRetries,
+        RequestId = attempt.Usage.RequestId,
     };
 }

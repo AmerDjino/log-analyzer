@@ -87,6 +87,20 @@ public sealed class AnalysisPipelineTests
     }
 
     [Fact]
+    public async Task Process_RecordsEachReplysUsageWithItsAttempt()
+    {
+        var first = new ModelUsage(InputTokens: 4210, OutputTokens: 610, TransportRetries: 1, RequestId: "req_first");
+        var second = new ModelUsage(InputTokens: 4390, OutputTokens: 580, TransportRetries: 0, RequestId: "req_second");
+        _model.Reply(LineOutOfRange, usage: first);
+        _model.Reply(Accepted, usage: second);
+
+        await ProcessAsync();
+
+        Assert.Equal(first, Assert.IsType<RejectedAttemptRecorded>(_recorder.Calls[0]).Attempt.Usage);
+        Assert.Equal(second, Assert.IsType<RunCompleted>(_recorder.Calls[1]).Attempt.Usage);
+    }
+
+    [Fact]
     public async Task Process_FailsWithValidationFailedAfterTwoRejections()
     {
         _model.Reply(LineOutOfRange);

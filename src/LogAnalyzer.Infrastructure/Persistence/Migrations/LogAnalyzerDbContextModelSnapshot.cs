@@ -142,6 +142,10 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("byte_count");
 
+                    b.Property<byte[]>("ContentSha256")
+                        .HasColumnType("bytea")
+                        .HasColumnName("content_sha256");
+
                     b.Property<int>("CriticalCount")
                         .HasColumnType("integer")
                         .HasColumnName("critical_count");
@@ -177,6 +181,14 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                     b.Property<int>("LineCount")
                         .HasColumnType("integer")
                         .HasColumnName("line_count");
+
+                    b.Property<string>("Model")
+                        .HasColumnType("text")
+                        .HasColumnName("model");
+
+                    b.Property<string>("PromptVersion")
+                        .HasColumnType("text")
+                        .HasColumnName("prompt_version");
 
                     b.Property<DateTimeOffset?>("StartedAt")
                         .HasColumnType("timestamp with time zone")
@@ -226,6 +238,9 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_runs_submitted_at_id")
                         .HasFilter("status = 'queued'");
 
+                    b.HasIndex("UserId", "ContentSha256")
+                        .HasDatabaseName("ix_runs_user_id_content_sha256");
+
                     b.HasIndex("UserId", "SubmittedAt", "Id")
                         .IsDescending(false, true, true)
                         .HasDatabaseName("ix_runs_user_id_submitted_at_id");
@@ -258,6 +273,10 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("finished_at");
 
+                    b.Property<int>("InputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("input_tokens");
+
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("text")
@@ -267,6 +286,10 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("outcome");
+
+                    b.Property<int>("OutputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("output_tokens");
 
                     b.Property<string>("PromptVersion")
                         .IsRequired()
@@ -278,9 +301,17 @@ namespace LogAnalyzer.Infrastructure.Persistence.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("rejection_reasons");
 
+                    b.Property<string>("RequestId")
+                        .HasColumnType("text")
+                        .HasColumnName("request_id");
+
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("started_at");
+
+                    b.Property<int>("TransportRetries")
+                        .HasColumnType("integer")
+                        .HasColumnName("transport_retries");
 
                     b.HasKey("RunId", "Sequence")
                         .HasName("pk_run_attempts");

@@ -132,8 +132,8 @@ A stop reason that is not `end_turn` is never passed on as complete. The request
 
 ### Usage is recorded on each attempt
 
-`ModelReply` gains:
-- `InputTokens` and `OutputTokens`, with cache reads counted in the input;
+`ModelReply` gains a `Usage` (`ModelUsage`), which the pipeline passes into the recorded attempt:
+- `InputTokens` and `OutputTokens`, with cache reads and writes counted in the input;
 - `TransportRetries`;
 - `RequestId`, the `request-id` the API returns.
 
@@ -141,7 +141,7 @@ The stand-in reports zeros and no request id.
 
 `run_attempts` gains the columns `input_tokens`, `output_tokens`, `transport_retries` and `request_id` (migration `AddAttemptUsage`). Existing rows get zeros and null. Latency is `finished_at − started_at`, which every attempt already stores.
 
-The SDK exposes the response headers through its raw-response API. If the release in use does not, a delegating HTTP handler on the client's `HttpClient` captures `request-id` for the call.
+The SDK's raw-response API gives the `request-id` of an answer. Its exceptions carry no response headers, so a delegating HTTP handler on the client's `HttpClient` keeps the `retry-after` of the latest answer for the call.
 
 - Alternative: a separate usage table. Rejected: a one-to-one join for four numbers.
 
@@ -170,7 +170,7 @@ The lookup goes through `RunStore`'s ownership filter, with an index on `(user_i
 
 Each case runs 3 times against the configured Claude model, and a case passes at 2 of 3. The run writes a report with the pass rate, tokens and latency per case.
 
-The suite reads `Model:Claude:ApiKey` from `dotnet user-secrets` or the `ANTHROPIC_API_KEY` environment variable, never from a committed file. It runs on demand (`dotnet test tests/LogAnalyzer.Evals`) and never in pull-request CI.
+The suite reads `Model:Claude:ApiKey` from `dotnet user-secrets` or the `ANTHROPIC_API_KEY` environment variable, never from a committed file. It runs on demand (`RUN_EVALS=1 dotnet test tests/LogAnalyzer.Evals`) and never in pull-request CI. Without `RUN_EVALS=1` the eval cases are skipped, so a `dotnet test` of the solution never spends money, even with a key in user secrets.
 
 - Alternative: an LLM judge for every check. Rejected: code graders are exact, free and repeatable.
 - Alternative: one run per case. Rejected: model output varies, and one sample says little.
@@ -192,7 +192,7 @@ Unit tests cover the stop-reason table, the retry classifier and backoff, prompt
 ### Code placement
 
 - **Core:**
-  - `ModelReply` gains the usage fields.
+  - `ModelReply` gains `Usage`, and `IAnalysisModel` reports the model and prompt version it is configured with.
   - The stand-in reports zeros.
 - **Infrastructure:**
   - `Models/ClaudeAnalysisModel.cs`, the retry and timeout loop, the stop-reason map, `ModelOptions` with its validation, and prompt loading.

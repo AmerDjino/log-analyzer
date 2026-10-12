@@ -1,0 +1,22 @@
+{
+  "log": "connection-pool-exhaustion-is-reported.log",
+  "graders": [
+    {
+      "kind": "findings",
+      "lines": [
+        [
+          4120,
+          5000
+        ]
+      ],
+      "categories": [
+        "resource",
+        "dependency"
+      ],
+      "severities": [
+        "critical"
+      ],
+      "min": 1
+    }
+  ]
+}
