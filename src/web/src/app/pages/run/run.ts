@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { ApiClient, Run } from '../../api/api-client';
 import { apiErrorOf } from '../../api/api-error';
-import { failureReasonMessage, messageFor } from '../../messages';
+import { errorMessages, failureReasonMessage, messageFor } from '../../messages';
 import { EvidenceLines, EvidenceRow, LineWindow, evidenceRows, windowsFor } from './evidence';
 
 type Finding = NonNullable<Run['findings']>[number];
@@ -19,6 +19,9 @@ const statusLabels: Record<Run['status'], string> = {
 };
 
 const retryNotice = 'Cannot reach the server; retrying.';
+
+// A run id is a UUID. Anything else is answered here: /runs/limits, for one, would reach the API's size-limit endpoint.
+const runId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** A finding with its place in the model's order, which stays its identity while the list is sorted and filtered. */
 interface ListedFinding {
@@ -90,7 +93,11 @@ export class RunPage {
       this.reading?.unsubscribe();
       this.loadingLines?.unsubscribe();
     });
-    this.read();
+    if (runId.test(this.id)) {
+      this.read();
+    } else {
+      this.message.set(errorMessages.RUN_NOT_FOUND.text);
+    }
   }
 
   protected select(item: ListedFinding): void {

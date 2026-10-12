@@ -5,6 +5,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { Account } from '../../api/api-client';
 import { ErrorAnswer, ana, limits, problems } from '../../testing/answers';
 import { answerSession, flushError, provideTestApp, typeInto } from '../../testing/test-app';
+import { appPath } from './sign-in';
 
 describe('SignInPage', () => {
   let http: HttpTestingController;
@@ -77,6 +78,16 @@ describe('SignInPage', () => {
     const page = await open('/sign-in?ended=1', null);
 
     expect(page.textContent).toContain('Your session has ended');
+  });
+
+  it('follows a return address only when it is a path inside the app', () => {
+    expect(appPath('/runs/0199d0a5-1000-7000-8000-000000000001')).toBe(
+      '/runs/0199d0a5-1000-7000-8000-000000000001',
+    );
+    expect(appPath('//evil.example')).toBe('/');
+    expect(appPath('/' + String.fromCharCode(92) + 'evil.example')).toBe('/');
+    expect(appPath('https://evil.example')).toBe('/');
+    expect(appPath(null)).toBe('/');
   });
 
   it.each(['//evil.example', '/\\evil.example', 'https://evil.example'])(

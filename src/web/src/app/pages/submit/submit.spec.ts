@@ -187,6 +187,7 @@ describe('SubmitPage', () => {
     await answer(request, problems.emptyInput);
 
     expect(page().textContent).toContain('The log is empty');
+    expect(page().querySelector('.chosen')?.textContent).toContain('empty.log');
   });
 
   it("gives nginx's 413 without a code the size message", async () => {

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { Observable, of, switchMap, tap } from 'rxjs';
 import { ApiClient } from '../../api/api-client';
 import { apiErrorOf } from '../../api/api-error';
 import { messageFor } from '../../messages';
@@ -22,6 +22,9 @@ export class RegisterPage {
   protected readonly passwordError = signal('');
   protected readonly error = signal('');
   protected readonly sending = signal(false);
+  // The address registered by an earlier try whose sign-in failed. Trying again only signs in: registering again
+  // would answer that the address is taken, by the person's own new account.
+  private registered: string | null = null;
 
   // Registration does not sign anyone in, so the page signs in with the same credentials right after.
   protected createAccount(event: Event): void {
@@ -32,26 +35,27 @@ export class RegisterPage {
     this.sending.set(true);
     const email = this.email();
     const password = this.password();
-    this.api
-      .register(email, password)
-      .pipe(switchMap(() => this.api.signIn(email, password)))
-      .subscribe({
-        next: (account) => {
-          this.session.signedIn(account);
-          void this.router.navigateByUrl('/');
-        },
-        error: (error: unknown) => {
-          const message = messageFor(apiErrorOf(error));
-          const target =
-            message.field === 'email'
-              ? this.emailError
-              : message.field === 'password'
-                ? this.passwordError
-                : this.error;
-          target.set(message.text);
-          this.sending.set(false);
-        },
-      });
+    const registration: Observable<unknown> =
+      this.registered === email
+        ? of(null)
+        : this.api.register(email, password).pipe(tap(() => (this.registered = email)));
+    registration.pipe(switchMap(() => this.api.signIn(email, password))).subscribe({
+      next: (account) => {
+        this.session.signedIn(account);
+        void this.router.navigateByUrl('/');
+      },
+      error: (error: unknown) => {
+        const message = messageFor(apiErrorOf(error));
+        const target =
+          message.field === 'email'
+            ? this.emailError
+            : message.field === 'password'
+              ? this.passwordError
+              : this.error;
+        target.set(message.text);
+        this.sending.set(false);
+      },
+    });
   }
 
   protected valueOf(event: Event): string {

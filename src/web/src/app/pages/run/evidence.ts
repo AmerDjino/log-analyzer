@@ -14,7 +14,6 @@ export interface Segment {
 
 export interface EvidenceRow {
   number: number;
-  text: string;
   cited: boolean;
   segments: Segment[];
 }
@@ -78,7 +77,6 @@ export function evidenceRows(
   const excerpt = trimEvidence(evidence);
   return lines.map(({ number, text }) => ({
     number,
-    text,
     cited: cited.has(number),
     segments: cited.has(number) ? segmentsOf(text, excerpt) : [{ text, marked: false }],
   }));

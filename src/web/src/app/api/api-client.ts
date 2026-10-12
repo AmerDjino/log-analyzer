@@ -7,10 +7,10 @@ type Schemas = components['schemas'];
 
 export type Account = Schemas['AccountResponse'];
 export type Run = Schemas['RunResponse'];
-export type RunPage = Schemas['RunPageResponse'];
+export type RunListPage = Schemas['RunPageResponse'];
 export type RunLines = Schemas['RunLinesResponse'];
 export type Submission = Schemas['SubmissionResponse'];
-export type SubmissionLimits = Schemas['SubmissionLimitsResponse'];
+export type SubmissionLimitsAnswer = Schemas['SubmissionLimitsResponse'];
 
 // The API takes the log itself as the body. A file goes with this type too, never with its own: routing answers any
 // other type with a 415 that carries no code.
@@ -37,8 +37,8 @@ export class ApiClient {
     return this.http.get<Account>(url('/auth/me'));
   }
 
-  limits(): Observable<SubmissionLimits> {
-    return this.http.get<SubmissionLimits>(url('/runs/limits'));
+  limits(): Observable<SubmissionLimitsAnswer> {
+    return this.http.get<SubmissionLimitsAnswer>(url('/runs/limits'));
   }
 
   submitPaste(text: string): Observable<Submission> {
@@ -54,8 +54,8 @@ export class ApiClient {
     });
   }
 
-  listRuns(): Observable<RunPage> {
-    return this.http.get<RunPage>(url('/runs'));
+  listRuns(): Observable<RunListPage> {
+    return this.http.get<RunListPage>(url('/runs'));
   }
 
   getRun(id: string): Observable<Run> {

@@ -1,10 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Account, ApiClient } from '../api/api-client';
+import { apiErrorOf } from '../api/api-error';
 import { SubmissionDraft } from './submission-draft';
 
 /**
- * Who is signed in. The session cookie is HttpOnly, so the app cannot see it: it asks GET /auth/me once, and keeps the
+ * Who is signed in. The session cookie is HttpOnly, so the app cannot see it: it asks GET /auth/me, and keeps the
  * answer until a sign-in, a sign-out or an ended session changes it.
  */
 @Injectable({ providedIn: 'root' })
@@ -17,7 +18,7 @@ export class Session {
 
   readonly account = this.current.asReadonly();
 
-  /** The signed-in account, or null. Asks GET /auth/me only the first time; any failure counts as signed out. */
+  /** The signed-in account, or null. Asks GET /auth/me until it has an answer: an account, or a 401 for signed out. */
   load(): Promise<Account | null> {
     const known = this.current();
     if (known !== undefined) {
@@ -26,7 +27,15 @@ export class Session {
 
     this.loading ??= firstValueFrom(this.api.me()).then(
       (account) => this.settle(account),
-      () => this.settle(null),
+      (error: unknown) => {
+        if (apiErrorOf(error).status === 401) {
+          return this.settle(null);
+        }
+        // Any other failure, such as a 502 while the API restarts, is not kept: this navigation goes to sign-in, and
+        // the next one asks again.
+        this.loading = undefined;
+        return null;
+      },
     );
     return this.loading;
   }

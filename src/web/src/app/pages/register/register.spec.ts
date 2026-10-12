@@ -83,6 +83,27 @@ describe('RegisterPage', () => {
     expect(page.querySelector<HTMLInputElement>('#email')!.value).toBe('ana@example.com');
   });
 
+  it('signs in without registering again when the sign-in after a registration failed', async () => {
+    const page = await open(null);
+
+    await createAccount(page, 'ana@example.com', 'correct horse battery');
+    http.expectOne('/api/auth/register').flush(ana, { status: 201, statusText: 'Created' });
+    flushError(
+      await vi.waitFor(() => http.expectOne('/api/auth/sign-in')),
+      problems.serviceUnavailable,
+    );
+    await harness.fixture.whenStable();
+    expect(page.textContent).toContain('The request failed');
+
+    await createAccount(page, 'ana@example.com', 'correct horse battery');
+    http.expectNone('/api/auth/register');
+    http.expectOne('/api/auth/sign-in').flush(ana);
+    await harness.fixture.whenStable();
+    http.expectOne('/api/runs/limits').flush(limits);
+
+    expect(TestBed.inject(Router).url).toBe('/');
+  });
+
   it('sends a signed-in person who opens /register to /', async () => {
     await open(ana);
     http.expectOne('/api/runs/limits').flush(limits);

@@ -231,6 +231,16 @@ describe('RunPage', () => {
     http.expectNone(`/api/runs/${queuedRun.id}`);
   });
 
+  it('says there is no run at this address for an id that is not a run id, without asking the API', async () => {
+    const navigation = harness.navigateByUrl('/runs/limits');
+    await answerSession(http, ana);
+    await navigation;
+    await harness.fixture.whenStable();
+
+    http.expectNone('/api/runs/limits');
+    expect(live()).toContain('There is no run at this address');
+  });
+
   it("keeps the model's order within a severity, and puts info last", async () => {
     await show(mixedSeveritiesRun);
 

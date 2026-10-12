@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace LogAnalyzer.Api;
 
 /// <summary>
@@ -21,21 +23,10 @@ internal static class ApiErrorCodes
     public const string InvalidLimit = "INVALID_LIMIT";
     public const string InvalidCursor = "INVALID_CURSOR";
 
-    public static readonly IReadOnlyList<string> All =
-    [
-        InvalidEmail,
-        PasswordTooShort,
-        PasswordTooLong,
-        EmailTaken,
-        InvalidCredentials,
-        AccountLocked,
-        SignInRequired,
-        UnsupportedCharset,
-        InputTooLarge,
-        UnsupportedContent,
-        EmptyInput,
-        RunNotFound,
-        InvalidLimit,
-        InvalidCursor,
-    ];
+    // Read from the constants above, in the order they are declared, so a new code needs no second edit here.
+    public static readonly IReadOnlyList<string> All = typeof(ApiErrorCodes)
+        .GetFields(BindingFlags.Public | BindingFlags.Static)
+        .Where(field => field.IsLiteral)
+        .Select(field => (string)field.GetRawConstantValue()!)
+        .ToList();
 }

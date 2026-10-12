@@ -13,14 +13,22 @@
     ></textarea>
 
     <label for="file">Or choose a file</label>
-    <input #fileInput id="file" name="file" type="file" (change)="choose($event)" />
+    <input
+      #fileInput
+      id="file"
+      name="file"
+      type="file"
+      (change)="choose($event)"
+      [attr.aria-invalid]="tooLarge() ? true : null"
+      [attr.aria-describedby]="tooLarge() ? 'file-error' : null"
+    />
     @if (draft.file(); as file) {
       <p class="chosen">
         {{ file.name }}, {{ sizeOf(file) }}
         <button type="button" class="remove-file" (click)="removeFile()">Remove the file</button>
       </p>
     }
-    <p class="field-error" aria-live="polite">{{ tooLarge() }}</p>
+    <p id="file-error" class="field-error" aria-live="polite">{{ tooLarge() }}</p>
 
     <button type="submit" [disabled]="!canSubmit()">Analyze</button>
   </form>

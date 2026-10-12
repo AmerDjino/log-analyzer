@@ -24,15 +24,15 @@ describe('evidence', () => {
   });
 
   it("trims the evidence by the API's white-space rule: U+0085 trimmed, U+FEFF kept", () => {
-    const evidence = '\u0085pool exhausted﻿';
-    expect(trimEvidence(evidence)).toBe('pool exhausted﻿');
+    const evidence = '\u0085pool exhausted\uFEFF';
+    expect(trimEvidence(evidence)).toBe('pool exhausted\uFEFF');
 
     const [row] = evidenceRows(
-      [{ number: 5, text: 'Database pool exhausted﻿ after 30 s' }],
+      [{ number: 5, text: 'Database pool exhausted\uFEFF after 30 s' }],
       new Set([5]),
       evidence,
     );
-    expect(marks(row)).toEqual(['pool exhausted﻿']);
+    expect(marks(row)).toEqual(['pool exhausted\uFEFF']);
   });
 
   it('marks every occurrence on a cited line, and none on a context line', () => {
@@ -80,7 +80,6 @@ describe('evidence', () => {
     fixture.componentRef.setInput('rows', [
       {
         number: 1,
-        text: '<b>bold</b> line',
         cited: true,
         segments: segmentsOf('<b>bold</b> line', 'line'),
       },

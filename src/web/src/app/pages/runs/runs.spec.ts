@@ -53,6 +53,10 @@ describe('RunsPage', () => {
       '2026-10-10T09:45:00+00:00',
       '2026-10-10T08:30:00+00:00',
     ]);
+    expect(cells.map((row) => row[1])).toEqual([
+      expect.stringContaining('2026'),
+      expect.stringContaining('2026'),
+    ]);
     expect(cells.map((row) => row[2])).toEqual(['Completed', 'Queued']);
     expect(cells.map((row) => row[3])).toEqual(['Critical', '—']);
   });
