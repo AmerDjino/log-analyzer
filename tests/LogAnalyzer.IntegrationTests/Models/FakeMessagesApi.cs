@@ -28,6 +28,9 @@ public sealed class FakeMessagesApi : IDisposable
 
     private readonly ConcurrentQueue<RecordedRequest> _requests = new();
 
+    // Cancelled at each reset, so a delayed answer a test left behind cannot hold up the next test's requests.
+    private CancellationTokenSource _delays = new();
+
     private int _sequence;
 
     public FakeMessagesApi()
@@ -44,9 +47,15 @@ public sealed class FakeMessagesApi : IDisposable
     /// <summary>Every request received, in order.</summary>
     public IReadOnlyList<RecordedRequest> Requests => [.. _requests];
 
-    /// <summary>Forgets the scripted answers and the recorded requests, so a test starts from nothing.</summary>
+    /// <summary>
+    /// Forgets the scripted answers and the recorded requests, and ends any delayed answer still waiting, so a test starts
+    /// from nothing.
+    /// </summary>
     public void Reset()
     {
+        var delays = Interlocked.Exchange(ref _delays, new CancellationTokenSource());
+        delays.Cancel();
+        delays.Dispose();
         _answers.Clear();
         _requests.Clear();
     }
@@ -79,7 +88,12 @@ public sealed class FakeMessagesApi : IDisposable
         Enqueue(new FakeAnswer(status, body.ToJsonString(), headers, TimeSpan.Zero));
     }
 
-    public void Dispose() => _server.Stop();
+    public void Dispose()
+    {
+        _delays.Cancel();
+        _server.Stop();
+        _delays.Dispose();
+    }
 
     private static string Message(string text, string stopReason, string model)
     {
@@ -120,10 +134,12 @@ public sealed class FakeMessagesApi : IDisposable
 
     private async Task<IResponseMessage> AnswerAsync(IRequestMessage request)
     {
+        var receivedAt = DateTimeOffset.UtcNow;
         _requests.Enqueue(new RecordedRequest(
             request.Headers?.ToDictionary(header => header.Key, header => header.Value.ToString() ?? string.Empty, StringComparer.OrdinalIgnoreCase)
                 ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
-            request.Body ?? string.Empty));
+            request.Body ?? string.Empty,
+            receivedAt));
         if (!_answers.TryDequeue(out var answer))
         {
             answer = new FakeAnswer(
@@ -135,7 +151,14 @@ public sealed class FakeMessagesApi : IDisposable
 
         if (answer.Delay > TimeSpan.Zero)
         {
-            await Task.Delay(answer.Delay);
+            try
+            {
+                await Task.Delay(answer.Delay, _delays.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // The test that scripted the delay is over; its client stopped waiting long ago.
+            }
         }
 
         return new ResponseMessage
@@ -150,8 +173,8 @@ public sealed class FakeMessagesApi : IDisposable
 /// <summary>One scripted answer: its status, body and headers, sent after the delay.</summary>
 public sealed record FakeAnswer(int Status, string Body, IReadOnlyDictionary<string, string> Headers, TimeSpan Delay);
 
-/// <summary>A request as the fake received it.</summary>
-public sealed record RecordedRequest(IReadOnlyDictionary<string, string> Headers, string Body)
+/// <summary>A request as the fake received it, and when.</summary>
+public sealed record RecordedRequest(IReadOnlyDictionary<string, string> Headers, string Body, DateTimeOffset ReceivedAt)
 {
     public JsonElement Json => JsonDocument.Parse(Body).RootElement;
 }

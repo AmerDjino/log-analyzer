@@ -130,7 +130,7 @@ public sealed class ClaudeGatewayTests(ClaudeApiFactory factory) : IClassFixture
         var cancellationToken = TestContext.Current.CancellationToken;
         factory.Messages.Reset();
         factory.Messages.Answer(ModelReplies.OrdersAnalysis);
-        await using var v2 = factory.WithPromptVersion("log-analysis/v2");
+        await using var v2 = factory.CreateHost(promptVersion: "log-analysis/v2");
         await using var database = new RunsDatabase(factory.ConnectionString);
 
         var runs = await SignInNewPersonAsync(v2, cancellationToken);
@@ -155,7 +155,7 @@ public sealed class ClaudeGatewayTests(ClaudeApiFactory factory) : IClassFixture
         await using var _ = database;
 
         // The configuration changes: the API starts again with v2 and analyzes another run with it.
-        await using var v2 = factory.WithPromptVersion("log-analysis/v2");
+        await using var v2 = factory.CreateHost(promptVersion: "log-analysis/v2");
         var later = await (await SignInNewPersonAsync(v2, cancellationToken)).SubmitAcceptedAsync(Log, fileName: null, cancellationToken);
         await ClaudeApiFactory.ProcessQueuedRunsAsync(v2, cancellationToken);
 

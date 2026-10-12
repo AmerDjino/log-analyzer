@@ -58,13 +58,13 @@
 
 ## 6. Retries and timeouts
 
-- [ ] 6.1 Write the failing `ClaudeTransportTests` for its four scenarios, with its checks under "Tests without a scenario", and the fast retry-classifier and backoff tests in `Models/`; verify each fails on its assertions
-- [ ] 6.2 Implement the retry loop as design.md describes; verify `ClaudeTransportTests`, the classifier and backoff tests, and the whole integration suite pass
+- [x] 6.1 Write the failing `ClaudeTransportTests` for its four scenarios, with its checks under "Tests without a scenario", and the fast retry-classifier and backoff tests in `Models/`; verify each fails on its assertions
+- [x] 6.2 Implement the retry loop as design.md describes; verify `ClaudeTransportTests`, the classifier and backoff tests, and the whole integration suite pass
   - The SDK client gets `MaxRetries = 0`.
   - Transient failures are retried up to `MaxRetries`, with backoff and jitter or after `retry-after`. 400, 401, 403, 404 and 422 end at once with MODEL_CONFIGURATION_ERROR.
   - Each try is bounded by `Timeout` through a linked token, and host cancellation passes through, so the run fails with INTERRUPTED.
   - The retry count goes into the reply.
-- [ ] 6.3 Say in docs/runs-api.md which model-service failures end as MODEL_UNAVAILABLE and which as MODEL_CONFIGURATION_ERROR; verify it matches the classifier tests
+- [x] 6.3 Say in docs/runs-api.md which model-service failures end as MODEL_UNAVAILABLE and which as MODEL_CONFIGURATION_ERROR; verify it matches the classifier tests
 
 ## 7. The key as a Docker secret
 

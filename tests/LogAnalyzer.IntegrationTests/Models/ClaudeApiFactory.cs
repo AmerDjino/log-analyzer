@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Globalization;
 using LogAnalyzer.Infrastructure.Models;
 using LogAnalyzer.Infrastructure.Runs;
 using Microsoft.AspNetCore.Hosting;
@@ -13,12 +14,16 @@ namespace LogAnalyzer.IntegrationTests.Models;
 
 /// <summary>
 /// The PostgreSQL-backed API with Claude as the provider, calling <see cref="FakeMessagesApi"/> instead of Anthropic,
-/// with the fake key, a 5-second timeout and 2 retries. The real clock runs, so timeouts, delays and latency are real.
-/// The worker is removed: a test submits, calls <see cref="ProcessQueuedRunsAsync"/> and reads. Prompt templates come
-/// from <see cref="FixedPromptTemplates"/> with v1 and v2, so a test can switch versions without a shipped v2.
+/// with the fake key and 2 retries. The real clock runs, so timeouts, delays and latency are real. The timeout is
+/// 30 seconds, so a fake slowed down by a busy test machine does not time a try out; a test of the timeout starts a host
+/// of its own with <see cref="CreateHost"/>. The worker is removed: a test submits, calls
+/// <see cref="ProcessQueuedRunsAsync(CancellationToken)"/> and reads. Prompt templates come from
+/// <see cref="FixedPromptTemplates"/> with v1 and v2, so a test can switch versions without a shipped v2.
 /// </summary>
 public sealed class ClaudeApiFactory : PostgresApiFactory
 {
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+
     public FakeMessagesApi Messages { get; } = new();
 
     /// <summary>Every message the API logged, with its exception, from every category and level.</summary>
@@ -37,11 +42,12 @@ public sealed class ClaudeApiFactory : PostgresApiFactory
     }
 
     /// <summary>
-    /// The API started again on this database, configured with another prompt version, as after a configuration change.
-    /// It shares the fake Messages API and the log capture.
+    /// The API started again on this database with other settings, as after a configuration change. It shares the fake
+    /// Messages API, unless given another address, and the log capture.
     /// </summary>
-    public WebApplicationFactory<Program> WithPromptVersion(string promptVersion) =>
-        new ClaudeHost(ConnectionString, this, promptVersion);
+    public WebApplicationFactory<Program> CreateHost(
+        string promptVersion = "log-analysis/v1", string? baseUrl = null, TimeSpan? timeout = null) =>
+        new ClaudeHost(ConnectionString, this, new HostSettings(promptVersion, baseUrl ?? Messages.Url, timeout ?? DefaultTimeout));
 
     public override async ValueTask DisposeAsync()
     {
@@ -58,20 +64,20 @@ public sealed class ClaudeApiFactory : PostgresApiFactory
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
-        Configure(builder, this, "log-analysis/v1");
+        Configure(builder, this, new HostSettings("log-analysis/v1", Messages.Url, DefaultTimeout));
     }
 
     // The settings and services every Claude host shares.
-    private static void Configure(IWebHostBuilder builder, ClaudeApiFactory factory, string promptVersion)
+    private static void Configure(IWebHostBuilder builder, ClaudeApiFactory factory, HostSettings settings)
     {
         builder.ConfigureAppConfiguration((_, configuration) =>
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Model:Provider"] = ModelProviders.Claude,
                 ["Model:Claude:ApiKey"] = ClaudeTestSettings.ApiKey,
-                ["Model:Claude:BaseUrl"] = factory.Messages.Url,
-                ["Model:Claude:PromptVersion"] = promptVersion,
-                ["Model:Claude:Timeout"] = "00:00:05",
+                ["Model:Claude:BaseUrl"] = settings.BaseUrl,
+                ["Model:Claude:PromptVersion"] = settings.PromptVersion,
+                ["Model:Claude:Timeout"] = settings.Timeout.ToString("c", CultureInfo.InvariantCulture),
                 ["Model:Claude:MaxRetries"] = "2",
             }));
         builder.ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Trace).AddProvider(factory.Logs));
@@ -89,19 +95,21 @@ public sealed class ClaudeApiFactory : PostgresApiFactory
     private static bool IsRunWorker(ServiceDescriptor service) =>
         service.ServiceType == typeof(IHostedService) && service.ImplementationType?.Name == "RunWorker";
 
+    private sealed record HostSettings(string PromptVersion, string BaseUrl, TimeSpan Timeout);
+
     private sealed class ClaudeHost : WebApplicationFactory<Program>
     {
         private readonly string _connectionString;
 
         private readonly ClaudeApiFactory _factory;
 
-        private readonly string _promptVersion;
+        private readonly HostSettings _settings;
 
-        public ClaudeHost(string connectionString, ClaudeApiFactory factory, string promptVersion)
+        public ClaudeHost(string connectionString, ClaudeApiFactory factory, HostSettings settings)
         {
             _connectionString = connectionString;
             _factory = factory;
-            _promptVersion = promptVersion;
+            _settings = settings;
             // https, so the client keeps Secure cookies and sends them back.
             ClientOptions.BaseAddress = new Uri("https://localhost");
         }
@@ -113,7 +121,7 @@ public sealed class ClaudeApiFactory : PostgresApiFactory
                 {
                     ["ConnectionStrings:Postgres"] = _connectionString,
                 }));
-            Configure(builder, _factory, _promptVersion);
+            Configure(builder, _factory, _settings);
         }
     }
 }
