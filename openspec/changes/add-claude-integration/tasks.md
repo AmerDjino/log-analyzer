@@ -2,7 +2,7 @@
 
 ## 1. Branch and packages
 
-- [ ] 1.1 On a new branch `add-claude-integration` from a `main` that includes this plan, add the packages below at exact versions; verify `CI=true dotnet build LogAnalyzer.slnx --configuration Release` succeeds and the unit and integration suites still pass unchanged
+- [x] 1.1 On a new branch `add-claude-integration` from a `main` that includes this plan, add the packages below at exact versions; verify `CI=true dotnet build LogAnalyzer.slnx --configuration Release` succeeds and the unit and integration suites still pass unchanged
   - `Anthropic` (the official C# SDK) in `Directory.Packages.props`, referenced by `LogAnalyzer.Infrastructure`.
   - `WireMock.Net` in `Directory.Packages.props`, referenced by `LogAnalyzer.IntegrationTests`.
   - If the SDK release lacks something design.md relies on (`OutputConfig` with a JSON-schema format and effort, typed status exceptions, a settable base URL, `MaxRetries`), stop and revisit the design with the user.
