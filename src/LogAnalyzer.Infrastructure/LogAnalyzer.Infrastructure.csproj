@@ -17,6 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The versioned prompt templates, embedded so a version cannot change after the API is built. -->
+    <EmbeddedResource Include="..\..\prompts\**\*.md"
+                      LogicalName="prompts/%(RecursiveDir)%(Filename)%(Extension)"
+                      Link="Models\prompts\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LogAnalyzer.Core\LogAnalyzer.Core.csproj" />
   </ItemGroup>
 

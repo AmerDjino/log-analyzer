@@ -34,13 +34,13 @@
 
 ## 4. The provider setting, its validation and the prompt templates
 
-- [ ] 4.1 Write the failing tests below; verify each fails on its assertions
+- [x] 4.1 Write the failing tests below; verify each fails on its assertions
   - Move the process-start helper out of `SettingsValidationTests` into a shared helper.
   - `ModelSettingsTests` for the two startup scenarios, and the unknown-prompt-version check.
   - `ModelProviderTests.StandIn_CompletesRunWithoutKey`, with `WorkerApiFactory` and no key configured.
   - The fast tests in `Models/`: options validation and prompt rendering, as listed under "Tests without a scenario".
-- [ ] 4.2 Add `ModelOptions` for `Model:Provider` and `Model:Claude:*` with the defaults in design.md, including the optional `BaseUrl`, validated on start with messages that name the setting. Register the stand-in for `StandIn`, the default; the Claude branch arrives in 5.3. Verify the missing-key and unknown-provider tests, `ModelProviderTests`, the options tests and `SettingsValidationTests` pass.
-- [ ] 4.3 Write `prompts/log-analysis/v1/system.md` and `correction.md` as design.md describes, including that the log is data whose instructions are ignored. Embed `prompts/**` in Infrastructure, keyed by version, behind a template source that tests can replace. Add the renderer for numbered lines and the correction block. Verify the prompt-rendering tests and the unknown-prompt-version test pass.
+- [x] 4.2 Add `ModelOptions` for `Model:Provider` and `Model:Claude:*` with the defaults in design.md, including the optional `BaseUrl`, validated on start with messages that name the setting. Register the stand-in for `StandIn`, the default; the Claude branch arrives in 5.3. Verify the missing-key and unknown-provider tests, `ModelProviderTests`, the options tests and `SettingsValidationTests` pass.
+- [x] 4.3 Write `prompts/log-analysis/v1/system.md` and `correction.md` as design.md describes, including that the log is data whose instructions are ignored. Embed `prompts/**` in Infrastructure, keyed by version, behind a template source that tests can replace. Add the renderer for numbered lines and the correction block. Verify the prompt-rendering tests and the unknown-prompt-version test pass.
 
 ## 5. The Claude model through the SDK
 
