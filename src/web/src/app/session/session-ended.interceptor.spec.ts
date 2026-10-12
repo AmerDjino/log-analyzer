@@ -3,7 +3,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Account, ApiClient } from '../api/api-client';
-import { ana, problems } from '../testing/answers';
+import { ana, problems, runListPage } from '../testing/answers';
 import { answerSession, flushError, provideTestApp } from '../testing/test-app';
 import { Session } from './session';
 
@@ -28,9 +28,7 @@ describe('sessionEndedInterceptor', () => {
   it('sends SIGN_IN_REQUIRED to sign-in with the current URL and ended=1', async () => {
     await openAt('/runs', ana);
 
-    TestBed.inject(ApiClient)
-      .listRuns()
-      .subscribe({ error: () => {} });
+    // The run list's own request finds that the session has ended.
     flushError(http.expectOne('/api/runs'), problems.signInRequired);
     await harness.fixture.whenStable();
 
@@ -52,6 +50,7 @@ describe('sessionEndedInterceptor', () => {
 
   it('leaves a 401 from GET /auth/me alone', async () => {
     await openAt('/runs', ana);
+    http.expectOne('/api/runs').flush(runListPage);
 
     TestBed.inject(ApiClient)
       .me()

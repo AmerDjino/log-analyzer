@@ -3,7 +3,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { App } from './app';
 import { Account } from './api/api-client';
-import { ana } from './testing/answers';
+import { ana, runListPage } from './testing/answers';
 import { answerSession, provideTestApp } from './testing/test-app';
 
 describe('App', () => {
@@ -50,6 +50,7 @@ describe('App', () => {
 
   it('[analysis-ui/sign-out-returns-to-sign-in] signs out through the API to the sign-in page, and sends a later visit to the run list to sign-in', async () => {
     const fixture = await openAt('/runs', ana);
+    http.expectOne('/api/runs').flush(runListPage);
     const element = fixture.nativeElement as HTMLElement;
     const router = TestBed.inject(Router);
 
@@ -82,6 +83,8 @@ describe('App', () => {
     }).compileComponents();
     http = TestBed.inject(HttpTestingController);
     const signedIn = await openAt('/runs', ana);
+    http.expectOne('/api/runs').flush(runListPage);
+    await signedIn.whenStable();
     const inElement = signedIn.nativeElement as HTMLElement;
     const links = Array.from(inElement.querySelectorAll('nav a')).map((a) =>
       a.getAttribute('href'),

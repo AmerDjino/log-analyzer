@@ -97,8 +97,8 @@
 
 ## 7. The run list
 
-- [ ] 7.1 Write the failing `pages/runs/runs.spec.ts`, for the past-run scenario and its checks listed under "Tests without a scenario", with a run list page that compiles; verify each test fails on its assertions
-- [ ] 7.2 Add the run list, as listed below; verify `runs.spec.ts` passes, with the run page showing the selected run's findings, `npm run build` passes within its budgets, and the whole web suite (`npm test -- --watch=false`) still passes, with any earlier spec whose tests open `/runs` signed in now answering its `GET /api/runs`
+- [x] 7.1 Write the failing `pages/runs/runs.spec.ts`, for the past-run scenario and its checks listed under "Tests without a scenario", with a run list page that compiles; verify each test fails on its assertions
+- [x] 7.2 Add the run list, as listed below; verify `runs.spec.ts` passes, with the run page showing the selected run's findings, `npm run build` passes within its budgets, and the whole web suite (`npm test -- --watch=false`) still passes, with any earlier spec whose tests open `/runs` signed in now answering its `GET /api/runs`
   - The first page of `GET /runs`, newest first as the API returns it. Paging is not part of this change.
   - Each run's file name ("Pasted log" when it has none), submission time, status and highest severity.
   - Selecting a run opens its page.
