@@ -76,18 +76,19 @@
 
 ## 8. The golden-set evals
 
-- [ ] 8.1 Write the six eval cases and their logs, as listed below; verify `node scripts/check-scenario-coverage.mjs` passes and lists the six `log-analysis` scenarios among the pending scenarios with tests
+- [x] 8.1 Write the six eval cases and their logs, as listed below; verify `node scripts/check-scenario-coverage.mjs` passes and lists the six `log-analysis` scenarios among the pending scenarios with tests
   - `GoldenLogGenerator` is deterministic and seeded.
   - It writes the six logs from test-plan.md to `tests/LogAnalyzer.Evals/GoldenLogs/log-analysis/`, committed.
   - `Cases/log-analysis/<scenario>.json` names each case's log and graders.
   - A test that needs no key checks that regenerating the logs leaves them unchanged.
-- [ ] 8.2 Add the harness, as listed below; verify `dotnet test tests/LogAnalyzer.Evals` without a key fails at once with a message naming the setting
+- [x] 8.2 Add the harness, as listed below; verify `RUN_EVALS=1 dotnet test tests/LogAnalyzer.Evals` without a key fails at once with a message naming the setting, and that without `RUN_EVALS=1` the eval cases are skipped
+  - The cases run only with `RUN_EVALS=1`: the project reads the API's user secrets, so a developer who keeps a key there for running the API would otherwise spend money on every `dotnet test` of the solution.
   - Each case's log goes through `ClaudeAnalysisModel`, then `AnalysisPipeline` with the validator and an in-memory recorder, 3 times.
   - The code graders and the `claude-haiku-5-5` judge score the answers, and a case passes at 2 of 3.
   - It writes `eval-report.json` with the pass rate, tokens and latency per case.
   - It reads the key from `dotnet user-secrets` or `ANTHROPIC_API_KEY`.
 - [ ] 8.3 With the user's go-ahead, since it costs money, run the evals once with their key on their machine; verify every case passes at 2 of 3, and keep `eval-report.json` with the change's verification. If a case fails, fix the v1 prompt rather than the grader, unless the grader is wrong.
-- [ ] 8.4 Rewrite the evals README and the comment in `LogAnalyzer.Evals.csproj`; verify the README's commands run as written
+- [x] 8.4 Rewrite the evals README and the comment in `LogAnalyzer.Evals.csproj`; verify the README's commands run as written
   - The case format, `GoldenLogs/`, how to run locally, and the cost.
   - That evals never run in CI and need no GitHub secret.
 

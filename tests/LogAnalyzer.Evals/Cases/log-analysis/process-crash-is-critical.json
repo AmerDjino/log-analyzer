@@ -1,0 +1,18 @@
+{
+  "log": "process-crash-is-critical.log",
+  "graders": [
+    {
+      "kind": "findings",
+      "lines": [
+        [
+          296,
+          300
+        ]
+      ],
+      "severities": [
+        "critical"
+      ],
+      "min": 1
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+2026-10-08 14:00:00.468 +00:00 [INF] Microsoft.Hosting.Lifetime: Now listening on: http://[::]:8080
+2026-10-08 14:00:01.526 +00:00 [INF] Microsoft.Hosting.Lifetime: Application started. Press Ctrl+C to shut down.
+2026-10-08 14:00:02.828 +00:00 [INF] Microsoft.Hosting.Lifetime: Hosting environment: Production
+2026-10-08 14:00:03.157 +00:00 [INF] Microsoft.Hosting.Lifetime: Content root path: /app
+2026-10-08 14:00:03.706 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 86ms
+2026-10-08 14:00:04.760 +00:00 [INF] Orders.Api.Orders.OrderService: Order 55188 stored for customer 828
+2026-10-08 14:00:06.119 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:07.266 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:07.423 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 47ms
+2026-10-08 14:00:08.011 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5619 - 200 - application/json 51ms
+2026-10-08 14:00:08.144 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3191 - 200 - application/json 47ms
+2026-10-08 14:00:09.435 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5638 - 200 - application/json 41ms
+2026-10-08 14:00:10.369 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5944 - 200 - application/json 76ms
+2026-10-08 14:00:11.051 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4220 - 200 - application/json 47ms
+2026-10-08 14:00:11.235 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1637 - 200 - application/json 73ms
+2026-10-08 14:00:11.573 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2787 - 200 - application/json 72ms
+2026-10-08 14:00:12.640 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:13.126 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1767 - 200 - application/json 26ms
+2026-10-08 14:00:14.185 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2701 - 200 - application/json 37ms
+2026-10-08 14:00:15.318 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 61ms
+2026-10-08 14:00:15.371 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6015 - 200 - application/json 12ms
+2026-10-08 14:00:16.489 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:16.920 +00:00 [INF] Orders.Api.Orders.OrderService: Order 49910 stored for customer 463
+2026-10-08 14:00:18.058 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7580 - 200 - application/json 23ms
+2026-10-08 14:00:18.868 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 89ms
+2026-10-08 14:00:19.147 +00:00 [INF] Orders.Api.Orders.OrderService: Order 21769 stored for customer 753
+2026-10-08 14:00:19.292 +00:00 [INF] Orders.Api.Orders.OrderService: Order 30640 stored for customer 154
+2026-10-08 14:00:19.788 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2165 - 200 - application/json 87ms
+2026-10-08 14:00:19.837 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:21.134 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8327 - 200 - application/json 13ms
+2026-10-08 14:00:21.896 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4267 - 200 - application/json 35ms
+2026-10-08 14:00:22.758 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3215 - 200 - application/json 13ms
+2026-10-08 14:00:23.420 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4224 - 200 - application/json 35ms
+2026-10-08 14:00:24.231 +00:00 [INF] Orders.Api.Orders.OrderService: Order 86045 stored for customer 870
+2026-10-08 14:00:24.473 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 88ms
+2026-10-08 14:00:25.299 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:25.577 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4018 - 200 - application/json 48ms
+2026-10-08 14:00:26.147 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4736 - 200 - application/json 23ms
+2026-10-08 14:00:27.393 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6147 - 200 - application/json 54ms
+2026-10-08 14:00:28.826 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4970 - 200 - application/json 21ms
+2026-10-08 14:00:29.948 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 74ms
+2026-10-08 14:00:30.096 +00:00 [INF] Orders.Api.Orders.OrderService: Order 49151 stored for customer 739
+2026-10-08 14:00:30.309 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 13ms
+2026-10-08 14:00:31.115 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7916 - 200 - application/json 8ms
+2026-10-08 14:00:31.166 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9518 - 200 - application/json 21ms
+2026-10-08 14:00:32.602 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:32.849 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:34.091 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:34.893 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4176 - 200 - application/json 13ms
+2026-10-08 14:00:35.430 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4923 - 200 - application/json 87ms
+2026-10-08 14:00:36.408 +00:00 [INF] Orders.Api.Orders.OrderService: Order 22508 stored for customer 519
+2026-10-08 14:00:37.632 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3930 - 200 - application/json 76ms
+2026-10-08 14:00:37.706 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3359 - 200 - application/json 80ms
+2026-10-08 14:00:38.243 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6776 - 200 - application/json 32ms
+2026-10-08 14:00:39.052 +00:00 [INF] Orders.Api.Orders.OrderService: Order 93881 stored for customer 840
+2026-10-08 14:00:39.661 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4698 - 200 - application/json 51ms
+2026-10-08 14:00:40.369 +00:00 [INF] Orders.Api.Orders.OrderService: Order 36146 stored for customer 682
+2026-10-08 14:00:41.247 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9066 - 200 - application/json 79ms
+2026-10-08 14:00:41.742 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4724 - 200 - application/json 90ms
+2026-10-08 14:00:42.022 +00:00 [INF] Orders.Api.Orders.OrderService: Order 80314 stored for customer 569
+2026-10-08 14:00:42.242 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5348 - 200 - application/json 69ms
+2026-10-08 14:00:42.980 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 39ms
+2026-10-08 14:00:43.209 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9613 - 200 - application/json 7ms
+2026-10-08 14:00:44.481 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5687 - 200 - application/json 27ms
+2026-10-08 14:00:44.811 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2144 - 200 - application/json 69ms
+2026-10-08 14:00:46.204 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:47.332 +00:00 [INF] Orders.Api.Orders.OrderService: Order 65795 stored for customer 575
+2026-10-08 14:00:48.696 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6288 - 200 - application/json 23ms
+2026-10-08 14:00:48.976 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 35ms
+2026-10-08 14:00:49.391 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:49.525 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5146 - 200 - application/json 28ms
+2026-10-08 14:00:50.497 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5610 - 200 - application/json 62ms
+2026-10-08 14:00:51.907 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 51ms
+2026-10-08 14:00:53.333 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 72ms
+2026-10-08 14:00:54.700 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4925 - 200 - application/json 43ms
+2026-10-08 14:00:55.257 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:00:55.824 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:00:56.595 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:00:57.103 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4291 - 200 - application/json 59ms
+2026-10-08 14:00:58.430 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3100 - 200 - application/json 31ms
+2026-10-08 14:00:58.735 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:00.203 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 20ms
+2026-10-08 14:01:00.335 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4515 - 200 - application/json 62ms
+2026-10-08 14:01:00.427 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:00.871 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4080 - 200 - application/json 21ms
+2026-10-08 14:01:01.281 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3012 - 200 - application/json 88ms
+2026-10-08 14:01:02.630 +00:00 [INF] Orders.Api.Orders.OrderService: Order 57233 stored for customer 879
+2026-10-08 14:01:03.605 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:03.849 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9015 - 200 - application/json 77ms
+2026-10-08 14:01:04.307 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:04.508 +00:00 [INF] Orders.Api.Orders.OrderService: Order 70710 stored for customer 316
+2026-10-08 14:01:04.963 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4237 - 200 - application/json 27ms
+2026-10-08 14:01:05.178 +00:00 [INF] Orders.Api.Orders.OrderService: Order 40229 stored for customer 902
+2026-10-08 14:01:06.635 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5730 - 200 - application/json 87ms
+2026-10-08 14:01:07.420 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 13ms
+2026-10-08 14:01:08.203 +00:00 [INF] Orders.Api.Orders.OrderService: Order 78199 stored for customer 124
+2026-10-08 14:01:08.670 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2710 - 200 - application/json 47ms
+2026-10-08 14:01:09.077 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9045 - 200 - application/json 72ms
+2026-10-08 14:01:10.039 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:11.333 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6231 - 200 - application/json 60ms
+2026-10-08 14:01:11.905 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9545 - 200 - application/json 76ms
+2026-10-08 14:01:12.845 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 71ms
+2026-10-08 14:01:13.400 +00:00 [INF] Orders.Api.Orders.OrderService: Order 24763 stored for customer 970
+2026-10-08 14:01:13.577 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 72ms
+2026-10-08 14:01:14.654 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 22ms
+2026-10-08 14:01:15.193 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8609 - 200 - application/json 82ms
+2026-10-08 14:01:16.008 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:16.865 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1144 - 200 - application/json 48ms
+2026-10-08 14:01:17.109 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 32ms
+2026-10-08 14:01:17.563 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6607 - 200 - application/json 58ms
+2026-10-08 14:01:18.290 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 24ms
+2026-10-08 14:01:18.781 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/8340 - 200 - application/json 38ms
+2026-10-08 14:01:18.882 +00:00 [INF] Orders.Api.Orders.OrderService: Order 13396 stored for customer 182
+2026-10-08 14:01:19.218 +00:00 [INF] Orders.Api.Orders.OrderService: Order 82963 stored for customer 771
+2026-10-08 14:01:19.804 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5980 - 200 - application/json 33ms
+2026-10-08 14:01:20.451 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 72ms
+2026-10-08 14:01:20.738 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9272 - 200 - application/json 11ms
+2026-10-08 14:01:21.937 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 75ms
+2026-10-08 14:01:22.876 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 56ms
+2026-10-08 14:01:23.975 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:24.111 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:25.440 +00:00 [INF] Orders.Api.Orders.OrderService: Order 12875 stored for customer 179
+2026-10-08 14:01:26.668 +00:00 [INF] Orders.Api.Orders.OrderService: Order 75776 stored for customer 481
+2026-10-08 14:01:27.411 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 64ms
+2026-10-08 14:01:28.718 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4512 - 200 - application/json 17ms
+2026-10-08 14:01:29.564 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:30.092 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3340 - 200 - application/json 64ms
+2026-10-08 14:01:30.535 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2597 - 200 - application/json 24ms
+2026-10-08 14:01:31.350 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/4147 - 200 - application/json 53ms
+2026-10-08 14:01:32.356 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 26ms
+2026-10-08 14:01:32.906 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6082 - 200 - application/json 16ms
+2026-10-08 14:01:33.194 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8007 - 200 - application/json 74ms
+2026-10-08 14:01:33.731 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3732 - 200 - application/json 48ms
+2026-10-08 14:01:34.045 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:35.160 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7320 - 200 - application/json 59ms
+2026-10-08 14:01:35.693 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 15ms
+2026-10-08 14:01:35.765 +00:00 [INF] Orders.Api.Orders.OrderService: Order 60382 stored for customer 951
+2026-10-08 14:01:36.371 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6867 - 200 - application/json 15ms
+2026-10-08 14:01:37.653 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:37.781 +00:00 [INF] Orders.Api.Orders.OrderService: Order 94814 stored for customer 433
+2026-10-08 14:01:38.161 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3051 - 200 - application/json 76ms
+2026-10-08 14:01:38.905 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 78ms
+2026-10-08 14:01:40.366 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2061 - 200 - application/json 57ms
+2026-10-08 14:01:40.914 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:41.074 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 76ms
+2026-10-08 14:01:41.415 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:42.197 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8584 - 200 - application/json 15ms
+2026-10-08 14:01:42.896 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7082 - 200 - application/json 50ms
+2026-10-08 14:01:43.750 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1940 - 200 - application/json 78ms
+2026-10-08 14:01:44.356 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 33ms
+2026-10-08 14:01:44.611 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:45.993 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:46.954 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 54ms
+2026-10-08 14:01:48.103 +00:00 [INF] Orders.Api.Orders.OrderService: Order 97590 stored for customer 124
+2026-10-08 14:01:49.565 +00:00 [INF] Orders.Api.Orders.OrderService: Order 25613 stored for customer 747
+2026-10-08 14:01:50.250 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:01:50.656 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:01:51.598 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:52.621 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7035 - 200 - application/json 66ms
+2026-10-08 14:01:53.659 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 52ms
+2026-10-08 14:01:54.923 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3612 - 200 - application/json 16ms
+2026-10-08 14:01:55.075 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7446 - 200 - application/json 32ms
+2026-10-08 14:01:56.219 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:01:57.097 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2218 - 200 - application/json 37ms
+2026-10-08 14:01:58.123 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/9171 - 200 - application/json 42ms
+2026-10-08 14:01:59.491 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5888 - 200 - application/json 83ms
+2026-10-08 14:02:00.602 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8533 - 200 - application/json 77ms
+2026-10-08 14:02:01.893 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 83ms
+2026-10-08 14:02:03.000 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 50ms
+2026-10-08 14:02:03.660 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:03.823 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 50ms
+2026-10-08 14:02:04.145 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 71ms
+2026-10-08 14:02:04.240 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7347 - 200 - application/json 29ms
+2026-10-08 14:02:04.645 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 24ms
+2026-10-08 14:02:05.014 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4271 - 200 - application/json 4ms
+2026-10-08 14:02:05.598 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6140 - 200 - application/json 84ms
+2026-10-08 14:02:05.646 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3942 - 200 - application/json 4ms
+2026-10-08 14:02:06.008 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/1061 - 200 - application/json 40ms
+2026-10-08 14:02:06.737 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/7425 - 200 - application/json 81ms
+2026-10-08 14:02:07.933 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 11ms
+2026-10-08 14:02:08.373 +00:00 [INF] Orders.Api.Orders.OrderService: Order 91587 stored for customer 933
+2026-10-08 14:02:08.869 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/8759 - 200 - application/json 32ms
+2026-10-08 14:02:09.497 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6819 - 200 - application/json 5ms
+2026-10-08 14:02:09.959 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2009 - 200 - application/json 64ms
+2026-10-08 14:02:10.597 +00:00 [INF] Orders.Api.Orders.OrderService: Order 40077 stored for customer 247
+2026-10-08 14:02:11.703 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:12.297 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/5761 - 200 - application/json 69ms
+2026-10-08 14:02:13.515 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2177 - 200 - application/json 4ms
+2026-10-08 14:02:14.759 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 68ms
+2026-10-08 14:02:15.639 +00:00 [INF] Orders.Api.Orders.OrderService: Order 72490 stored for customer 875
+2026-10-08 14:02:15.779 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3800 - 200 - application/json 39ms
+2026-10-08 14:02:16.897 +00:00 [INF] Orders.Api.Orders.OrderService: Order 51214 stored for customer 115
+2026-10-08 14:02:17.886 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 82ms
+2026-10-08 14:02:18.490 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:18.770 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/2552 - 200 - application/json 89ms
+2026-10-08 14:02:18.896 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/7051 - 200 - application/json 75ms
+2026-10-08 14:02:19.621 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5732 - 200 - application/json 11ms
+2026-10-08 14:02:20.014 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/6793 - 200 - application/json 86ms
+2026-10-08 14:02:20.633 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:21.855 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/7692 - 200 - application/json 62ms
+2026-10-08 14:02:23.285 +00:00 [INF] Orders.Api.Orders.OrderService: Order 70861 stored for customer 461
+2026-10-08 14:02:23.965 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:24.872 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:25.273 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9259 - 200 - application/json 68ms
+2026-10-08 14:02:25.623 +00:00 [INF] Orders.Api.Orders.OrderService: Order 89195 stored for customer 517
+2026-10-08 14:02:26.339 +00:00 [INF] Orders.Api.Orders.OrderService: Order 75676 stored for customer 953
+2026-10-08 14:02:27.072 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:02:27.477 +00:00 [INF] Orders.Api.Orders.OrderService: Order 40926 stored for customer 243
+2026-10-08 14:02:28.369 +00:00 [INF] Orders.Api.Orders.OrderService: Order 47882 stored for customer 287
+2026-10-08 14:02:29.322 +00:00 [INF] Orders.Api.Orders.OrderService: Order 23006 stored for customer 691
+2026-10-08 14:02:30.616 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 32ms
+2026-10-08 14:02:31.139 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/1333 - 200 - application/json 32ms
+2026-10-08 14:02:31.444 +00:00 [INF] Orders.Api.Orders.OrderService: Order 18839 stored for customer 137
+2026-10-08 14:02:31.794 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/1719 - 200 - application/json 35ms
+2026-10-08 14:02:32.007 +00:00 [INF] Orders.Api.Orders.OrderService: Order 75840 stored for customer 589
+2026-10-08 14:02:32.687 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:33.214 +00:00 [INF] Orders.Api.Orders.OrderService: Order 45495 stored for customer 728
+2026-10-08 14:02:33.625 +00:00 [INF] Orders.Api.Orders.OrderService: Order 19299 stored for customer 677
+2026-10-08 14:02:33.794 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 38ms
+2026-10-08 14:02:35.276 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 17ms
+2026-10-08 14:02:35.620 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:02:36.976 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:38.321 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/9384 - 200 - application/json 26ms
+2026-10-08 14:02:38.974 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6022 - 200 - application/json 34ms
+2026-10-08 14:02:40.410 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4050 - 200 - application/json 90ms
+2026-10-08 14:02:41.600 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:42.636 +00:00 [INF] Orders.Api.Orders.OrderService: Order 46531 stored for customer 633
+2026-10-08 14:02:43.476 +00:00 [INF] Orders.Api.Orders.OrderService: Order 63868 stored for customer 295
+2026-10-08 14:02:44.852 +00:00 [INF] Orders.Api.Orders.OrderService: Order 21755 stored for customer 967
+2026-10-08 14:02:46.054 +00:00 [INF] Orders.Api.Orders.OrderService: Order 19474 stored for customer 554
+2026-10-08 14:02:46.619 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/2545 - 200 - application/json 37ms
+2026-10-08 14:02:47.635 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 7ms
+2026-10-08 14:02:48.908 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:02:48.979 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:02:49.470 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/9113 - 200 - application/json 46ms
+2026-10-08 14:02:50.015 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/3997 - 200 - application/json 7ms
+2026-10-08 14:02:50.331 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/6347 - 200 - application/json 42ms
+2026-10-08 14:02:51.218 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5884 - 200 - application/json 17ms
+2026-10-08 14:02:51.621 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 31ms
+2026-10-08 14:02:52.350 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6450 - 200 - application/json 53ms
+2026-10-08 14:02:52.843 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 85ms
+2026-10-08 14:02:52.896 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 46ms
+2026-10-08 14:02:53.435 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/4010 - 200 - application/json 5ms
+2026-10-08 14:02:54.174 +00:00 [INF] Orders.Api.Orders.OrderService: Order 60524 stored for customer 642
+2026-10-08 14:02:54.872 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3716 - 200 - application/json 4ms
+2026-10-08 14:02:56.360 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:02:56.573 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 19ms
+2026-10-08 14:02:57.691 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6784 - 200 - application/json 35ms
+2026-10-08 14:02:59.057 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 28ms
+2026-10-08 14:03:00.452 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:03:01.097 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:01.321 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/8882 - 200 - application/json 7ms
+2026-10-08 14:03:01.947 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:03.129 +00:00 [INF] Orders.Api.Orders.OrderService: Order 68316 stored for customer 872
+2026-10-08 14:03:04.378 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8073 - 200 - application/json 57ms
+2026-10-08 14:03:05.844 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 36ms
+2026-10-08 14:03:06.261 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5261 - 200 - application/json 12ms
+2026-10-08 14:03:07.739 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 49ms
+2026-10-08 14:03:09.233 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6566 - 200 - application/json 30ms
+2026-10-08 14:03:10.329 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:11.528 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 11ms
+2026-10-08 14:03:11.747 +00:00 [INF] Orders.Api.Orders.OrderService: Order 60499 stored for customer 699
+2026-10-08 14:03:13.218 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4557 - 200 - application/json 5ms
+2026-10-08 14:03:13.769 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:14.905 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/1238 - 200 - application/json 71ms
+2026-10-08 14:03:15.128 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:15.871 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/3164 - 200 - application/json 90ms
+2026-10-08 14:03:17.146 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/5871 - 200 - application/json 34ms
+2026-10-08 14:03:17.899 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 3ms
+2026-10-08 14:03:18.725 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:03:18.950 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/8247 - 200 - application/json 49ms
+2026-10-08 14:03:20.382 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/5806 - 200 - application/json 58ms
+2026-10-08 14:03:21.831 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:23.280 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 69ms
+2026-10-08 14:03:24.256 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3885 - 200 - application/json 62ms
+2026-10-08 14:03:24.492 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/8685 - 200 - application/json 61ms
+2026-10-08 14:03:25.171 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 78ms
+2026-10-08 14:03:26.460 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 34ms
+2026-10-08 14:03:27.041 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /catalog/items/2723 - 200 - application/json 65ms
+2026-10-08 14:03:27.678 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/1983 - 200 - application/json 54ms
+2026-10-08 14:03:28.001 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 49ms
+2026-10-08 14:03:29.476 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 16ms
+2026-10-08 14:03:30.421 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3728 - 200 - application/json 62ms
+2026-10-08 14:03:31.158 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 16ms
+2026-10-08 14:03:32.609 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 81ms
+2026-10-08 14:03:33.545 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 1ms
+2026-10-08 14:03:34.354 +00:00 [INF] Orders.Api.Orders.OrderService: Order 20191 stored for customer 309
+2026-10-08 14:03:35.662 +00:00 [INF] Orders.Api.Orders.OrderService: Order 32852 stored for customer 507
+2026-10-08 14:03:36.661 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:37.236 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3359 - 200 - application/json 75ms
+2026-10-08 14:03:37.401 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /customers/6430 - 200 - application/json 49ms
+2026-10-08 14:03:37.583 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/4696 - 200 - application/json 88ms
+2026-10-08 14:03:38.435 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders/3787 - 200 - application/json 21ms
+2026-10-08 14:03:39.356 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /health - 200 - text/plain 2ms
+2026-10-08 14:03:40.848 +00:00 [INF] Microsoft.AspNetCore.Hosting.Diagnostics: Request finished HTTP/1.1 GET /orders - 200 - application/json 35ms
+2026-10-08 14:03:40.959 +00:00 [FTL] Orders.Api.Program: Unhandled exception. System.InvalidOperationException: Sequence contains no elements
+   at System.Linq.ThrowHelper.ThrowNoElementsException()
+   at Orders.Api.Tenants.TenantSettingsLoader.LoadAsync(CancellationToken cancellationToken) in /src/Orders.Api/Tenants/TenantSettingsLoader.cs:line 31
+2026-10-08 14:03:41.317 +00:00 [INF] Microsoft.Hosting.Lifetime: Application is shutting down...
+2026-10-08 14:03:42.454 +00:00 [INF] Microsoft.Hosting.Lifetime: Application stopped.

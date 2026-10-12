@@ -170,7 +170,7 @@ The lookup goes through `RunStore`'s ownership filter, with an index on `(user_i
 
 Each case runs 3 times against the configured Claude model, and a case passes at 2 of 3. The run writes a report with the pass rate, tokens and latency per case.
 
-The suite reads `Model:Claude:ApiKey` from `dotnet user-secrets` or the `ANTHROPIC_API_KEY` environment variable, never from a committed file. It runs on demand (`dotnet test tests/LogAnalyzer.Evals`) and never in pull-request CI.
+The suite reads `Model:Claude:ApiKey` from `dotnet user-secrets` or the `ANTHROPIC_API_KEY` environment variable, never from a committed file. It runs on demand (`RUN_EVALS=1 dotnet test tests/LogAnalyzer.Evals`) and never in pull-request CI. Without `RUN_EVALS=1` the eval cases are skipped, so a `dotnet test` of the solution never spends money, even with a key in user secrets.
 
 - Alternative: an LLM judge for every check. Rejected: code graders are exact, free and repeatable.
 - Alternative: one run per case. Rejected: model output varies, and one sample says little.

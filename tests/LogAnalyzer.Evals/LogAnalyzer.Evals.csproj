@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Golden-set evals for the [eval] scenarios: behavior that depends on model judgment.
-    They call the real model and cost money, so CI runs them in a separate manual or nightly job,
-    never on pull requests. The harness and the first cases arrive with add-claude-integration.
+    Golden-set evals for the [eval] scenarios: behavior that depends on model judgment. They call the real model and
+    cost money, so they run only on demand, on a developer's machine, with RUN_EVALS=1 and the developer's own key.
+    CI never runs them and holds no key. GoldenLogTests needs no key and checks the committed logs.
   -->
 
   <PropertyGroup>
@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Cases\**\*.json;GoldenLogs\**\*.log" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LogAnalyzer.Core\LogAnalyzer.Core.csproj" />
+    <ProjectReference Include="..\..\src\LogAnalyzer.Infrastructure\LogAnalyzer.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

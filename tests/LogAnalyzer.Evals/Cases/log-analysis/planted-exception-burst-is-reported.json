@@ -1,0 +1,22 @@
+{
+  "log": "planted-exception-burst-is-reported.log",
+  "graders": [
+    {
+      "kind": "findings",
+      "lines": [
+        [
+          200,
+          260
+        ]
+      ],
+      "categories": [
+        "exception"
+      ],
+      "severities": [
+        "error",
+        "critical"
+      ],
+      "min": 1
+    }
+  ]
+}
