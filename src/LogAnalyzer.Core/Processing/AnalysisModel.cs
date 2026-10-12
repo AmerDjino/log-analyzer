@@ -36,6 +36,12 @@ public sealed record ModelUsage(int InputTokens, int OutputTokens, int Transport
 /// </summary>
 public interface IAnalysisModel
 {
+    /// <summary>The model configuration selects. A run records it, and reuse compares it.</summary>
+    string ConfiguredModel { get; }
+
+    /// <summary>The prompt version configuration selects. A run records it, and reuse compares it.</summary>
+    string ConfiguredPromptVersion { get; }
+
     Task<ModelReply> AnalyzeAsync(AnalysisRequest request, CancellationToken cancellationToken);
 }
 

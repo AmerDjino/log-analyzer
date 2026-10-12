@@ -1,7 +1,9 @@
 using System.Buffers;
 using System.Globalization;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using LogAnalyzer.Core.Ingestion;
+using LogAnalyzer.Core.Processing;
 using LogAnalyzer.Infrastructure.Runs;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
@@ -30,6 +32,7 @@ internal static class RunEndpoints
         runs.MapPost(string.Empty, SubmitAsync)
             .Accepts<Stream>("text/plain")
             .Produces<SubmissionResponse>(StatusCodes.Status202Accepted)
+            .Produces<SubmissionResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
@@ -56,12 +59,14 @@ internal static class RunEndpoints
     }
 
     // The session, the media type and the charset are checked before this handler runs. Its own checks follow in a
-    // fixed order, so each submission gets one answer: the size, then the bytes, then emptiness.
+    // fixed order, so each submission gets one answer: the size, then the bytes, then emptiness. Content that passes them
+    // and matches the person's completed run, analyzed as configured now, gets that run instead of a new one.
     private static async Task<IResult> SubmitAsync(
         HttpRequest request,
         string? fileName,
         ClaimsPrincipal user,
         RunStore runs,
+        IAnalysisModel model,
         IOptions<IngestionOptions> options,
         CancellationToken cancellationToken)
     {
@@ -80,8 +85,22 @@ internal static class RunEndpoints
                 return RunErrors.EmptyInput.ToResult();
         }
 
+        var userId = UserIdOf(user);
+        var contentSha256 = SHA256.HashData(content.Span);
+        if (await runs.FindReusableAsync(
+                userId, contentSha256, model.ConfiguredModel, model.ConfiguredPromptVersion, cancellationToken) is { } reused)
+        {
+            return TypedResults.Ok(new SubmissionResponse(reused, RunStatus.Completed));
+        }
+
         var runId = await runs.SubmitAsync(
-            UserIdOf(user), FileNames.Clean(fileName), content.Length, log.Lines, LogStatistics.Compute(log.Lines), cancellationToken);
+            userId,
+            FileNames.Clean(fileName),
+            content.Length,
+            contentSha256,
+            log.Lines,
+            LogStatistics.Compute(log.Lines),
+            cancellationToken);
 
         // No Location header: behind nginx, /runs/{id} would point at the web app.
         return TypedResults.Accepted((string?)null, new SubmissionResponse(runId, RunStatus.Queued));

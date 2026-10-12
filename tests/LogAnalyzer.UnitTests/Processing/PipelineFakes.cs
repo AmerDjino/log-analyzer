@@ -14,6 +14,10 @@ internal sealed class FakeAnalysisModel(FakeTimeProvider clock) : IAnalysisModel
 
     private readonly Queue<Func<CancellationToken, ModelReply>> _script = new();
 
+    public string ConfiguredModel => Model;
+
+    public string ConfiguredPromptVersion => PromptVersion;
+
     public List<AnalysisRequest> Requests { get; } = [];
 
     public void Reply(string text, StopReason stopReason = StopReason.Completed, ModelUsage? usage = null) =>

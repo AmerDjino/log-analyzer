@@ -50,6 +50,10 @@ public sealed class BlockingAnalysisModel : IAnalysisModel
 
     public Task Called => _called.Task;
 
+    public string ConfiguredModel => "blocking";
+
+    public string ConfiguredPromptVersion => "blocking";
+
     public async Task<ModelReply> AnalyzeAsync(AnalysisRequest request, CancellationToken cancellationToken)
     {
         _called.TrySetResult();

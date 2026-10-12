@@ -295,6 +295,15 @@ export interface paths {
                 };
             };
             responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubmissionResponse"];
+                    };
+                };
                 /** @description Accepted */
                 202: {
                     headers: {

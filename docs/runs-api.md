@@ -36,6 +36,7 @@ Content-Type: text/plain
 - The body is the log itself: `Content-Type: text/plain`, with no charset or `charset=utf-8`. A body sent without a `Content-Type` is read the same way.
 - `fileName` names an uploaded file. A paste sends none, and its run has no file name.
 - `202 Accepted` with `{ "id": "<uuid>", "status": "queued" }`. There is no `Location` header: behind nginx it would point at the web app. The run is analyzed in the background.
+- `200 OK` with `{ "id": "<uuid>", "status": "completed" }` when the submission reuses one of your runs, as described in [Reuse](#reuse).
 
 Send a paste as its text, and an upload as the file's bytes, unchanged. In a browser, send the `File` itself (a `Blob`), never `file.text()`: the browser would replace invalid UTF-8 with U+FFFD, and the API could no longer refuse it.
 
@@ -53,6 +54,16 @@ A submission gets exactly one answer. The checks run in this order, and only the
 6. One leading UTF-8 byte order mark is removed. Then `400 EMPTY_INPUT` when nothing but white space is left, including for an empty file.
 
 A rejected submission creates no run and never reaches the model.
+
+### Reuse
+
+A submission that passes the checks is compared with your completed runs. When one of them has exactly the same bytes and was analyzed with the model and prompt version configured now, the answer is `200 OK` with that run's id and status `completed`. No run is created and the model is not called.
+
+- The bytes are compared through their SHA-256, as sent, before the byte order mark is removed.
+- Only your own runs count. Another person's identical log gets a new run, and their run is never revealed.
+- A queued, running or failed run is never reused, and neither is a run analyzed with another model or prompt version. Changing either setting makes the next identical submission analyze the log again.
+- The file name plays no part. The reused run keeps the name it was submitted with.
+- Runs submitted before reuse existed have no stored hash, so they are never reused.
 
 ### Size limit
 

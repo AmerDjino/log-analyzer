@@ -15,13 +15,15 @@ namespace LogAnalyzer.Infrastructure.Runs;
 public sealed partial class RunProcessor(
     IServiceScopeFactory scopeFactory,
     NpgsqlDataSource dataSource,
+    IAnalysisModel model,
     TimeProvider timeProvider,
     ILogger<RunProcessor> logger)
 {
-    // SKIP LOCKED lets several loops claim at the same time without waiting for one another.
+    // SKIP LOCKED lets several loops claim at the same time without waiting for one another. The claim records the
+    // configured model and prompt version, which an identical resubmission is compared with.
     private const string ClaimSql =
         """
-        UPDATE runs SET status = 'running', started_at = @now
+        UPDATE runs SET status = 'running', started_at = @now, model = @model, prompt_version = @promptVersion
         WHERE id = (SELECT id FROM runs WHERE status = 'queued'
                     ORDER BY submitted_at, id LIMIT 1 FOR UPDATE SKIP LOCKED)
         RETURNING id
@@ -117,6 +119,8 @@ public sealed partial class RunProcessor(
     {
         await using var command = dataSource.CreateCommand(ClaimSql);
         command.Parameters.AddWithValue("now", timeProvider.GetUtcNow());
+        command.Parameters.AddWithValue("model", model.ConfiguredModel);
+        command.Parameters.AddWithValue("promptVersion", model.ConfiguredPromptVersion);
         return await command.ExecuteScalarAsync(cancellationToken) as Guid?;
     }
 

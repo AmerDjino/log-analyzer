@@ -32,6 +32,10 @@ public sealed class StandInAnalysisModel : IAnalysisModel
         (LineLevel.Warning, Severity.Warning),
     ];
 
+    public string ConfiguredModel => Name;
+
+    public string ConfiguredPromptVersion => Name;
+
     public Task<ModelReply> AnalyzeAsync(AnalysisRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);

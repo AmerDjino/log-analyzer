@@ -20,17 +20,17 @@
 
 ## 3. Reuse of the person's own completed runs
 
-- [ ] 3.1 Write the failing tests below; verify the scenario tests fail because the second submission answers 202 and calls the model
+- [x] 3.1 Write the failing tests below; verify the scenario tests fail because the second submission answers 202 and calls the model
   - `ReuseTests` for the three analysis-history scenarios, and its checks listed under "Tests without a scenario" in test-plan.md.
   - `ScriptedAnalysisModel` takes a configured model and prompt version, which default to today's `scripted` and `scripted-v1`.
   - The `OpenApiDocumentTests` row: `POST /runs` lists 200 as well as 202.
-- [ ] 3.2 Implement reuse as design.md describes; verify `ReuseTests`, the OpenAPI row and `AccessPolicyTests` pass
+- [x] 3.2 Implement reuse as design.md describes; verify `ReuseTests`, the OpenAPI row and `AccessPolicyTests` pass
   - `IAnalysisModel` reports the model and prompt version it is configured with. For the stand-in, both are `stand-in`.
   - When the processor starts a run, it writes those two values to the run.
   - At submission, the API stores the SHA-256 of the body's bytes. It looks for a completed run of the same person through `RunStore`'s ownership filter, with the same hash, model and prompt version. When one exists, it answers `200 { id, status: "completed" }` and creates nothing.
-- [ ] 3.3 Run the whole integration suite, and adjust only the tests that fail because one person's identical resubmission is now reused, by giving them distinct content; verify the whole suite passes
-- [ ] 3.4 Rewrite `src/web/openapi.json` with `UPDATE_OPENAPI_SNAPSHOT=1`, then run `npm run api:generate` in `src/web`; verify the copy test passes without the variable, `npm test -- --watch=false` and `npm run build` pass, and the web code needs no change
-- [ ] 3.5 Document reuse in docs/runs-api.md: the rule, the 200 answer with its body, and that another person's identical log is analyzed again; verify every status the `ReuseTests` assert appears in it
+- [x] 3.3 Run the whole integration suite, and adjust only the tests that fail because one person's identical resubmission is now reused, by giving them distinct content; verify the whole suite passes
+- [x] 3.4 Rewrite `src/web/openapi.json` with `UPDATE_OPENAPI_SNAPSHOT=1`, then run `npm run api:generate` in `src/web`; verify the copy test passes without the variable, `npm test -- --watch=false` and `npm run build` pass, and the web code needs no change
+- [x] 3.5 Document reuse in docs/runs-api.md: the rule, the 200 answer with its body, and that another person's identical log is analyzed again; verify every status the `ReuseTests` assert appears in it
 
 ## 4. The provider setting, its validation and the prompt templates
 
