@@ -8,6 +8,10 @@ using LogAnalyzer.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Docker secrets: a file named Model__Claude__ApiKey in /run/secrets becomes Model:Claude:ApiKey. Optional, so the
+// folder may be missing, as it is outside Docker.
+builder.Configuration.AddKeyPerFile("/run/secrets", optional: true);
+
 builder.Services.AddProblemDetails();
 // An unreadable request body (empty or malformed JSON) answers 400. Left at its Development default, minimal APIs
 // throw instead, and the exception handler turns that into a 500.

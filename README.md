@@ -63,6 +63,34 @@ npm --prefix src/web start                    # http://localhost:4200, forwards 
 
 If the connection string is missing, the API stops at startup with a message naming the setting.
 
+## Analyze with Claude
+
+Runs are analyzed by a stand-in model unless you choose Claude. The stand-in needs no key and makes no network calls; its reports say that no AI model analyzed the log. Claude calls the Anthropic API, which costs money per run.
+
+**In Docker:** set both values in `.env`, then start the stack again:
+
+```bash
+MODEL_PROVIDER=Claude
+ANTHROPIC_API_KEY=<your Anthropic API key>
+```
+
+```bash
+docker compose up --build --detach
+```
+
+Compose hands the key to the API as a Docker secret, a file in `/run/secrets`, so it does not show in `docker inspect`.
+
+**API on your machine:** keep the key in user secrets, outside the repository:
+
+```bash
+dotnet user-secrets set "Model:Provider" "Claude" --project src/LogAnalyzer.Api
+dotnet user-secrets set "Model:Claude:ApiKey" "<your Anthropic API key>" --project src/LogAnalyzer.Api
+```
+
+With Claude chosen and no key, the API stops at startup with a message naming `Model:Claude:ApiKey`. The other settings (model, effort, timeout, retries, prompt version) and how failures are handled are in [docs/runs-api.md](docs/runs-api.md#models).
+
+Never commit a key, and do not add one to GitHub: `.env` is git-ignored, `.env.example` keeps `ANTHROPIC_API_KEY` empty, and CI needs no key, because its tests use the stand-in and a local fake of the Anthropic API.
+
 ## Database migrations
 
 The schema is managed by EF Core migrations in `src/LogAnalyzer.Infrastructure/Persistence/Migrations`. The API applies pending migrations when it starts. If PostgreSQL is not reachable yet, the API still starts, retries every 5 seconds, and `/health` reports `Unhealthy` until the schema is current.
@@ -105,7 +133,7 @@ Each test creates its own account, so the tests can share the stack's database. 
 | `tests/LogAnalyzer.UnitTests` | Fast tests with no network or database, including the rule that `LogAnalyzer.Core` depends on no infrastructure. |
 | `tests/LogAnalyzer.IntegrationTests` | The API hosted in memory against PostgreSQL started by Testcontainers. |
 | `tests/e2e` | Playwright tests of whole flows in the browser, against the Docker Compose stack. |
-| `tests/LogAnalyzer.Evals` | Golden-set evals for `[eval]` scenarios. They call the real model, so they run on demand or nightly, never on pull requests. |
+| `tests/LogAnalyzer.Evals` | Golden-set evals for `[eval]` scenarios. They call the real model with your key, so they run on demand on your machine, never in CI. See its [README](tests/LogAnalyzer.Evals/README.md). |
 
 ## Spec-driven workflow
 

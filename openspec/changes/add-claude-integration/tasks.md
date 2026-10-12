@@ -68,11 +68,11 @@
 
 ## 7. The key as a Docker secret
 
-- [ ] 7.1 Add the key-per-file configuration source for `/run/secrets` (optional) in `Program.cs`. In docker-compose, declare the secret from `ANTHROPIC_API_KEY` and pass `Model__Provider` from `MODEL_PROVIDER`. Add `ANTHROPIC_API_KEY=` (empty) and `MODEL_PROVIDER=StandIn` to `.env.example`. Then verify, after `cp .env.example .env` as CI does:
+- [x] 7.1 Add the key-per-file configuration source for `/run/secrets` (optional) in `Program.cs`. In docker-compose, declare the secret from `ANTHROPIC_API_KEY` and pass `Model__Provider` from `MODEL_PROVIDER`. Add `ANTHROPIC_API_KEY=` (empty) and `MODEL_PROVIDER=StandIn` to `.env.example`. Then verify, after `cp .env.example .env` as CI does:
   - `docker compose up --build --wait` brings every service up healthy, and a pasted log completes with the stand-in.
   - With `MODEL_PROVIDER=Claude` and no key, the api container stops with a message naming `Model:Claude:ApiKey`.
   - If Compose rejects the unset variable, use the fallback in design.md's risks.
-- [ ] 7.2 Document configuring Claude in the README: `MODEL_PROVIDER`, the key in `.env` or `dotnet user-secrets`, and that keys are never committed or added to GitHub; verify the documented commands run as written, and `git grep -n -E "sk-ant-[A-Za-z0-9_-]{8,}"` finds nothing
+- [x] 7.2 Document configuring Claude in the README: `MODEL_PROVIDER`, the key in `.env` or `dotnet user-secrets`, and that keys are never committed or added to GitHub; verify the documented commands run as written, and `git grep -n -E "sk-ant-[A-Za-z0-9_-]{8,}"` finds nothing
 
 ## 8. The golden-set evals
 
