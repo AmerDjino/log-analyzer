@@ -94,13 +94,13 @@
 
 ## 9. Integration checks
 
-- [ ] 9.1 Run every gate, as listed below; verify all pass
+- [x] 9.1 Run every gate, as listed below; verify all pass
   - `CI=true dotnet build LogAnalyzer.slnx --configuration Release`, then the unit and integration suites.
   - `npm test -- --watch=false` and `npm run build` in `src/web`.
   - `openspec validate --all --strict`.
   - `node scripts/check-scenario-coverage.mjs`.
   - The Docker stack from `.env.example`, with the Playwright end-to-end tests.
-- [ ] 9.2 Check the branch for secrets; verify all of the following
+- [x] 9.2 Check the branch for secrets; verify all of the following
   - `git diff main --stat` shows no `.env` file.
   - `git grep -n -E "sk-ant-[A-Za-z0-9_-]{8,}"` finds nothing. That is the shape of a real key; the plan only mentions the bare prefix.
   - `.env.example` holds `ANTHROPIC_API_KEY=` with no value.
