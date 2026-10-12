@@ -1,0 +1,36 @@
+<section class="submit-page">
+  <h2>Submit a log</h2>
+  <form (submit)="submit($event)" novalidate>
+    <label for="log">Paste a log</label>
+    <textarea
+      id="log"
+      name="log"
+      rows="14"
+      spellcheck="false"
+      [value]="draft.text()"
+      [disabled]="draft.file() !== null"
+      (input)="draft.text.set(valueOf($event))"
+    ></textarea>
+
+    <label for="file">Or choose a file</label>
+    <input
+      #fileInput
+      id="file"
+      name="file"
+      type="file"
+      (change)="choose($event)"
+      [attr.aria-invalid]="tooLarge() ? true : null"
+      [attr.aria-describedby]="tooLarge() ? 'file-error' : null"
+    />
+    @if (draft.file(); as file) {
+      <p class="chosen">
+        {{ file.name }}, {{ sizeOf(file) }}
+        <button type="button" class="remove-file" (click)="removeFile()">Remove the file</button>
+      </p>
+    }
+    <p id="file-error" class="field-error" aria-live="polite">{{ tooLarge() }}</p>
+
+    <button type="submit" [disabled]="!canSubmit()">Analyze</button>
+  </form>
+  <p class="error" aria-live="polite">{{ error() }}</p>
+</section>

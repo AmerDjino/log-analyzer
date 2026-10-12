@@ -1,6 +1,21 @@
 <header class="app-header">
-  <h1>{{ title() }}</h1>
-  <p class="tagline">Turn an application log into an incident report you can check line by line.</p>
+  <div>
+    <h1>{{ title() }}</h1>
+    <p class="tagline">
+      Turn an application log into an incident report you can check line by line.
+    </p>
+  </div>
+  @if (session.account(); as account) {
+    <nav aria-label="Main">
+      <a routerLink="/">Submit a log</a>
+      <a routerLink="/runs">Your runs</a>
+    </nav>
+    <div class="account">
+      <span>{{ account.email }}</span>
+      <button type="button" (click)="signOut()">Sign out</button>
+    </div>
+  }
+  <p class="error" aria-live="polite">{{ signOutError() }}</p>
 </header>
 
 <main class="app-main">

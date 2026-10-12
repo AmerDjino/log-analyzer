@@ -1,0 +1,31 @@
+<section class="form-page">
+  <h2>Sign in</h2>
+  @if (endedNote) {
+    <p class="note">{{ endedNote }}</p>
+  }
+  <form (submit)="signIn($event)" novalidate>
+    <label for="email">Email address</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      autocomplete="username"
+      required
+      [value]="email()"
+      (input)="email.set(valueOf($event))"
+    />
+    <label for="password">Password</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      autocomplete="current-password"
+      required
+      [value]="password()"
+      (input)="password.set(valueOf($event))"
+    />
+    <button type="submit" [disabled]="sending()">Sign in</button>
+  </form>
+  <p class="error" aria-live="polite">{{ error() }}</p>
+  <p>No account yet? <a routerLink="/register">Create an account</a></p>
+</section>

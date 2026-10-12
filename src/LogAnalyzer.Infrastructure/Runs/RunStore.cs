@@ -63,6 +63,23 @@ public sealed class RunStore(LogAnalyzerDbContext database, RunQueueSignal queue
             .SingleOrDefaultAsync(cancellationToken);
 
     /// <summary>
+    /// Lines <paramref name="from"/> to <paramref name="to"/> of the person's run, or null when they have no run with this
+    /// id. PostgreSQL clamps the range to the lines that exist, so the first line returned is line
+    /// max(<paramref name="from"/>, 1), and a range that holds none of them returns no lines.
+    /// </summary>
+    public Task<string[]?> ReadOwnedLinesAsync(
+        Guid userId, Guid runId, int from, int to, CancellationToken cancellationToken) =>
+        Owned(userId)
+            .Where(run => run.Id == runId)
+            .Join(
+                // One statement, and only the slice leaves the database: line N is lines[N].
+                database.RunLogs.FromSql($"SELECT run_id, lines[{from}:{to}] AS lines FROM run_logs"),
+                run => run.Id,
+                log => log.RunId,
+                (_, log) => log.Lines)
+            .SingleOrDefaultAsync(cancellationToken);
+
+    /// <summary>
     /// Up to <paramref name="count"/> of the person's runs, newest first by submission time and then id, starting after
     /// <paramref name="after"/>, or with the newest when it is null. Findings are not loaded.
     /// </summary>

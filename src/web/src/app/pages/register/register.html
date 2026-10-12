@@ -1,0 +1,34 @@
+<section class="form-page">
+  <h2>Create an account</h2>
+  <form (submit)="createAccount($event)" novalidate>
+    <label for="email">Email address</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      autocomplete="username"
+      required
+      [value]="email()"
+      (input)="email.set(valueOf($event))"
+      [attr.aria-invalid]="emailError() ? true : null"
+      [attr.aria-describedby]="emailError() ? 'email-error' : null"
+    />
+    <p id="email-error" class="field-error">{{ emailError() }}</p>
+    <label for="password">Password</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      autocomplete="new-password"
+      required
+      [value]="password()"
+      (input)="password.set(valueOf($event))"
+      [attr.aria-invalid]="passwordError() ? true : null"
+      [attr.aria-describedby]="passwordError() ? 'password-error' : null"
+    />
+    <p id="password-error" class="field-error">{{ passwordError() }}</p>
+    <button type="submit" [disabled]="sending()">Create account</button>
+  </form>
+  <p class="error" aria-live="polite">{{ error() }}</p>
+  <p>Already have an account? <a routerLink="/sign-in">Sign in</a></p>
+</section>

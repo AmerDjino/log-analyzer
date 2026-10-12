@@ -82,3 +82,11 @@ For every run the system SHALL compute the line count, the number of lines at ea
 - **GIVEN** a log whose first line is stamped 2026-10-10T09:00:05Z and whose second line is stamped 2026-10-10T09:00:01Z
 - **WHEN** the log is submitted
 - **THEN** its statistics report a time range from 09:00:01 to 09:00:05 UTC
+
+### Requirement: Report the submission size limit
+The system SHALL tell a signed-in person the size limit it applies to submissions, in bytes, so that a client can refuse a larger file before sending it. The reported limit MUST be the one the API enforces.
+
+#### Scenario: Configured size limit is reported
+- **GIVEN** the size limit is configured as 1 MB
+- **WHEN** a signed-in person asks for the submission size limit
+- **THEN** the response gives a size limit of 1,048,576 bytes

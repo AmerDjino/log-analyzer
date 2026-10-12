@@ -1,0 +1,106 @@
+import { TestBed } from '@angular/core/testing';
+import { HttpTestingController } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { Account } from '../../api/api-client';
+import { ErrorAnswer, ana, limits, problems } from '../../testing/answers';
+import { answerSession, flushError, provideTestApp, typeInto } from '../../testing/test-app';
+import { appPath } from './sign-in';
+
+describe('SignInPage', () => {
+  let http: HttpTestingController;
+  let harness: RouterTestingHarness;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({ providers: provideTestApp() });
+    http = TestBed.inject(HttpTestingController);
+    harness = await RouterTestingHarness.create();
+  });
+
+  afterEach(() => http.verify());
+
+  async function open(url: string, account: Account | null): Promise<HTMLElement> {
+    const navigation = harness.navigateByUrl(url);
+    await answerSession(http, account);
+    await navigation;
+    return harness.routeNativeElement!;
+  }
+
+  async function signIn(page: HTMLElement, email: string, password: string): Promise<void> {
+    typeInto(page, '#email', email);
+    typeInto(page, '#password', password);
+    page.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await harness.fixture.whenStable();
+  }
+
+  async function failSignIn(page: HTMLElement, answer: ErrorAnswer): Promise<void> {
+    await signIn(page, 'ana@example.com', 'wrong password!');
+    flushError(http.expectOne('/api/auth/sign-in'), answer);
+    await harness.fixture.whenStable();
+  }
+
+  it('[analysis-ui/failed-sign-in-keeps-the-email-address] says the email address or password is incorrect and keeps the email address', async () => {
+    const page = await open('/sign-in', null);
+
+    await failSignIn(page, problems.invalidCredentials);
+
+    expect(page.textContent).toContain('The email address or password is incorrect');
+    expect(page.querySelector<HTMLInputElement>('#email')!.value).toBe('ana@example.com');
+  });
+
+  it('[analysis-ui/locked-account-is-explained] says sign-in is blocked for up to 15 minutes', async () => {
+    const page = await open('/sign-in', null);
+
+    await failSignIn(page, problems.accountLocked);
+
+    expect(page.textContent).toContain(
+      'blocked for up to 15 minutes after too many failed attempts',
+    );
+  });
+
+  it('shows a request error in an aria-live region', async () => {
+    const page = await open('/sign-in', null);
+
+    await failSignIn(page, problems.serviceUnavailable);
+
+    const live = page.querySelector('[aria-live]');
+    expect(live?.textContent).toContain('The request failed');
+  });
+
+  it('sends a signed-in person who opens /sign-in to /', async () => {
+    await open('/sign-in', ana);
+    http.expectOne('/api/runs/limits').flush(limits);
+
+    expect(TestBed.inject(Router).url).toBe('/');
+  });
+
+  it('says that the session has ended when ended=1', async () => {
+    const page = await open('/sign-in?ended=1', null);
+
+    expect(page.textContent).toContain('Your session has ended');
+  });
+
+  it('follows a return address only when it is a path inside the app', () => {
+    expect(appPath('/runs/0199d0a5-1000-7000-8000-000000000001')).toBe(
+      '/runs/0199d0a5-1000-7000-8000-000000000001',
+    );
+    expect(appPath('//evil.example')).toBe('/');
+    expect(appPath('/' + String.fromCharCode(92) + 'evil.example')).toBe('/');
+    expect(appPath('https://evil.example')).toBe('/');
+    expect(appPath(null)).toBe('/');
+  });
+
+  it.each(['//evil.example', '/\\evil.example', 'https://evil.example'])(
+    'opens / after signing in with returnUrl %s',
+    async (returnUrl) => {
+      const page = await open(`/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`, null);
+
+      await signIn(page, 'ana@example.com', 'correct horse battery');
+      http.expectOne('/api/auth/sign-in').flush(ana);
+      await harness.fixture.whenStable();
+      http.expectOne('/api/runs/limits').flush(limits);
+
+      expect(TestBed.inject(Router).url).toBe('/');
+    },
+  );
+});

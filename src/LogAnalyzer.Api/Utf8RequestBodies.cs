@@ -13,7 +13,7 @@ namespace LogAnalyzer.Api;
 internal static class Utf8RequestBodies
 {
     public static readonly ApiError UnsupportedCharset = new(
-        "UNSUPPORTED_CHARSET",
+        ApiErrorCodes.UnsupportedCharset,
         StatusCodes.Status415UnsupportedMediaType,
         "Unsupported character set",
         "Send the request body as UTF-8.");

@@ -62,11 +62,12 @@ Errors are tied to their fields with `aria-describedby`. A run's status and requ
 A root `Session` service holds the account as a signal. Its value is unknown at first, then either the account or signed out.
 - On the first navigation to a page that needs a session, the `requireSession` guard waits for one `GET /auth/me`.
 - A 401 means signed out. The guard then redirects to `/sign-in?returnUrl=<the requested URL>`.
-- Signing in sets the account. Signing out and an ended session clear it.
+- Any other failure, such as a 502 while the API restarts, also sends that navigation to sign-in, but is not kept: the next navigation asks again.
+- Signing in sets the account. Signing out and an ended session clear it. A sign-out that fails with anything but a 401 leaves the person signed in and shows the error, because their session is still alive on the server.
 
 The sign-in page navigates to `returnUrl` only when it is an app path: it starts with one `/`, and not with `//` or `/\`. Otherwise it navigates to `/`.
 
-Creating an account calls `POST /auth/register`, then `POST /auth/sign-in` with the same credentials, because registration does not sign anyone in. It then opens `/`.
+Creating an account calls `POST /auth/register`, then `POST /auth/sign-in` with the same credentials, because registration does not sign anyone in. It then opens `/`. If the registration succeeded but the sign-in failed, trying again with the same address only signs in: registering again would answer `EMAIL_TAKEN` for the person's own new account.
 
 - Alternative: let each page's first request discover the 401. Rejected: the page would render for a moment, then jump to sign-in, and every page would repeat the handling.
 - Alternative: remember a "signed in" flag in localStorage. Rejected: it goes stale when the session ends on the server, and only the API knows the truth.
@@ -108,7 +109,7 @@ A new endpoint, `GET /runs/limits`, answers `200 { "maxSubmissionBytes": 1048576
 
 The submit page asks for it the first time it opens and keeps the answer for the app's lifetime. The limit changes only when the API restarts with new settings. A stale value only means the API's 413 answers instead.
 - A chosen file larger than the limit gets a message such as "This file is 1.5 MB. The limit is 1 MB." It is never sent.
-- The size is in MB of 1,048,576 bytes, with up to two decimals, as in the API's own `INPUT_TOO_LARGE` detail.
+- The size is in MB of 1,048,576 bytes, with up to two decimals, as in the API's own `INPUT_TOO_LARGE` detail. Sizes under 1 MB, such as a small chosen file or a limit set below 1 MB, are written in KB or bytes, which reads better than "0.01 MB".
 - If the limits request fails, the page does not check sizes, and the API's 413 answer covers it.
 - Pasted text is not checked (see proposal.md, Non-Goals).
 
@@ -127,7 +128,7 @@ The run page reads `GET /api/runs/{id}` when it opens:
 Errors while polling:
 - A network error or a 5xx shows "Cannot reach the server; retrying" and keeps polling.
 - A 401 goes through the ended-session flow, with the run's URL as `returnUrl`.
-- A 404 shows that there is no run at this address.
+- A 404 shows that there is no run at this address. So does an id that is not a UUID, without a request: `/runs/limits` would otherwise reach the API's size-limit endpoint.
 
 A failed run shows the plain-language text for its failure reason (see the message table below).
 
@@ -236,6 +237,7 @@ Pages use the colour tokens in `styles.css` and component styles within the exis
 - **Web** (`src/web/src/app`):
   - `api/`: `schema.d.ts` (generated), `api-client.ts`, and `api-error.ts`, which reads the status and the code from a failed request.
   - `session/`: `Session`, the `requireSession` guard, the ended-session interceptor and `SubmissionDraft`.
+  - `pages/submit/submission-limits.ts`: the limits answer, kept for the app's lifetime.
   - `messages.ts`: messages per code and failure reason, and size formatting.
   - `pages/`: `sign-in/`, `register/`, `submit/`, `runs/` and `run/` (findings and evidence).
   - `app.routes.ts` and `app.config.ts`: `provideHttpClient(withFetch(), withInterceptors(...))`. `app.html` gains the navigation.

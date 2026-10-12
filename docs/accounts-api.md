@@ -37,6 +37,8 @@ Through nginx, a request body larger than 12 MB gets nginx's own `413` HTML page
 | `SIGN_IN_REQUIRED` | 401 | The endpoint needs a session, and the request has none, or its session has ended or was tampered with. |
 | `UNSUPPORTED_CHARSET` | 415 | The body's `Content-Type` names a character set other than UTF-8, such as `application/json; charset=utf-16`. Bodies must be UTF-8, as RFC 8259 requires for JSON; `utf-8` and `utf8` are accepted in any letter case, quoted or not, and no charset means UTF-8. |
 
+The OpenAPI document lists every code the API reports, from this table and the one in [runs-api.md](runs-api.md#errors), as the values of `code` in its `ProblemDetails` schema.
+
 ## Sessions
 
 Every endpoint needs a session except the health check, registration, sign-in and, in Development, the OpenAPI document. A new endpoint needs one too unless it is explicitly made public.

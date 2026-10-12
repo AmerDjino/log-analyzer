@@ -42,6 +42,15 @@ internal static class RunEndpoints
             .Produces<RunResponse>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound);
+        runs.MapGet("/{id}/lines", ReadLinesAsync)
+            .Produces<RunLinesResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+        // A literal segment takes precedence over {id}, so "limits" is never read as a run id.
+        runs.MapGet("/limits", ReadLimits)
+            .Produces<SubmissionLimitsResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         return app;
     }
@@ -90,6 +99,20 @@ internal static class RunEndpoints
         return TypedResults.Ok(RunResponse.From(run));
     }
 
+    // The id is read as text, as in ReadAsync. from and to are bound as whole numbers: the spec names no error for a value
+    // the API cannot read, so a missing or unreadable one gets the framework's 400 without a code.
+    private static async Task<IResult> ReadLinesAsync(
+        string id, int from, int to, ClaimsPrincipal user, RunStore runs, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var runId)
+            || await runs.ReadOwnedLinesAsync(UserIdOf(user), runId, from, to, cancellationToken) is not { } lines)
+        {
+            return RunErrors.RunNotFound.ToResult();
+        }
+
+        return TypedResults.Ok(RunLinesResponse.From(from, lines));
+    }
+
     // limit and cursor are read as text, so every value the API cannot use gets a coded answer rather than the binder's 400.
     private static async Task<IResult> ListAsync(
         string? limit, string? cursor, ClaimsPrincipal user, RunStore runs, CancellationToken cancellationToken)
@@ -118,6 +141,10 @@ internal static class RunEndpoints
         var nextCursor = runsAfter.Count > pageSize ? RunCursor.Encode(page[^1]) : null;
         return TypedResults.Ok(new RunPageResponse(page.Select(RunListItemResponse.From).ToList(), nextCursor));
     }
+
+    // The limit SubmitAsync enforces, so a client can refuse a larger file before sending it.
+    private static IResult ReadLimits(IOptions<IngestionOptions> options) =>
+        TypedResults.Ok(new SubmissionLimitsResponse(options.Value.MaxSubmissionBytes));
 
     // Reads at most limit + 1 bytes of the log. A body above the limit is refused by its Content-Length before anything is
     // read, or by the byte past the limit arriving, which also covers a body sent without Content-Length. Null means too

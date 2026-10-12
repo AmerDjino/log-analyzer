@@ -1,0 +1,36 @@
+<section>
+  <h2>Your runs</h2>
+  <p class="error" aria-live="polite">{{ error() }}</p>
+  @if (runs(); as runs) {
+    @if (runs.length === 0) {
+      <p>No runs yet. <a routerLink="/">Submit a log</a> to start.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Log</th>
+            <th scope="col">Submitted</th>
+            <th scope="col">Status</th>
+            <th scope="col">Highest severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of runs; track run.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/runs', run.id]">{{ run.fileName ?? 'Pasted log' }}</a>
+              </td>
+              <td>
+                <time [attr.datetime]="run.submittedAt">{{
+                  run.submittedAt | date: 'medium'
+                }}</time>
+              </td>
+              <td>{{ capitalized(run.status) }}</td>
+              <td>{{ run.highestSeverity ? capitalized(run.highestSeverity) : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</section>
