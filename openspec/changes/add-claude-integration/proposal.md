@@ -6,11 +6,12 @@ With the contract, pipeline and UI proven against a stand-in, the real model can
 
 ## What Changes
 
-- Replace the stand-in model with Claude through the official C# SDK, requesting output in the format of `schemas/analysis-result.schema.json`.
+- Add Claude through the official C# SDK behind the model seam, requesting output in the format of `schemas/analysis-result.schema.json`. A `Model:Provider` setting selects it. The stand-in stays the default, so the local stack, CI and the tests run without an API key.
 - Build every request from a versioned prompt template and record the version, model, tokens and latency of every attempt.
-- Keep the API key on the server, bound every call with a timeout and retry only transient failures.
+- Keep the API key on the server, required only when Claude is the selected provider, bound every call with a timeout and retry only transient failures.
+- Map the Messages API's stop reasons as the `add-analysis-contract` design records: `end_turn` is a complete answer, `max_tokens` and `model_context_window_exceeded` a response cut off, `refusal` a refusal, and any other stop reason is never accepted as complete.
 - Add the golden-set eval suite for the `[eval]` scenarios, with logs whose planted incidents are known.
-- Reuse the result of an identical submission instead of calling the model again.
+- Reuse the person's own earlier run for an identical submission instead of calling the model again. Another person's runs are never reused.
 
 ## Capabilities
 
@@ -27,6 +28,7 @@ With the contract, pipeline and UI proven against a stand-in, the real model can
 
 - Logs that do not fit in one request (`add-large-log-support`).
 - Redaction of secrets in logs (`add-input-safety`).
+- Rejecting NUL characters in model text: they are removed before storing, as `add-api-skeleton` does, and the output contract does not change.
 
 ## Impact
 
