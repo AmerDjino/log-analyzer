@@ -80,6 +80,8 @@ dotnet ef database update 0 --project src/LogAnalyzer.Infrastructure --startup-p
 ```bash
 dotnet test                                    # whole solution; integration tests need Docker running
 npm --prefix src/web test -- --watch=false     # Angular unit tests (Vitest)
+npm --prefix src/web run api:generate          # regenerate the API types, then check they match the committed ones:
+git diff --exit-code src/web/src/app/api/schema.d.ts
 node --test scripts/check-scenario-coverage.test.mjs
 node scripts/check-scenario-coverage.mjs
 ```
@@ -166,7 +168,7 @@ FAIL
 |---|---|
 | Specs and scenario coverage | `openspec schema validate spec-tdd`, `openspec validate --all --strict`, `openspec validate --archived`, the coverage check and its tests |
 | Backend | `dotnet build` with warnings as errors, unit tests, integration tests |
-| Frontend | `npm ci`, `ng test`, `ng build` |
+| Frontend | `npm ci`, generated API types up to date (`npm run api:generate`, then `git diff --exit-code`), `ng test`, `ng build` |
 | Docker Compose stack | `docker compose up --wait` until every service is healthy, then `/api/health` through nginx |
 
 Evals are not part of this workflow, because they call the real model and cost money.

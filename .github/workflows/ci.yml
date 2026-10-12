@@ -91,6 +91,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Fails when src/app/api/schema.d.ts does not match the committed openapi.json.
+      - name: Generated API types are up to date
+        run: |
+          npm run api:generate
+          git diff --exit-code
+
       - name: Unit tests
         run: npm test -- --watch=false
 

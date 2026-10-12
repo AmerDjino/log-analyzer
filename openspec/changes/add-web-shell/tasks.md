@@ -27,17 +27,17 @@
 
 ## 3. Generated types and test scaffolding in the web app
 
-- [ ] 3.1 Add `openapi-typescript` and the `api:generate` script, as listed below; run the script and stage its output with `git add` (it is committed with the pull request); verify `npm ci` succeeds from an empty `node_modules`, `npm run api:generate` followed by `git diff --exit-code -- src/app/api/schema.d.ts` is clean, `npm run build` passes, and `docker compose build web` succeeds
+- [x] 3.1 Add `openapi-typescript` and the `api:generate` script, as listed below; run the script and stage its output with `git add` (it is committed with the pull request); verify `npm ci` succeeds from an empty `node_modules`, `npm run api:generate` followed by `git diff --exit-code -- src/app/api/schema.d.ts` is clean, `npm run build` passes, and `docker compose build web` succeeds
   - `openapi-typescript` at an exact version, as a devDependency.
   - `"overrides": { "openapi-typescript": { "typescript": "$typescript" } }` in package.json. Every 7.x release declares the peer `typescript ^5.x`, while Angular 22 needs TypeScript 6.0, so a plain install stops with ERESOLVE.
   - No `--legacy-peer-deps`, `--force` or `.npmrc`: the frontend job and the web Dockerfile run plain `npm ci`, and the Dockerfile copies only package.json and package-lock.json before it.
   - If the generator fails under TypeScript 6.0, stop and revisit design.md's choice of generator with the user.
   - The `api:generate` script writes `src/app/api/schema.d.ts` from `openapi.json`.
-- [ ] 3.2 Add a step to the frontend CI job that runs `npm run api:generate`, then `git diff --exit-code`; verify locally that `npm run api:generate` followed by `git diff --exit-code -- src/app/api/schema.d.ts` is clean (the CI step's unscoped `git diff --exit-code` runs on a clean checkout)
-- [ ] 3.3 Add the test helpers, as listed below, and exclude `src/app/testing/` in tsconfig.app.json and include it in tsconfig.spec.json; verify `npm test -- --watch=false` and `npm run build` both pass
+- [x] 3.2 Add a step to the frontend CI job that runs `npm run api:generate`, then `git diff --exit-code`; verify locally that `npm run api:generate` followed by `git diff --exit-code -- src/app/api/schema.d.ts` is clean (the CI step's unscoped `git diff --exit-code` runs on a clean checkout)
+- [x] 3.3 Add the test helpers, as listed below, and exclude `src/app/testing/` in tsconfig.app.json and include it in tsconfig.spec.json; verify `npm test -- --watch=false` and `npm run build` both pass
   - `src/app/testing/test-app.ts` provides the app's routes, `provideHttpClient(withInterceptors([]))` and `provideHttpClientTesting()`. The ended-session interceptor joins them in 5.3.
   - `src/app/testing/answers.ts` holds the canned answers from test-plan.md's Unit fixtures, typed with `schema.d.ts`.
-- [ ] 3.4 Document the scaffolding, as listed below; verify the documented commands run as written
+- [x] 3.4 Document the scaffolding, as listed below; verify the documented commands run as written
   - src/web/README.md: `npm run api:generate`, why package.json overrides openapi-typescript's TypeScript peer, and the `src/app/testing/` folder.
   - The root README's CI table: the new frontend gate.
   - The root README's Test section: `npm --prefix src/web run api:generate`, then `git diff --exit-code src/web/src/app/api/schema.d.ts`.
