@@ -1,0 +1,58 @@
+.live p {
+  margin: 0.25rem 0;
+}
+
+.status,
+.notice {
+  color: var(--muted);
+}
+
+.summary {
+  font-size: 1.1rem;
+}
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter button[aria-pressed='true'] {
+  border-color: var(--text);
+  font-weight: 600;
+}
+
+.findings {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.finding {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 6px;
+}
+
+.finding[data-severity='critical'],
+.finding[data-severity='error'] {
+  border-left-color: var(--danger);
+}
+
+.finding[data-severity='warning'] {
+  border-left-color: var(--warning);
+}
+
+.finding h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.severity {
+  margin-right: 0.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--muted);
+}

@@ -1,0 +1,73 @@
+<section class="run-page">
+  <h2>{{ run() === null ? 'Run' : (run()?.fileName ?? 'Pasted log') }}</h2>
+
+  <div class="live" aria-live="polite">
+    @if (status()) {
+      <p class="status">{{ status() }}</p>
+    }
+    @if (notice()) {
+      <p class="notice">{{ notice() }}</p>
+    }
+    @if (message()) {
+      <p class="error">{{ message() }}</p>
+    }
+  </div>
+
+  @if (run(); as run) {
+    @if (run.status === 'failed') {
+      <p class="failure">{{ failure() }}</p>
+    }
+    @if (run.status === 'completed') {
+      <p class="summary">{{ run.summary }}</p>
+      @if (findings().length === 0) {
+        <p class="clean">No problems were found.</p>
+      } @else {
+        <div class="filter" role="group" aria-label="Filter by severity">
+          <button type="button" [attr.aria-pressed]="filter() === null" (click)="filter.set(null)">
+            All
+          </button>
+          @for (option of filters(); track option.severity) {
+            <button
+              type="button"
+              [attr.aria-pressed]="filter() === option.severity"
+              (click)="filter.set(option.severity)"
+            >
+              {{ option.label }} ({{ option.count }})
+            </button>
+          }
+        </div>
+        <ul class="findings">
+          @for (item of visible(); track item.index) {
+            <li class="finding" [attr.data-severity]="item.severity">
+              <h3>
+                <span class="severity">{{ item.severity }}</span>
+                <span class="title">{{ item.finding.title }}</span>
+              </h3>
+              <p>{{ item.finding.explanation }}</p>
+              <p><strong>Suggested action:</strong> {{ item.finding.suggestedAction }}</p>
+              <button
+                type="button"
+                class="evidence-toggle"
+                [attr.aria-expanded]="expanded() === item.index"
+                (click)="select(item)"
+              >
+                {{ expanded() === item.index ? 'Hide the cited lines' : 'Show the cited lines' }}
+              </button>
+              @if (expanded() === item.index) {
+                @if (evidence(); as windows) {
+                  @for (rows of windows; track $index) {
+                    <app-evidence-lines [rows]="rows" />
+                  }
+                } @else if (evidenceError()) {
+                  <p class="error">{{ evidenceError() }}</p>
+                } @else {
+                  <p class="loading">Reading the cited lines…</p>
+                }
+              }
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</section>

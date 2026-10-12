@@ -76,19 +76,19 @@
 
 ## 6. The run page: status, findings and evidence
 
-- [ ] 6.1 Write the failing `pages/run/run.spec.ts`, for the six run-page scenarios and its checks listed under "Tests without a scenario", and `pages/run/evidence.spec.ts`, with a run page and evidence helpers that compile; verify the suite compiles and each new test fails on its assertions
-- [ ] 6.2 Make the run page follow the run, as listed below; verify the polling, status and failure tests in `run.spec.ts` pass, except the results-appear scenario test, which 6.3 makes pass
+- [x] 6.1 Write the failing `pages/run/run.spec.ts`, for the six run-page scenarios and its checks listed under "Tests without a scenario", and `pages/run/evidence.spec.ts`, with a run page and evidence helpers that compile; verify the suite compiles and each new test fails on its assertions
+- [x] 6.2 Make the run page follow the run, as listed below; verify the polling, status and failure tests in `run.spec.ts` pass, except the results-appear scenario test, which 6.3 makes pass
   - It reads the run when the page opens.
   - While the run is queued or running, it reads again every second for the first minute, then every 5 seconds.
   - It stops when the run completes or fails, and when the page is left.
   - It shows the retry notice for a network error or a 5xx, the 404 message, and the failure reason's explanation.
   - The status and notices are in an `aria-live` region.
-- [ ] 6.3 Show the summary and findings, as listed below; verify the results-appear, ordering, filtering, clean-log and markup tests pass
+- [x] 6.3 Show the summary and findings, as listed below; verify the results-appear, ordering, filtering, clean-log and markup tests pass
   - Findings are sorted by severity rank, with a stable sort.
   - The filter has one button per severity present, with its count, plus All.
   - A run without findings says "No problems were found".
   - Every model text is shown as text.
-- [ ] 6.4 Add the evidence helpers and view, as listed below; verify `evidence.spec.ts` and every test in `run.spec.ts` pass, `npm run build` passes within its budgets, and the whole web suite (`npm test -- --watch=false`) still passes, with any earlier spec whose tests open `/runs/:id` signed in now answering the page's `GET /api/runs/{id}`
+- [x] 6.4 Add the evidence helpers and view, as listed below; verify `evidence.spec.ts` and every test in `run.spec.ts` pass, `npm run build` passes within its budgets, and the whole web suite (`npm test -- --watch=false`) still passes, with any earlier spec whose tests open `/runs/:id` signed in now answering the page's `GET /api/runs/{id}`
   - Windows of three lines either side of each cited line, starting no lower than line 1, merged when they overlap or touch.
   - Merged windows requested in parallel from `GET /runs/{id}/lines`, and lines kept per run.
   - One finding expanded at a time.
